@@ -343,7 +343,13 @@ button { font: inherit; }
   try {
     const initData = tg && tg.initData;
     if (!initData) {
-      throw new Error("Abrí esta Mini App desde el botón 🌐 FUTX Web en Telegram para verificar tu identidad.");
+      const webAppDetected = !!tg;
+      const webAppVersion = tg && tg.version ? tg.version : "no disponible";
+      const webAppPlatform = tg && tg.platform ? tg.platform : "no disponible";
+      const diag = "Diagnóstico seguro: Telegram.WebApp=" + (webAppDetected ? "detectado" : "no detectado")
+        + "; initData=" + (initData ? "presente" : "vacío")
+        + "; versión=" + webAppVersion + "; plataforma=" + webAppPlatform + ".";
+      throw new Error("No se recibió la identidad de Telegram. " + diag);
     }
     status.textContent = "Verificando identidad de Telegram…";
     const response = await fetch(API_URL, {
