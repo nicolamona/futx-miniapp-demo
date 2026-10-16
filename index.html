@@ -346,8 +346,10 @@ button { font: inherit; }
       const webAppDetected = !!tg;
       const webAppVersion = tg && tg.version ? tg.version : "no disponible";
       const webAppPlatform = tg && tg.platform ? tg.platform : "no disponible";
+      const launchDataInHash = new URLSearchParams(window.location.hash.slice(1)).has("tgWebAppData");
       const diag = "Diagnóstico seguro: Telegram.WebApp=" + (webAppDetected ? "detectado" : "no detectado")
         + "; initData=" + (initData ? "presente" : "vacío")
+        + "; tgWebAppData en URL=" + (launchDataInHash ? "presente" : "ausente")
         + "; versión=" + webAppVersion + "; plataforma=" + webAppPlatform + ".";
       throw new Error("No se recibió la identidad de Telegram. " + diag);
     }
