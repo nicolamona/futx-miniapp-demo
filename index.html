@@ -317,13 +317,13 @@ button { font: inherit; }
 
   <section class="notice" id="notice" aria-live="polite">
     <h3 id="notice-title">Vista previa</h3>
-    <p>Este elemento es solo una demostración visual. No está conectado al bot y no ejecuta acciones, apuestas, transferencias ni cambios de saldo.</p>
+    <p id="notice-message">Abrí FUTX desde el botón de Mini App del teclado de Telegram para ejecutar esta acción.</p>
     <button id="close-notice" type="button">Cerrar vista previa</button>
   </section>
 
   <footer class="footer">
-    🛡️ PERFIL FUTX · SOLO LECTURA<br>
-    CONSULTA DE NIVEL, EXPERIENCIA, FUTX Y GEMAS · SIN CAMBIOS DE SALDO
+    🛡️ PERFIL FUTX · ACCIONES MEDIANTE EL BOT<br>
+    EL PERFIL ES DE SOLO LECTURA · LOS CAMBIOS DEL JUEGO SE PROCESAN EN TELEGRAM
   </footer>
 </main>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -374,17 +374,71 @@ button { font: inherit; }
 
   const notice = document.getElementById("notice");
   const title = document.getElementById("notice-title");
+  const noticeMessage = document.getElementById("notice-message");
+  const closeNotice = document.getElementById("close-notice");
+
+  // Acciones permitidas por el puente del bot. Torneo Global y Combate
+  // se envían como acciones distintas para no confundir sus sistemas.
+  const actionMap = {
+    "💎 FUTX Staking": "staking",
+    "🤝 Referidos": "referrals",
+    "🏆 Torneo Global": "tournament",
+    "🏛️ Distrito Comercial": "market",
+    "📢 Pizarra Global": "board",
+    "ℹ️ Cómo jugar": "guide",
+    "⛏️ Minar": "mine",
+    "🏹 Cazar": "hunt",
+    "👹 Combate": "combat",
+    "📌 Misiones": "missions",
+    "🖱️ Clicker FUTX": "clicker",
+    "🏆 Rankings": "rankings",
+    "💰 Depósitos": "deposits",
+    "👑 Panel Administrador": "admin",
+    "🎒 Inventario": "inventory",
+    "🔧 Curar": "heal",
+    "📚 Enciclopedia": "encyclopedia",
+    "🌐 Idioma": "language"
+  };
+
   document.querySelectorAll("[data-name]").forEach(button => {
     button.addEventListener("click", () => {
-      document.querySelectorAll("[data-name]").forEach(item => item.classList.remove("selected"));
-      button.classList.add("selected");
-      title.textContent = button.dataset.name;
-      notice.classList.add("visible");
+      const action = actionMap[button.dataset.name];
+      if (!action) {
+        title.textContent = "Acción no disponible";
+        noticeMessage.textContent = "Esta opción no está configurada.";
+        notice.classList.add("visible");
+        return;
+      }
+      if (!tg || typeof tg.sendData !== "function" || !tg.initData) {
+        title.textContent = button.dataset.name;
+        noticeMessage.textContent =
+          "Para ejecutar esta acción, cerrá esta ventana y abrí FUTX desde el botón 🌐 FUTX Web del teclado de Telegram.";
+        notice.classList.add("visible");
+        return;
+      }
+
+      try {
+        button.disabled = true;
+        title.textContent = button.dataset.name;
+        noticeMessage.textContent = "Enviando la acción al bot de FUTX…";
+        notice.classList.add("visible");
+        tg.sendData(JSON.stringify({ action }));
+      } catch (error) {
+        button.disabled = false;
+        title.textContent = "No se pudo enviar";
+        noticeMessage.textContent =
+          "Telegram no pudo enviar la acción. Cerrá y volvé a abrir la Mini App desde el teclado del bot.";
+        notice.classList.add("visible");
+      }
     });
   });
-  document.getElementById("close-notice").addEventListener("click", () => {
+
+  closeNotice.addEventListener("click", () => {
     notice.classList.remove("visible");
-    document.querySelectorAll("[data-name]").forEach(item => item.classList.remove("selected"));
+    document.querySelectorAll("[data-name]").forEach(item => {
+      item.classList.remove("selected");
+      item.disabled = false;
+    });
   });
 })();
 </script>
