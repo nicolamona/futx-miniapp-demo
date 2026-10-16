@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0b1020">
-<title>FUTX RPG — Vista previa</title>
+<title>FUTX RPG — Perfil</title>
 <style>
 :root {
   color-scheme: dark;
@@ -227,10 +227,10 @@ button { font: inherit; }
       <h1>FUTX</h1>
       <p>ROLEPLAY ADVENTURE</p>
     </div>
-    <div class="preview-label">VISTA PREVIA</div>
+    <div class="preview-label" id="connection-badge">PERFIL EN VIVO</div>
   </header>
 
-  <!-- FUTX_PROFILE_OVERVIEW_V1: valores de demostración, no conectados -->
+  <!-- FUTX_PROFILE_OVERVIEW_V1: datos reales de solo lectura -->
   <div class="section-label">TU PERFIL</div>
   <section class="profile-overview" aria-label="Resumen visual del perfil">
     <div class="profile-heading">
@@ -243,37 +243,23 @@ button { font: inherit; }
     <div class="profile-stats">
       <div class="profile-stat">
         <div class="stat-label">⭐ Nivel</div>
-        <div class="stat-value">Ejemplo</div>
+        <div class="stat-value" id="profile-level">—</div>
       </div>
       <div class="profile-stat">
-        <div class="stat-label">❤️ Salud</div>
-        <div class="stat-value">Actual / máxima</div>
+        <div class="stat-label">⚡ Experiencia</div>
+        <div class="stat-value" id="profile-exp">—</div>
       </div>
       <div class="profile-stat">
         <div class="stat-label">💰 Saldo FUTX</div>
-        <div class="stat-value">No conectado</div>
+        <div class="stat-value" id="profile-futx">—</div>
       </div>
       <div class="profile-stat">
         <div class="stat-label">💎 Gemas</div>
-        <div class="stat-value">No conectado</div>
+        <div class="stat-value" id="profile-gems">—</div>
       </div>
     </div>
-    <div class="profile-progress">
-      <div class="profile-progress-top">
-        <span>⚡ Experiencia</span>
-        <span>Progreso de nivel</span>
-      </div>
-      <div class="profile-progress-track">
-        <div class="profile-progress-fill"></div>
-      </div>
-      <div class="profile-extra">
-        <strong>🏅 Título:</strong> Aventurero<br>
-        <strong>⚔️ Equipo:</strong> arma, armadura, botas y sombrero<br>
-        <strong>✨ Resumen:</strong> logros, potenciadores, objetos y misión
-      </div>
-    </div>
-    <p class="profile-overview-note">
-      Maqueta visual: datos ilustrativos. No consulta ni modifica tu cuenta.
+    <p class="profile-overview-note" id="profile-status" aria-live="polite">
+      Abriendo perfil seguro de Telegram…
     </p>
   </section>
 
@@ -336,12 +322,56 @@ button { font: inherit; }
   </section>
 
   <footer class="footer">
-    🛡️ PROTOTIPO VISUAL AISLADO<br>
-    SIN CONEXIÓN AL BOT · SIN CAMBIOS EN LOS DATOS
+    🛡️ PERFIL FUTX · SOLO LECTURA<br>
+    CONSULTA DE NIVEL, EXPERIENCIA, FUTX Y GEMAS · SIN CAMBIOS DE SALDO
   </footer>
 </main>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script>
-(() => {
+(async () => {
+  const API_URL = "https://defeat-postal-measure-study.trycloudflare.com/profile";
+  const tg = window.Telegram && window.Telegram.WebApp;
+  const status = document.getElementById("profile-status");
+  const badge = document.getElementById("connection-badge");
+  const fmt = value => Number(value).toLocaleString("es-AR");
+
+  if (tg) {
+    tg.ready();
+    tg.expand();
+  }
+
+  try {
+    const initData = tg && tg.initData;
+    if (!initData) {
+      throw new Error("Abrí esta Mini App desde el botón 🌐 FUTX Web en Telegram para verificar tu identidad.");
+    }
+    status.textContent = "Verificando identidad de Telegram…";
+    const response = await fetch(API_URL, {
+      method: "GET",
+      headers: { "Authorization": "tma " + initData },
+      cache: "no-store"
+    });
+    const data = await response.json();
+    if (!response.ok) {
+      if (response.status === 401) throw new Error("Telegram no pudo validar la sesión. Cerrá y volvé a abrir la Mini App desde el bot.");
+      throw new Error(data.error || "No se pudo cargar el perfil.");
+    }
+    const profile = data.profile || data;
+    for (const [key, id] of [["level","profile-level"],["exp","profile-exp"],["futx","profile-futx"],["gems","profile-gems"]]) {
+      if (profile[key] === undefined || profile[key] === null) throw new Error("La respuesta de perfil está incompleta.");
+      document.getElementById(id).textContent = fmt(profile[key]);
+    }
+    document.querySelector(".profile-subtitle").textContent =
+      tg.initDataUnsafe && tg.initDataUnsafe.user
+        ? "Perfil de " + (tg.initDataUnsafe.user.first_name || "jugador")
+        : "Datos verificados desde Telegram";
+    status.textContent = "Datos cargados desde FUTX. Solo lectura.";
+    badge.textContent = "CONECTADO";
+  } catch (error) {
+    status.textContent = error.message || "No se pudo conectar con FUTX.";
+    badge.textContent = "SIN CONEXIÓN";
+  }
+
   const notice = document.getElementById("notice");
   const title = document.getElementById("notice-title");
   document.querySelectorAll("[data-name]").forEach(button => {
