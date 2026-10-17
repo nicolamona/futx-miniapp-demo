@@ -163,6 +163,21 @@ button { font: inherit; }
   color: var(--text);
   background: #20324c;
 }
+.bot-response-list { display: grid; gap: 10px; margin-top: 12px; }
+.bot-response-message {
+  white-space: pre-wrap; overflow-wrap: anywhere;
+  padding: 12px; border: 1px solid #344b68; border-radius: 12px;
+  background: #0e192b; color: #eef5ff; font-size: 13px; line-height: 1.55;
+}
+.bot-response-keyboard { display: grid; gap: 6px; margin-top: 8px; }
+.bot-response-keyboard-row { display: flex; gap: 6px; }
+.bot-response-keyboard span {
+  flex: 1; min-width: 0; padding: 8px 6px; text-align: center;
+  border: 1px solid #405a7a; border-radius: 9px;
+  background: #1b2b43; color: #c5d9f2; font-size: 11px;
+  overflow-wrap: anywhere;
+}
+.action-waiting { color: #b8c8df; font-size: 12px; margin-top: 10px; }
 .footer {
   margin-top: 25px;
   padding-top: 16px;
@@ -380,7 +395,8 @@ button { font: inherit; }
   <section class="notice" id="notice" aria-live="polite">
     <h3 id="notice-title">Vista previa</h3>
     <p id="notice-message">Abrí FUTX desde el botón de Mini App del teclado de Telegram para ejecutar esta acción.</p>
-    <button id="close-notice" type="button">Cerrar vista previa</button>
+    <div id="bot-response-list" class="bot-response-list" aria-live="polite"></div>
+    <button id="close-notice" type="button">Cerrar</button>
   </section>
 
   <footer class="footer">
@@ -446,6 +462,75 @@ button { font: inherit; }
   const title = document.getElementById("notice-title");
   const noticeMessage = document.getElementById("notice-message");
   const closeNotice = document.getElementById("close-notice");
+  const botResponseList = document.getElementById("bot-response-list");
+  let activeActionPoll = 0;
+
+  function renderBotMessages(messages) {
+    botResponseList.replaceChildren();
+    for (const item of (Array.isArray(messages) ? messages : [])) {
+      const card = document.createElement("div");
+      card.className = "bot-response-message";
+      card.textContent = String(item && item.text ? item.text : "");
+      botResponseList.appendChild(card);
+      const keyboard = item && Array.isArray(item.keyboard) ? item.keyboard : [];
+      if (keyboard.length) {
+        const grid = document.createElement("div");
+        grid.className = "bot-response-keyboard";
+        for (const row of keyboard) {
+          const rowEl = document.createElement("div");
+          rowEl.className = "bot-response-keyboard-row";
+          for (const button of row) {
+            const label = document.createElement("span");
+            label.textContent = String(button && button.text ? button.text : "Opción");
+            rowEl.appendChild(label);
+          }
+          grid.appendChild(rowEl);
+        }
+        botResponseList.appendChild(grid);
+      }
+    }
+  }
+
+  async function waitForBotResponse(actionId, button, pollToken) {
+    const started = Date.now();
+    while (Date.now() - started < 30000 && pollToken === activeActionPoll) {
+      await new Promise(resolve => setTimeout(resolve, 900));
+      if (pollToken !== activeActionPoll) return;
+      try {
+        const response = await fetch(
+          "https://frozen-mit-robertson-stronger.trycloudflare.com/action/" + encodeURIComponent(actionId),
+          {
+            method: "GET",
+            headers: { "Authorization": "tma " + tg.initData },
+            cache: "no-store"
+          }
+        );
+        const result = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(result.error || "No se pudo consultar la respuesta.");
+        if (Array.isArray(result.messages) && result.messages.length) {
+          renderBotMessages(result.messages);
+        }
+        if (result.status === "done" || result.status === "error" || result.status === "blocked") {
+          title.textContent = result.status === "done" ? "Respuesta de FUTX" : "Resultado de la acción";
+          if (!result.messages || !result.messages.length) {
+            noticeMessage.textContent = result.status === "done"
+              ? "El bot procesó la acción, pero no generó un mensaje de texto para mostrar."
+              : "La acción terminó con estado: " + result.status + ".";
+          } else {
+            noticeMessage.textContent = "Respuesta recibida desde el bot:";
+          }
+          button.disabled = false;
+          return;
+        }
+      } catch (error) {
+        noticeMessage.textContent = "Acción enviada. Esperando respuesta del bot…";
+      }
+    }
+    if (pollToken === activeActionPoll) {
+      noticeMessage.textContent = "La acción fue enviada. El bot puede tardar más de lo esperado; cerrá esta ventana y revisá de nuevo en unos segundos.";
+      button.disabled = false;
+    }
+  }
 
   // Acciones permitidas por el puente del bot. Torneo Global y Combate
   // se envían como acciones distintas para no confundir sus sistemas.
@@ -545,6 +630,9 @@ button { font: inherit; }
         title.textContent = button.dataset.name;
         noticeMessage.textContent = "Enviando la acción al bot de FUTX…";
         notice.classList.add("visible");
+        activeActionPoll += 1;
+        const pollToken = activeActionPoll;
+        botResponseList.replaceChildren();
         fetch("https://frozen-mit-robertson-stronger.trycloudflare.com/action", {
           method: "POST",
           headers: {
@@ -554,10 +642,11 @@ button { font: inherit; }
           body: JSON.stringify({ action })
         }).then(async response => {
           const result = await response.json().catch(() => ({}));
-          if (!response.ok || !result.accepted) {
+          if (!response.ok || !result.accepted || !result.action_id) {
             throw new Error(result.error || "No se pudo enviar la acción");
           }
-          showToast("✅ Acción recibida; procesando en FUTX");
+          noticeMessage.textContent = "Acción recibida. Esperando la respuesta real del bot…";
+          waitForBotResponse(result.action_id, button, pollToken);
         }).catch(error => {
           button.disabled = false;
           noticeMessage.textContent = "⚠️ " + (error.message || "Error de conexión con FUTX");
@@ -574,7 +663,9 @@ button { font: inherit; }
   });
 
   closeNotice.addEventListener("click", () => {
+    activeActionPoll += 1;
     notice.classList.remove("visible");
+    botResponseList.replaceChildren();
     document.querySelectorAll("[data-name]").forEach(item => {
       item.classList.remove("selected");
       item.disabled = false;
