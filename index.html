@@ -347,6 +347,9 @@ body {
   background: var(--bg);
 }
 /* FUTX_SPLIT_SCREEN_V2: panel superior 60% y acciones 40% del espacio disponible */
+/* FUTX_STAKING_KEYBOARD_SPACE_V1: dar más espacio a los submenús con botones */
+.app.has-response-keyboard #notice { flex: 4 1 0; }
+.app.has-response-keyboard #bottom-actions { flex: 6 1 0; }
 #notice {
   flex: 6 1 0;
   height: auto;
@@ -709,6 +712,7 @@ body {
     // Si el bot no envía un teclado nuevo, conservar los botones visibles.
     // Si envía un teclado nuevo, sustituir los anteriores por las opciones actuales.
     if (!preserveActions && hasIncomingKeyboard) bottomActions.replaceChildren();
+    if (hasIncomingKeyboard) document.querySelector('.app').classList.add('has-response-keyboard');
     botResponseList.classList.remove("initial-navigation");
     for (const item of (Array.isArray(messages) ? messages : [])) {
       const card = document.createElement("div");
@@ -957,6 +961,7 @@ body {
   }
 
   function renderInitialNavigation() {
+    document.querySelector('.app').classList.remove('has-response-keyboard');
     botResponseList.replaceChildren();
     bottomActions.replaceChildren();
     botResponseList.classList.add("initial-navigation");
