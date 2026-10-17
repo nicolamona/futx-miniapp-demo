@@ -262,6 +262,70 @@ body { position: fixed; inset: 0; }
 
 
 
+
+/* FUTX_PANTALLA_PERSISTENTE_V1 */
+html, body {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  margin: 0;
+  overflow: hidden;
+}
+body {
+  position: fixed;
+  inset: 0;
+  overscroll-behavior: none;
+}
+.app {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  max-width: none;
+  height: 100vh;
+  height: 100dvh;
+  min-height: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding-top: max(8px, env(safe-area-inset-top));
+  padding-right: max(12px, env(safe-area-inset-right));
+  padding-bottom: max(8px, env(safe-area-inset-bottom));
+  padding-left: max(12px, env(safe-area-inset-left));
+}
+.header, .intro, .section-label {
+  flex-shrink: 0;
+}
+.header {
+  padding-bottom: 10px;
+}
+.intro {
+  margin-bottom: 8px;
+}
+.menu {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 10px;
+}
+.notice {
+  flex: 0 1 auto;
+  max-height: 25dvh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.footer {
+  flex: 0 0 auto;
+  margin-top: 8px;
+  padding-top: 8px;
+  padding-bottom: max(6px, env(safe-area-inset-bottom));
+  background: var(--bg);
+}
+/* FIN FUTX_PANTALLA_PERSISTENTE_V1 */
+
 </style>
 </head>
 <body>
