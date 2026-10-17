@@ -980,6 +980,8 @@ body {
 
   // El teclado inicial aparece inmediatamente, sin requerir un botón intermedio.
   renderInitialNavigation();
+  // Cargar automáticamente la misma información del botón Perfil al abrir la Mini App.
+  showProfileInInterface();
 
   closeNotice.addEventListener("click", () => {
     activeActionPoll += 1;
