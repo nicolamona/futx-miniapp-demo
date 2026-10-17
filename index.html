@@ -709,9 +709,15 @@ body {
       Array.isArray(item && item.keyboard) &&
       item.keyboard.some(row => Array.isArray(row) && row.length > 0)
     );
-    // Si el bot no envía un teclado nuevo, conservar los botones visibles.
-    // Si envía un teclado nuevo, sustituir los anteriores por las opciones actuales.
-    if (!preserveActions && hasIncomingKeyboard) bottomActions.replaceChildren();
+    const incomingLabels = (Array.isArray(messages) ? messages : []).flatMap(item =>
+      (Array.isArray(item && item.keyboard) ? item.keyboard : []).flatMap(row =>
+        (Array.isArray(row) ? row : []).map(entry => String(entry && entry.text || "").toLowerCase())
+      )
+    );
+    const isMainMenuKeyboard = incomingLabels.some(label => label.includes("minar")) &&
+      incomingLabels.some(label => label.includes("staking"));
+    // Un teclado del bot sustituye por completo los botones generales.
+    if (hasIncomingKeyboard) bottomActions.replaceChildren();
     if (hasIncomingKeyboard) document.querySelector('.app').classList.add('has-response-keyboard');
     botResponseList.classList.remove("initial-navigation");
     for (const item of (Array.isArray(messages) ? messages : [])) {
@@ -762,6 +768,14 @@ body {
         }
       }
       if (keyboard.childElementCount) bottomActions.appendChild(keyboard);
+    }
+    // Cuando el bot devuelve el teclado principal, restaurar los botones fijos
+    // sin borrar el mensaje recién recibido.
+    if (hasIncomingKeyboard && isMainMenuKeyboard) {
+      const savedMessages = Array.from(botResponseList.childNodes);
+      renderInitialNavigation();
+      botResponseList.classList.remove("initial-navigation");
+      botResponseList.replaceChildren(...savedMessages);
     }
   }
 
@@ -881,6 +895,11 @@ body {
 
       try {
         button.disabled = true;
+        if (action === "staking") {
+          // En Staking solo se muestran los botones de navegación que devuelve el bot.
+          bottomActions.replaceChildren();
+          document.querySelector('.app').classList.add('has-response-keyboard');
+        }
         title.textContent = button.dataset.name;
         startNavigation.style.display = "none";
         noticeMessage.textContent = "Enviando la acción al bot de FUTX…";
