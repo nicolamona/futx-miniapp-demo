@@ -445,20 +445,62 @@ body {
 .app #bottom-actions > .profile-nav-button { display: none !important; }
 /* FIN FUTX_SPLIT_SCREEN_V1 */
 
-/* FUTX_LOCAL_COMBAT_LAYOUT_V1: ampliar el área de combate sin reducir los cuatro botones. */
-.app.local-combat-mode #notice { flex: 6.5 1 0; }
-.app.local-combat-mode #notice-message { max-height: none; }
-.app.local-combat-mode #bot-response-list { align-content: stretch; }
-.app.local-combat-mode #bottom-actions { flex: 3.5 1 0; overflow-y: auto; }
+/* FUTX_LOCAL_COMBAT_LAYOUT_V2: combate ocupa el espacio libre y conserva los cuatro controles. */
+.app.local-combat-mode #notice {
+  flex: 7 1 0 !important;
+  min-height: 0;
+  padding: 12px;
+  gap: 8px;
+}
+.app.local-combat-mode #notice-message {
+  max-height: 10vh;
+  flex-shrink: 0;
+}
+.app.local-combat-mode #bot-response-list {
+  display: flex !important;
+  flex: 1 1 0;
+  flex-direction: column;
+  min-height: 0;
+  margin-top: 0;
+  overflow-y: auto;
+}
+.app.local-combat-mode #bot-response-list > .bot-response-message {
+  flex: 1 1 auto;
+  min-height: 100%;
+  max-height: none;
+  overflow-y: auto;
+  display: block;
+  padding: 16px;
+  font-size: clamp(14px, 1.9vh, 17px);
+  line-height: 1.65;
+}
+.app.local-combat-mode #bottom-actions {
+  flex: 3 1 0 !important;
+  min-height: 0;
+  padding: 8px 2px;
+  overflow: hidden;
+}
 .app.local-combat-mode #bottom-actions > .bot-response-keyboard {
+  height: 100%;
+  min-height: 0;
   grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  grid-template-rows: repeat(2, minmax(54px, 1fr));
   align-content: stretch;
+  align-items: stretch;
   gap: 8px;
 }
 .app.local-combat-mode #bottom-actions .bot-response-action {
-  min-height: clamp(48px, 6vh, 60px);
+  height: 100%;
+  min-height: 54px;
+  max-height: none;
+  padding: 10px 8px;
+  font-size: clamp(14px, 1.8vh, 17px);
+  line-height: 1.25;
 }
-/* FIN FUTX_LOCAL_COMBAT_LAYOUT_V1 */
+.app.local-combat-mode #close-notice {
+  flex-shrink: 0;
+}
+/* FIN FUTX_LOCAL_COMBAT_LAYOUT_V2 */
 
 /* FIN FUTX_PANTALLA_PERSISTENTE_V1 */
 
