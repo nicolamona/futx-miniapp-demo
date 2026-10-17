@@ -490,6 +490,8 @@ body { position: fixed; inset: 0; }
           if (!entry || typeof entry !== "object") continue;
           const label = String(entry.text || "Opción");
           const callback = typeof entry.callback_data === "string" ? entry.callback_data : "";
+          // Ocultar temporalmente el ingreso manual hasta implementar el formulario dentro de la Mini App.
+          if (callback === "stk:dep:manual") continue;
           const button = document.createElement("button");
           button.type = "button";
           button.className = "bot-response-action";
