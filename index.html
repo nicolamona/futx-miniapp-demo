@@ -860,22 +860,12 @@ body {
   const startNavigation = document.getElementById("start-navigation");
 
   function showProfileInInterface() {
-    activeActionPoll += 1;
-    title.textContent = "👤 Mi perfil";
-    noticeMessage.textContent = "Tu perfil de FUTX, igual que en el bot original. Datos de solo lectura.";
-    botResponseList.replaceChildren();
-    botResponseList.classList.remove("initial-navigation");
-    const profile = document.querySelector(".profile-overview");
-    if (profile) {
-      const clone = profile.cloneNode(true);
-      clone.style.display = "block";
-      botResponseList.appendChild(clone);
-    } else {
-      const fallback = document.createElement("p");
-      fallback.textContent = "No se encontró el resumen de perfil.";
-      botResponseList.appendChild(fallback);
-    }
-    notice.classList.add("visible");
+    const profileButton = bottomActions.querySelector(".profile-nav-button");
+    if (!profileButton) return;
+    // Pedir el perfil al bot real, igual que al pulsar su botón en el chat.
+    // La respuesta completa (logros, equipamiento, potenciadores, staking y misión)
+    // llega por la cola de acciones y se renderiza en el panel superior.
+    sendMenuButton("text", "👤 Perfil", profileButton, "👤 Perfil", "", "");
   }
 
   function renderInitialNavigation() {
