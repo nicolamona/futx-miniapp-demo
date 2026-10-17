@@ -380,25 +380,22 @@ body {
 }
 #bottom-actions .bot-response-keyboard {
   display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: 10px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
   width: 100%;
   margin-top: 0;
 }
 #bottom-actions .bot-response-keyboard-row {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 145px), 1fr));
-  gap: 10px;
-  width: 100%;
+  display: contents;
 }
 #bottom-actions .bot-response-action {
   width: 100%;
   min-width: 0;
-  min-height: clamp(58px, 7.5vh, 76px);
-  padding: 12px 10px;
-  border-radius: 13px;
-  font-size: clamp(15px, 1.9vh, 18px);
-  line-height: 1.25;
+  min-height: clamp(46px, 5.8vh, 58px);
+  padding: 9px 8px;
+  border-radius: 12px;
+  font-size: clamp(13px, 1.65vh, 16px);
+  line-height: 1.2;
   overflow-wrap: anywhere;
   white-space: normal;
 }
