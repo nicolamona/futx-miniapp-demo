@@ -77,19 +77,19 @@ button { font: inherit; }
 }
 .menu { display: grid; gap: 10px; }
 
-/* FUTX_FIXED_HOME_V3: pantalla amplia y persistente; sin perfil ni menú gigante. */
+/* FUTX_FIXED_HOME_V4: teclado inicial visible dentro de una pantalla persistente. */
 #profile-section-label, .profile-overview, #main-menu-label, .menu { display: none !important; }
 .app { width: min(100%, 820px); min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; padding-top: max(10px, env(safe-area-inset-top)); padding-bottom: max(12px, env(safe-area-inset-bottom)); }
 .header { flex: 0 0 auto; padding: 3px 2px 10px; }
 .intro { flex: 0 0 auto; margin: 0 0 10px; }
 .intro h2 { font-size: 21px; }
 .intro p { font-size: 13px; }
-.notice { display: flex; flex: 1 0 auto; flex-direction: column; min-height: 55vh; min-height: 55dvh; margin: 0; padding: 16px; }
-.notice.visible { display: flex; }
-#bot-response-list { display: grid; gap: 10px; }
+#notice { display: flex !important; flex: 1 0 auto; flex-direction: column; min-height: 60vh; min-height: 60dvh; margin: 0; padding: 16px; }
+#bot-response-list { display: grid; gap: 8px; }
 #bot-response-list:empty { display: none; }
-#start-navigation { width: 100%; min-height: 54px; margin-top: 16px; border: 1px solid #6b9bd1; border-radius: 14px; color: #f4f8ff; background: linear-gradient(135deg, #244c77, #183451); font: inherit; font-weight: 750; font-size: 16px; }
-#start-navigation:active { transform: scale(.99); }
+#bot-response-list.initial-navigation { grid-template-columns: repeat(2, minmax(0, 1fr)); align-content: start; gap: 8px; margin-top: 12px; }
+#bot-response-list.initial-navigation .bot-response-action { min-height: 46px; padding: 9px 8px; border-radius: 11px; font-size: 13px; }
+#start-navigation { display: none !important; }
 #close-notice { margin-top: auto; align-self: flex-start; }
 .footer { margin-top: 12px; padding-top: 8px; }
 .menu-row {
@@ -331,9 +331,9 @@ button { font: inherit; }
     </p>
   </section>
 
-    <section class="notice" id="notice" aria-live="polite">
-      <h3 id="notice-title">Bienvenido a FUTX</h3>
-      <p id="notice-message">Esta es tu pantalla principal. Tocá el botón para iniciar la navegación; las opciones y respuestas del bot aparecerán acá, sin cerrar esta pantalla.</p>
+    <section class="notice visible" id="notice" aria-live="polite">
+      <h3 id="notice-title">Menú principal de FUTX</h3>
+      <p id="notice-message">Elegí una opción, como en el teclado del bot de Telegram. Las respuestas y los siguientes botones aparecerán acá mismo, sin cerrar esta pantalla.</p>
       <div id="bot-response-list" class="bot-response-list" aria-live="polite"></div>
       <button id="start-navigation" type="button">▶ Empezar · Abrir menú inicial</button>
       <button id="close-notice" type="button">Volver al inicio</button>
@@ -733,6 +733,7 @@ button { font: inherit; }
         activeActionPoll += 1;
         const pollToken = activeActionPoll;
         botResponseList.replaceChildren();
+        botResponseList.classList.remove("initial-navigation");
         fetch("https://frozen-mit-robertson-stronger.trycloudflare.com/action", {
           method: "POST",
           headers: {
@@ -763,28 +764,35 @@ button { font: inherit; }
   });
 
   const startNavigation = document.getElementById("start-navigation");
-  const startButton = () => document.querySelector('[data-name="ℹ️ Cómo jugar"]');
-  startNavigation.addEventListener("click", () => {
-    const guideButton = startButton();
-    if (guideButton) {
-      guideButton.click();
-    } else {
-      title.textContent = "Inicio de FUTX";
-      noticeMessage.textContent = "No se encontró la acción inicial de Cómo jugar.";
-    }
-  });
+
+  function renderInitialNavigation() {
+    botResponseList.replaceChildren();
+    botResponseList.classList.add("initial-navigation");
+    document.querySelectorAll(".menu [data-name]").forEach(sourceButton => {
+      const label = sourceButton.dataset.name;
+      const navButton = document.createElement("button");
+      navButton.type = "button";
+      navButton.className = "bot-response-action";
+      navButton.textContent = label;
+      navButton.addEventListener("click", () => sourceButton.click());
+      botResponseList.appendChild(navButton);
+    });
+    startNavigation.style.display = "none";
+  }
+
+  // El teclado inicial aparece inmediatamente, sin requerir un botón intermedio.
+  renderInitialNavigation();
 
   closeNotice.addEventListener("click", () => {
     activeActionPoll += 1;
-    botResponseList.replaceChildren();
-    title.textContent = "Bienvenido a FUTX";
-    noticeMessage.textContent = "Esta es tu pantalla principal. Tocá el botón para iniciar la navegación; las opciones y respuestas del bot aparecerán acá, sin cerrar esta pantalla.";
-    startNavigation.style.display = "block";
+    title.textContent = "Menú principal de FUTX";
+    noticeMessage.textContent = "Elegí una opción, como en el teclado del bot de Telegram. Las respuestas y los siguientes botones aparecerán acá mismo, sin cerrar esta pantalla.";
     document.querySelectorAll("[data-name]").forEach(item => {
       item.classList.remove("selected");
       item.disabled = false;
     });
     notice.classList.add("visible");
+    renderInitialNavigation();
     window.scrollTo({ top: 0, behavior: "smooth" });
   });
 })();
