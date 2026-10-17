@@ -437,6 +437,29 @@ body {
 }
 #bot-response-list .profile-overview .profile-stat { padding: 9px; }
 #bot-response-list .profile-overview .stat-value { font-size: 15px; }
+/* Inicio: perfil fijo visible y sin botón independiente de Perfil. */
+.app.home-view #profile-section-label { display: none !important; }
+.app.home-view .profile-overview {
+  display: block !important;
+  flex: 0 0 auto;
+  min-height: 0;
+  max-height: 30vh;
+  overflow-y: auto;
+  margin: 0 0 6px;
+  padding: 10px;
+}
+.app.home-view .profile-heading { gap: 9px; margin-bottom: 8px; }
+.app.home-view .profile-avatar { width: 36px; height: 36px; border-radius: 11px; font-size: 20px; }
+.app.home-view .profile-overview h2 { font-size: 15px; }
+.app.home-view .profile-overview .profile-subtitle { margin-top: 2px; font-size: 11px; }
+.app.home-view .profile-stats { gap: 6px; }
+.app.home-view .profile-stat { padding: 6px; }
+.app.home-view .profile-stat .stat-label { font-size: 10px; margin-bottom: 3px; }
+.app.home-view .profile-stat .stat-value { font-size: 14px; }
+.app.home-view .profile-overview-note { margin-top: 6px; font-size: 10px; }
+.app.home-view #notice { display: none !important; }
+.app.home-view #bottom-actions { flex: 1 1 0; min-height: 0; }
+.app.home-view #bottom-actions > .profile-nav-button { display: none !important; }
 /* FIN FUTX_SPLIT_SCREEN_V1 */
 
 /* FIN FUTX_PANTALLA_PERSISTENTE_V1 */
@@ -899,6 +922,7 @@ body {
       }
 
       try {
+        document.querySelector('.app').classList.remove('home-view');
         button.disabled = true;
         if (action === "staking") {
           // En Staking solo se muestran los botones de navegación que devuelve el bot.
@@ -986,15 +1010,10 @@ body {
 
   function renderInitialNavigation() {
     document.querySelector('.app').classList.remove('has-response-keyboard', 'staking-mode');
+    document.querySelector('.app').classList.add('home-view');
     botResponseList.replaceChildren();
     bottomActions.replaceChildren();
     botResponseList.classList.add("initial-navigation");
-    const profileButton = document.createElement("button");
-    profileButton.type = "button";
-    profileButton.className = "bot-response-action profile-nav-button";
-    profileButton.textContent = "👤 Perfil";
-    profileButton.addEventListener("click", showProfileInInterface);
-    bottomActions.appendChild(profileButton);
     document.querySelectorAll(".menu [data-name]").forEach(sourceButton => {
       const label = sourceButton.dataset.name;
       const navButton = document.createElement("button");
@@ -1007,10 +1026,8 @@ body {
     startNavigation.style.display = "none";
   }
 
-  // El teclado inicial aparece inmediatamente, sin requerir un botón intermedio.
+  // El perfil fijo se carga desde /profile; el inicio muestra directamente el perfil y la navegación.
   renderInitialNavigation();
-  // Cargar automáticamente la misma información del botón Perfil al abrir la Mini App.
-  showProfileInInterface();
 
   closeNotice.addEventListener("click", () => {
     activeActionPoll += 1;
