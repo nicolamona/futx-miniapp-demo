@@ -739,6 +739,30 @@ body {
   const noticeMessage = document.getElementById("notice-message");
   const closeNotice = document.getElementById("close-notice");
 
+  // Aviso inicial para descubrir que el botón de inicio se puede mover.
+  const homeHint = document.createElement("div");
+  homeHint.id = "home-button-hint";
+  homeHint.textContent = "👆 Podés mover este botón donde quieras";
+  Object.assign(homeHint.style, {
+    position: "fixed",
+    zIndex: "99998",
+    left: "50%",
+    top: "calc(50% + 34px)",
+    transform: "translateX(-50%)",
+    maxWidth: "calc(100vw - 32px)",
+    padding: "9px 13px",
+    border: "1px solid #5b83b4",
+    borderRadius: "12px",
+    background: "#172844",
+    color: "#f0f5ff",
+    font: "600 13px system-ui, sans-serif",
+    textAlign: "center",
+    boxShadow: "0 4px 14px rgba(0,0,0,.35)",
+    pointerEvents: "none"
+  });
+  document.body.appendChild(homeHint);
+  homeHint.hidden = true;
+
   // Botón de inicio flotante, arrastrable y con posición guardada.
   let homeDragging = false;
   let homeMoved = false;
@@ -755,6 +779,7 @@ body {
     };
   }
 
+  let homePositionChosen = false;
   try {
     const savedHome = JSON.parse(localStorage.getItem("futx-home-button-position") || "null");
     if (savedHome && Number.isFinite(savedHome.left) && Number.isFinite(savedHome.top)) {
@@ -763,8 +788,17 @@ body {
       closeNotice.style.top = pos.top + "px";
       closeNotice.style.right = "auto";
       closeNotice.style.bottom = "auto";
+      homePositionChosen = true;
     }
   } catch (_) {}
+
+  if (!homePositionChosen) {
+    closeNotice.style.left = Math.max(0, (window.innerWidth - 46) / 2) + "px";
+    closeNotice.style.top = Math.max(0, (window.innerHeight - 46) / 2) + "px";
+    closeNotice.style.right = "auto";
+    closeNotice.style.bottom = "auto";
+    homeHint.hidden = false;
+  }
 
   closeNotice.addEventListener("pointerdown", event => {
     if (event.button !== undefined && event.button !== 0) return;
@@ -786,7 +820,10 @@ body {
     if (!homeDragging) return;
     const dx = event.clientX - homeStartX;
     const dy = event.clientY - homeStartY;
-    if (Math.abs(dx) > 5 || Math.abs(dy) > 5) homeMoved = true;
+    if (Math.abs(dx) > 5 || Math.abs(dy) > 5) {
+      homeMoved = true;
+      homeHint.hidden = true;
+    }
     if (!homeMoved) return;
     const pos = clampHomePosition(homeStartLeft + dx, homeStartTop + dy);
     closeNotice.style.left = pos.left + "px";
