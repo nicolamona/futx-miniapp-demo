@@ -996,7 +996,7 @@ body {
     document.querySelector('.app').classList.remove('has-response-keyboard', 'staking-mode');
     if (!preserveResponses) botResponseList.replaceChildren();
     bottomActions.replaceChildren();
-    botResponseList.classList.add("initial-navigation");
+    if (!preserveResponses) botResponseList.classList.add("initial-navigation");
     document.querySelectorAll(".menu [data-name]").forEach(sourceButton => {
       const label = sourceButton.dataset.name;
       const navButton = document.createElement("button");
