@@ -481,6 +481,13 @@ button { font: inherit; }
     withdrawalError.textContent = "";
     withdrawalForm.reset();
   });
+
+  // Abrir directamente el formulario cuando se lanza desde el botón dedicado del teclado de Telegram.
+  if (new URLSearchParams(window.location.search).get("view") === "withdrawal") {
+    withdrawalPanel.hidden = false;
+    withdrawalPanel.scrollIntoView({ behavior: "auto", block: "start" });
+    document.getElementById("withdrawal-amount").focus({ preventScroll: true });
+  }
   withdrawalForm.addEventListener("submit", event => {
     event.preventDefault();
     withdrawalError.textContent = "";
