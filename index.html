@@ -670,12 +670,12 @@ body {
       /^board:page:\\d{1,4}$/.test(value);
   }
 
-  function renderBotMessages(messages, sourceActionId) {
+  function renderBotMessages(messages, sourceActionId, preserveActions = false) {
     if (typeof sourceActionId === "string" && /^[0-9a-f]{32}$/.test(sourceActionId)) {
       activeKeyboardActionId = sourceActionId;
     }
     botResponseList.replaceChildren();
-    bottomActions.replaceChildren();
+    if (!preserveActions) bottomActions.replaceChildren();
     botResponseList.classList.remove("initial-navigation");
     for (const item of (Array.isArray(messages) ? messages : [])) {
       const card = document.createElement("div");
@@ -760,7 +760,7 @@ body {
     }
   }
 
-  async function waitForBotResponse(actionId, button, pollToken) {
+  async function waitForBotResponse(actionId, button, pollToken, preserveActions = false) {
     const started = Date.now();
     while (Date.now() - started < 30000 && pollToken === activeActionPoll) {
       await new Promise(resolve => setTimeout(resolve, 900));
@@ -777,7 +777,7 @@ body {
         const result = await response.json().catch(() => ({}));
         if (!response.ok) throw new Error(result.error || "No se pudo consultar la respuesta.");
         if (Array.isArray(result.messages) && result.messages.length) {
-          renderBotMessages(result.messages, actionId);
+          renderBotMessages(result.messages, actionId, preserveActions);
         }
         if (result.status === "done" || result.status === "error" || result.status === "blocked") {
           title.textContent = result.status === "done" ? "Respuesta de FUTX" : "Resultado de la acción";
@@ -914,7 +914,7 @@ body {
       if (!response.ok || !result.accepted || !result.action_id) {
         throw new Error(result.error || "El servidor no aceptó la consulta del perfil.");
       }
-      await waitForBotResponse(result.action_id, profileButton, pollToken);
+      await waitForBotResponse(result.action_id, profileButton, pollToken, true);
     } catch (error) {
       if (pollToken !== activeActionPoll) return;
       noticeMessage.textContent = "⚠️ " + (error.message || "No se pudo cargar el perfil.");
