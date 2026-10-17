@@ -862,10 +862,16 @@ body {
   function showProfileInInterface() {
     const profileButton = bottomActions.querySelector(".profile-nav-button");
     if (!profileButton) return;
-    // Pedir el perfil al bot real, igual que al pulsar su botón en el chat.
-    // La respuesta completa (logros, equipamiento, potenciadores, staking y misión)
-    // llega por la cola de acciones y se renderiza en el panel superior.
-    sendMenuButton("text", "👤 Perfil", profileButton, "👤 Perfil", "", "");
+    // Usa el texto exacto del botón original del teclado privado de FUTX.
+    // El worker no admite nombres arbitrarios: el botón Perfil aún no está
+    // registrado como botón de menú permitido en la API.
+    title.textContent = "👤 Mi perfil";
+    noticeMessage.textContent =
+      "El perfil completo todavía no está conectado al puente de acciones. " +
+      "La API devuelve invalid_menu_button porque Perfil no está autorizado como botón de menú.";
+    botResponseList.replaceChildren();
+    botResponseList.classList.remove("initial-navigation");
+    notice.classList.add("visible");
   }
 
   function renderInitialNavigation() {
