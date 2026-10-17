@@ -475,8 +475,12 @@ button { font: inherit; }
   const closeNotice = document.getElementById("close-notice");
   const botResponseList = document.getElementById("bot-response-list");
   let activeActionPoll = 0;
+  let activeKeyboardActionId = "";
 
-  function renderBotMessages(messages) {
+  function renderBotMessages(messages, sourceActionId) {
+    if (typeof sourceActionId === "string" && /^[0-9a-f]{32}$/.test(sourceActionId)) {
+      activeKeyboardActionId = sourceActionId;
+    }
     botResponseList.replaceChildren();
     for (const item of (Array.isArray(messages) ? messages : [])) {
       const card = document.createElement("div");
@@ -516,7 +520,7 @@ button { font: inherit; }
             botResponseList.querySelectorAll("button.bot-response-action").forEach(el => {
               el.disabled = true;
             });
-            sendMenuButton(type, value, control, label);
+            sendMenuButton(type, value, control, label, activeKeyboardActionId);
           });
           rowEl.appendChild(control);
         }
@@ -526,7 +530,7 @@ button { font: inherit; }
     }
   }
 
-  async function sendMenuButton(buttonType, value, button, label) {
+  async function sendMenuButton(buttonType, value, button, label, sourceActionId) {
     if (!tg || !tg.initData) {
       noticeMessage.textContent = "Abrí FUTX desde Telegram para ejecutar este botón.";
       return;
@@ -542,7 +546,7 @@ button { font: inherit; }
           "Authorization": "tma " + tg.initData,
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({ action: "menu_button", button_type: buttonType, value })
+        body: JSON.stringify({ action: "menu_button", button_type: buttonType, value, source_action_id: sourceActionId })
       });
       const result = await response.json().catch(() => ({}));
       if (!response.ok || !result.accepted || !result.action_id) {
@@ -575,7 +579,7 @@ button { font: inherit; }
         const result = await response.json().catch(() => ({}));
         if (!response.ok) throw new Error(result.error || "No se pudo consultar la respuesta.");
         if (Array.isArray(result.messages) && result.messages.length) {
-          renderBotMessages(result.messages);
+          renderBotMessages(result.messages, actionId);
         }
         if (result.status === "done" || result.status === "error" || result.status === "blocked") {
           title.textContent = result.status === "done" ? "Respuesta de FUTX" : "Resultado de la acción";
