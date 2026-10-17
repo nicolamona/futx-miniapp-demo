@@ -687,7 +687,7 @@ body {
     const label = getTelegramProfileLabel();
     if (!label || typeof messageText !== "string") return messageText;
     // Solo corregir el marcador genérico del encabezado; el resto del mensaje del bot queda intacto.
-    return messageText.replace(/^(PERFIL DE )@?Jugador(?=\\s|$)/i, "$1" + label);
+    return messageText.replace(/^(PERFIL DE )@?Jugador(?=\\s|$)/i, (_match, prefix) => prefix + label);
   }
 
   function renderBotMessages(messages, sourceActionId, preserveActions = false) {
