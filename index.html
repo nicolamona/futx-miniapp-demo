@@ -217,6 +217,33 @@ button { font: inherit; }
 .profile-extra strong {color:#e8f1ff}
 .profile-overview-note {color:#8197b5;font-size:10px;margin-top:10px}
 
+
+/* FUTX_WITHDRAWAL_FORM_V1 */
+.withdrawal-panel {
+  margin-top: 18px; padding: 16px;
+  border: 1px solid #45658a; border-radius: 16px;
+  background: linear-gradient(145deg, #172b48, #101b2e);
+}
+.withdrawal-panel[hidden] { display: none !important; }
+.withdrawal-panel h3 { margin: 0 0 8px; font-size: 17px; }
+.withdrawal-panel p { color: var(--muted); font-size: 12px; line-height: 1.5; }
+.withdrawal-field { display: grid; gap: 6px; margin-top: 13px; }
+.withdrawal-field label { font-size: 12px; color: #c8d8ec; font-weight: 700; }
+.withdrawal-field input {
+  width: 100%; min-height: 46px; padding: 11px 12px;
+  color: var(--text); background: #0b1424;
+  border: 1px solid #405574; border-radius: 10px;
+  font: inherit; font-size: 14px;
+}
+.withdrawal-actions { display: flex; gap: 9px; margin-top: 15px; }
+.withdrawal-actions button {
+  flex: 1; min-height: 44px; padding: 10px;
+  color: var(--text); background: #203b5c;
+  border: 1px solid #52769e; border-radius: 11px; font-weight: 700;
+}
+.withdrawal-actions button[type="button"] { background: #17243a; border-color: var(--border); }
+.withdrawal-error { color: #ffb4b4 !important; min-height: 18px; margin: 9px 0 0 !important; }
+
 </style>
 </head>
 <body>
@@ -313,6 +340,40 @@ button { font: inherit; }
       <button class="item" data-name="📚 Enciclopedia"><span class="item-icon">📚</span><span class="item-copy"><span class="item-name">📚 Enciclopedia</span></span><span class="arrow">›</span></button>
       <button class="item" data-name="🌐 Idioma"><span class="item-icon">🌐</span><span class="item-copy"><span class="item-name">🌐 Idioma</span></span><span class="arrow">›</span></button>
     </div>
+
+    <div class="menu-row single">
+      <button class="item" data-name="💸 Retirar FUTX" type="button" aria-controls="withdrawal-panel">
+        <span class="item-icon">💸</span>
+        <span class="item-copy">
+          <span class="item-name">💸 Retirar FUTX</span>
+          <span class="item-sub">Solicitud manual · World Chain</span>
+        </span>
+        <span class="arrow">›</span>
+      </button>
+    </div>
+  </section>
+
+
+  <section class="withdrawal-panel" id="withdrawal-panel" hidden aria-labelledby="withdrawal-title">
+    <h3 id="withdrawal-title">💸 Solicitar retiro FUTX</h3>
+    <p>Red de destino: <strong>World Chain</strong>. Mínimo: <strong>20.000 FUTX</strong>.
+    El importe se reservará al enviar la solicitud. El pago lo realiza manualmente el administrador;
+    si se rechaza, el saldo reservado se devuelve.</p>
+    <form id="withdrawal-form">
+      <div class="withdrawal-field">
+        <label for="withdrawal-amount">Monto en FUTX</label>
+        <input id="withdrawal-amount" name="amount" type="number" min="20000" step="1" inputmode="numeric" required placeholder="Mínimo 20000">
+      </div>
+      <div class="withdrawal-field">
+        <label for="withdrawal-address">Dirección de destino (World Chain)</label>
+        <input id="withdrawal-address" name="address" type="text" required minlength="42" maxlength="42" autocapitalize="off" autocomplete="off" spellcheck="false" placeholder="0x… (42 caracteres)">
+      </div>
+      <p class="withdrawal-error" id="withdrawal-error" role="status" aria-live="polite"></p>
+      <div class="withdrawal-actions">
+        <button type="submit" id="withdrawal-submit">Enviar solicitud</button>
+        <button type="button" id="withdrawal-cancel">Cancelar</button>
+      </div>
+    </form>
   </section>
 
   <section class="notice" id="notice" aria-live="polite">
@@ -408,8 +469,54 @@ button { font: inherit; }
     "🌐 Idioma": "language"
   };
 
+
+  // FUTX_WITHDRAWAL_FORM_V1: el servidor vuelve a validar monto, identidad y saldo.
+  const withdrawalPanel = document.getElementById("withdrawal-panel");
+  const withdrawalForm = document.getElementById("withdrawal-form");
+  const withdrawalError = document.getElementById("withdrawal-error");
+  const withdrawalSubmit = document.getElementById("withdrawal-submit");
+  document.getElementById("withdrawal-cancel").addEventListener("click", () => {
+    withdrawalPanel.hidden = true;
+    withdrawalError.textContent = "";
+    withdrawalForm.reset();
+  });
+  withdrawalForm.addEventListener("submit", event => {
+    event.preventDefault();
+    withdrawalError.textContent = "";
+    const amountText = document.getElementById("withdrawal-amount").value.trim();
+    const address = document.getElementById("withdrawal-address").value.trim();
+    const amount = Number(amountText);
+    if (!Number.isSafeInteger(amount) || amount < 20000) {
+      withdrawalError.textContent = "El retiro mínimo es de 20.000 FUTX y el monto debe ser entero.";
+      return;
+    }
+    if (!/^0x[a-fA-F0-9]{40}$/.test(address)) {
+      withdrawalError.textContent = "Ingresá una dirección EVM válida de 42 caracteres para World Chain.";
+      return;
+    }
+    if (!tg || typeof tg.sendData !== "function" || !tg.initData) {
+      withdrawalError.textContent = "Abrí la Mini App desde Telegram para enviar una solicitud real.";
+      return;
+    }
+    withdrawalSubmit.disabled = true;
+    withdrawalSubmit.textContent = "Enviando…";
+    try {
+      tg.sendData(JSON.stringify({ action: "withdrawal_submit", amount, address }));
+    } catch (_) {
+      withdrawalSubmit.disabled = false;
+      withdrawalSubmit.textContent = "Enviar solicitud";
+      withdrawalError.textContent = "Telegram no pudo enviar la solicitud. Volvé a abrir la Mini App.";
+    }
+  });
+
   document.querySelectorAll("[data-name]").forEach(button => {
     button.addEventListener("click", () => {
+      if (button.dataset.name === "💸 Retirar FUTX") {
+        withdrawalPanel.hidden = false;
+        withdrawalPanel.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        document.getElementById("withdrawal-amount").focus();
+        return;
+      }
       const action = actionMap[button.dataset.name];
       if (!action) {
         title.textContent = "Acción no disponible";
