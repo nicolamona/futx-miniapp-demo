@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0b1020">
-<title>FUTX RPG — Perfil</title>
+<title>FUTX RPG — Menú principal</title>
 <style>
 :root {
   color-scheme: dark;
@@ -77,8 +77,16 @@ button { font: inherit; }
 }
 .menu { display: grid; gap: 10px; }
 
-/* FUTX_CHAT_FIRST_NAV_V1: la navegación principal vive en el chat de Telegram. */
-#main-menu-label, .menu { display: none !important; }
+/* FUTX_MAIN_INTERFACE_V2: el menú vuelve a ser la pantalla principal. */
+#profile-section-label, .profile-overview { display: none !important; }
+#main-menu-label { display: block; }
+.app { width: min(100%, 760px); padding-top: max(12px, env(safe-area-inset-top)); padding-bottom: max(16px, env(safe-area-inset-bottom)); }
+.header { padding: 4px 2px 12px; }
+.intro { margin-bottom: 12px; }
+.intro h2 { font-size: 20px; }
+.section-label { margin-top: 14px; margin-bottom: 8px; }
+.menu { display: grid; gap: 8px; }
+.item { min-height: 64px; }
 .menu-row {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -286,7 +294,7 @@ button { font: inherit; }
   </header>
 
   <!-- FUTX_PROFILE_OVERVIEW_V1: datos reales de solo lectura -->
-  <div class="section-label">TU PERFIL</div>
+  <div class="section-label" id="profile-section-label">TU PERFIL</div>
   <section class="profile-overview" aria-label="Resumen visual del perfil">
     <div class="profile-heading">
       <div class="profile-avatar">🛡️</div>
