@@ -664,6 +664,9 @@ body {
     const stakingAmount = value.match(/^stk:exchange:(buy|sell):([0-9]{1,9})$/);
     if (stakingAmount && Number(stakingAmount[2]) > 0) return true;
 
+    // Decisiones de expedición: el bot valida cada opción contra la expedición activa.
+    if (/^exp:(track|careful|risk|safe|search|continue|cancel)$/.test(value)) return true;
+
     // Combate y Combate Global: deben estar autorizados también en API y worker.
     if ([
       "fight:cancel", "fight:attack", "fight:defend", "fight:skill", "fight:flee",
