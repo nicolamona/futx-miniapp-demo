@@ -346,12 +346,12 @@ body {
   padding-bottom: max(6px, env(safe-area-inset-bottom));
   background: var(--bg);
 }
-/* FUTX_SPLIT_SCREEN_V1: panel superior fijo y botones en mitad inferior */
+/* FUTX_SPLIT_SCREEN_V1: panel superior 70% y acciones 30% del espacio disponible */
 #notice {
-  flex: 0 0 42%;
-  height: 42%;
+  flex: 7 1 0;
+  height: auto;
   min-height: 0;
-  max-height: 42%;
+  max-height: none;
   overflow: hidden;
   margin: 0;
 }
@@ -367,7 +367,7 @@ body {
 #bot-response-list.initial-navigation { display: none !important; }
 #bottom-actions {
   display: grid;
-  flex: 1 1 0;
+  flex: 3 1 0;
   min-height: 0;
   overflow-x: hidden;
   overflow-y: auto;
