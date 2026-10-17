@@ -437,29 +437,11 @@ body {
 }
 #bot-response-list .profile-overview .profile-stat { padding: 9px; }
 #bot-response-list .profile-overview .stat-value { font-size: 15px; }
-/* Inicio: perfil fijo visible y sin botón independiente de Perfil. */
-.app.home-view #profile-section-label { display: none !important; }
-.app.home-view .profile-overview {
-  display: block !important;
-  flex: 0 0 auto;
-  min-height: 0;
-  max-height: 30vh;
-  overflow-y: auto;
-  margin: 0 0 6px;
-  padding: 10px;
-}
-.app.home-view .profile-heading { gap: 9px; margin-bottom: 8px; }
-.app.home-view .profile-avatar { width: 36px; height: 36px; border-radius: 11px; font-size: 20px; }
-.app.home-view .profile-overview h2 { font-size: 15px; }
-.app.home-view .profile-overview .profile-subtitle { margin-top: 2px; font-size: 11px; }
-.app.home-view .profile-stats { gap: 6px; }
-.app.home-view .profile-stat { padding: 6px; }
-.app.home-view .profile-stat .stat-label { font-size: 10px; margin-bottom: 3px; }
-.app.home-view .profile-stat .stat-value { font-size: 14px; }
-.app.home-view .profile-overview-note { margin-top: 6px; font-size: 10px; }
-.app.home-view #notice { display: none !important; }
-.app.home-view #bottom-actions { flex: 1 1 0; min-height: 0; }
-.app.home-view #bottom-actions > .profile-nav-button { display: none !important; }
+/* El perfil completo del bot se muestra en el panel superior; la tarjeta resumida no sustituye esos datos. */
+.app .profile-overview { display: none !important; }
+.app #notice { display: flex !important; }
+.app #bottom-actions { flex: 4 1 0; min-height: 0; }
+.app #bottom-actions > .profile-nav-button { display: none !important; }
 /* FIN FUTX_SPLIT_SCREEN_V1 */
 
 /* FIN FUTX_PANTALLA_PERSISTENTE_V1 */
@@ -800,10 +782,8 @@ body {
     // Cuando el bot devuelve el teclado principal, restaurar los botones fijos
     // sin borrar el mensaje recién recibido.
     if (hasIncomingKeyboard && isMainMenuKeyboard) {
-      const savedMessages = Array.from(botResponseList.childNodes);
       renderInitialNavigation();
-      botResponseList.classList.remove("initial-navigation");
-      botResponseList.replaceChildren(...savedMessages);
+      showProfileInInterface();
     }
   }
 
@@ -972,7 +952,7 @@ body {
 
   async function showProfileInInterface() {
     const profileButton = bottomActions.querySelector(".profile-nav-button");
-    if (!profileButton) return;
+    const profileActionButton = profileButton || { disabled: false };
     if (!tg || !tg.initData) {
       title.textContent = "👤 Mi perfil";
       noticeMessage.textContent = "Abrí FUTX desde Telegram para consultar tu perfil.";
@@ -981,7 +961,7 @@ body {
     }
     activeActionPoll += 1;
     const pollToken = activeActionPoll;
-    profileButton.disabled = true;
+    profileActionButton.disabled = true;
     title.textContent = "👤 Mi perfil";
     noticeMessage.textContent = "Consultando tu perfil completo en el bot de FUTX…";
     botResponseList.replaceChildren();
@@ -1000,17 +980,16 @@ body {
       if (!response.ok || !result.accepted || !result.action_id) {
         throw new Error(result.error || "El servidor no aceptó la consulta del perfil.");
       }
-      await waitForBotResponse(result.action_id, profileButton, pollToken, true);
+      await waitForBotResponse(result.action_id, profileActionButton, pollToken, true);
     } catch (error) {
       if (pollToken !== activeActionPoll) return;
       noticeMessage.textContent = "⚠️ " + (error.message || "No se pudo cargar el perfil.");
-      profileButton.disabled = false;
+      profileActionButton.disabled = false;
     }
   }
 
   function renderInitialNavigation() {
     document.querySelector('.app').classList.remove('has-response-keyboard', 'staking-mode');
-    document.querySelector('.app').classList.add('home-view');
     botResponseList.replaceChildren();
     bottomActions.replaceChildren();
     botResponseList.classList.add("initial-navigation");
@@ -1026,8 +1005,9 @@ body {
     startNavigation.style.display = "none";
   }
 
-  // El perfil fijo se carga desde /profile; el inicio muestra directamente el perfil y la navegación.
+  // Mostrar el perfil completo que devuelve el bot en el panel superior, con navegación fija abajo.
   renderInitialNavigation();
+  showProfileInInterface();
 
   closeNotice.addEventListener("click", () => {
     activeActionPoll += 1;
@@ -1039,6 +1019,7 @@ body {
     });
     notice.classList.add("visible");
     renderInitialNavigation();
+    showProfileInInterface();
     window.scrollTo({ top: 0, behavior: "smooth" });
   });
 })();
