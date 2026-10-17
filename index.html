@@ -859,19 +859,42 @@ body {
 
   const startNavigation = document.getElementById("start-navigation");
 
-  function showProfileInInterface() {
+  async function showProfileInInterface() {
     const profileButton = bottomActions.querySelector(".profile-nav-button");
     if (!profileButton) return;
-    // Usa el texto exacto del botón original del teclado privado de FUTX.
-    // El worker no admite nombres arbitrarios: el botón Perfil aún no está
-    // registrado como botón de menú permitido en la API.
+    if (!tg || !tg.initData) {
+      title.textContent = "👤 Mi perfil";
+      noticeMessage.textContent = "Abrí FUTX desde Telegram para consultar tu perfil.";
+      notice.classList.add("visible");
+      return;
+    }
+    activeActionPoll += 1;
+    const pollToken = activeActionPoll;
+    profileButton.disabled = true;
     title.textContent = "👤 Mi perfil";
-    noticeMessage.textContent =
-      "El perfil completo todavía no está conectado al puente de acciones. " +
-      "La API devuelve invalid_menu_button porque Perfil no está autorizado como botón de menú.";
+    noticeMessage.textContent = "Consultando tu perfil completo en el bot de FUTX…";
     botResponseList.replaceChildren();
     botResponseList.classList.remove("initial-navigation");
     notice.classList.add("visible");
+    try {
+      const response = await fetch("https://frozen-mit-robertson-stronger.trycloudflare.com/action", {
+        method: "POST",
+        headers: {
+          "Authorization": "tma " + tg.initData,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ action: "profile" })
+      });
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok || !result.accepted || !result.action_id) {
+        throw new Error(result.error || "El servidor no aceptó la consulta del perfil.");
+      }
+      await waitForBotResponse(result.action_id, profileButton, pollToken);
+    } catch (error) {
+      if (pollToken !== activeActionPoll) return;
+      noticeMessage.textContent = "⚠️ " + (error.message || "No se pudo cargar el perfil.");
+      profileButton.disabled = false;
+    }
   }
 
   function renderInitialNavigation() {
