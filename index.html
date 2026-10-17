@@ -445,62 +445,44 @@ body {
 .app #bottom-actions > .profile-nav-button { display: none !important; }
 /* FIN FUTX_SPLIT_SCREEN_V1 */
 
-/* FUTX_LOCAL_COMBAT_LAYOUT_V2: combate ocupa el espacio libre y conserva los cuatro controles. */
-.app.local-combat-mode #notice {
-  flex: 7 1 0 !important;
+/* FUTX_ADAPTIVE_SPACE_V1: regla general para todas las funciones y submenús. */
+.app #notice {
+  flex: 1 1 0 !important;
   min-height: 0;
-  padding: 12px;
-  gap: 8px;
+  max-height: none;
 }
-.app.local-combat-mode #notice-message {
-  max-height: 10vh;
-  flex-shrink: 0;
-}
-.app.local-combat-mode #bot-response-list {
-  display: flex !important;
+.app #bot-response-list {
   flex: 1 1 0;
-  flex-direction: column;
   min-height: 0;
-  margin-top: 0;
   overflow-y: auto;
 }
-.app.local-combat-mode #bot-response-list > .bot-response-message {
-  flex: 1 1 auto;
-  min-height: 100%;
-  max-height: none;
-  overflow-y: auto;
-  display: block;
-  padding: 16px;
-  font-size: clamp(14px, 1.9vh, 17px);
-  line-height: 1.65;
-}
-.app.local-combat-mode #bottom-actions {
-  flex: 3 1 0 !important;
+/* La zona inferior ocupa el alto que necesitan sus botones, hasta un máximo seguro. */
+.app #bottom-actions {
+  flex: 0 1 auto !important;
+  height: auto;
   min-height: 0;
+  max-height: 42vh;
+  max-height: 42dvh;
+  overflow-x: hidden;
+  overflow-y: auto;
+  align-content: start;
+  grid-auto-rows: max-content;
   padding: 8px 2px;
-  overflow: hidden;
 }
-.app.local-combat-mode #bottom-actions > .bot-response-keyboard {
-  height: 100%;
+/* No estirar las filas de botones: el espacio sobrante va al panel superior. */
+.app #bottom-actions > .bot-response-keyboard {
+  height: auto !important;
   min-height: 0;
-  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-  grid-template-rows: repeat(2, minmax(54px, 1fr));
-  align-content: stretch;
-  align-items: stretch;
-  gap: 8px;
+  grid-template-rows: none !important;
+  grid-auto-rows: max-content;
+  align-content: start;
 }
-.app.local-combat-mode #bottom-actions .bot-response-action {
-  height: 100%;
-  min-height: 54px;
+.app #bottom-actions .bot-response-action {
+  height: auto !important;
+  min-height: 46px;
   max-height: none;
-  padding: 10px 8px;
-  font-size: clamp(14px, 1.8vh, 17px);
-  line-height: 1.25;
 }
-.app.local-combat-mode #close-notice {
-  flex-shrink: 0;
-}
-/* FIN FUTX_LOCAL_COMBAT_LAYOUT_V2 */
+/* FIN FUTX_ADAPTIVE_SPACE_V1 */
 
 /* FIN FUTX_PANTALLA_PERSISTENTE_V1 */
 
