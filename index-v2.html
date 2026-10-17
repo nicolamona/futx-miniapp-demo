@@ -76,6 +76,9 @@ button { font: inherit; }
   letter-spacing: 1.5px;
 }
 .menu { display: grid; gap: 10px; }
+
+/* FUTX_CHAT_FIRST_NAV_V1: la navegación principal vive en el chat de Telegram. */
+#main-menu-label, .menu { display: none !important; }
 .menu-row {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -328,7 +331,7 @@ button { font: inherit; }
   </section>
 
 
-  <div class="section-label">MENÚ PRINCIPAL</div>
+  <div class="section-label" id="main-menu-label">MENÚ PRINCIPAL</div>
   <section class="menu">
     <div class="section-label">PROGRESO Y COMUNIDAD</div>
     <div class="menu-row">
