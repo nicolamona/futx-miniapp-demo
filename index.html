@@ -312,12 +312,33 @@ body {
   -webkit-overflow-scrolling: touch;
   padding-bottom: 10px;
 }
-.notice {
-  flex: 0 1 auto;
-  max-height: 25dvh;
-  overflow-y: auto;
-  overscroll-behavior: contain;
+/* La respuesta principal ocupa el espacio vertical disponible. */
+#notice,
+.notice.visible {
+  display: flex !important;
+  flex: 1 1 0;
+  min-height: 0;
+  max-height: none;
+  margin-bottom: 0;
+  overflow: hidden;
+  flex-direction: column;
 }
+#notice-message { flex: 0 0 auto; }
+#bot-response-list {
+  display: flex;
+  flex: 1 1 0;
+  flex-direction: column;
+  min-height: 0;
+  overflow-y: auto;
+  align-content: stretch;
+}
+#bot-response-list > .bot-response-message {
+  flex: 1 0 auto;
+  min-height: 0;
+  max-height: none;
+  overflow-y: auto;
+}
+#close-notice { flex: 0 0 auto; margin-top: auto; }
 .footer {
   flex: 0 0 auto;
   margin-top: 8px;
