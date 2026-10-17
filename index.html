@@ -378,12 +378,19 @@ body {
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
 }
-#bottom-actions .bot-response-keyboard {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+#bottom-actions > .bot-response-keyboard {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  grid-auto-flow: row;
   gap: 8px;
   width: 100%;
   margin-top: 0;
+}
+#bottom-actions > .bot-response-keyboard > .bot-response-action {
+  display: flex;
+  grid-column: auto !important;
+  width: 100%;
+  min-width: 0;
 }
 #bottom-actions .bot-response-keyboard-row {
   display: grid;
