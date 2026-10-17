@@ -146,13 +146,21 @@ button { font: inherit; }
 .profile .arrow { color: #b8d9ff; font-size: 23px; }
 .notice {
   display: none;
-  margin-top: 18px;
+  scroll-margin-top: 12px;
+  margin: 0 0 20px;
   padding: 16px;
   border: 1px solid #3a5a81;
   border-radius: 15px;
   background: var(--panel2);
 }
-.notice.visible { display: block; }
+.notice.visible { display: block; animation: futxNoticeIn .2s ease-out; }
+@keyframes futxNoticeIn { from { opacity: .65; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+.notice h3 { color: #dcecff; }
+.notice > p { margin-bottom: 10px; }
+.bot-response-message { max-height: 42vh; overflow: auto; border-color: #38577c; }
+.bot-response-keyboard { grid-template-columns: minmax(0, 1fr); }
+.bot-response-keyboard-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(90px, 1fr)); }
+.bot-response-keyboard span { display: flex; align-items: center; justify-content: center; min-height: 38px; font-weight: 650; }
 .notice h3 { margin: 0 0 7px; font-size: 15px; }
 .notice p { margin: 0; color: #b8c8df; font-size: 13px; line-height: 1.55; }
 .notice button {
@@ -305,6 +313,12 @@ button { font: inherit; }
     </p>
   </section>
 
+    <section class="notice" id="notice" aria-live="polite">
+      <h3 id="notice-title">Vista previa</h3>
+      <p id="notice-message">Abrí FUTX desde el botón de Mini App del teclado de Telegram para ejecutar esta acción.</p>
+      <div id="bot-response-list" class="bot-response-list" aria-live="polite"></div>
+      <button id="close-notice" type="button">Cerrar</button>
+    </section>
 
   <section class="intro">
     <h2>Tu mundo. Tu aventura.</h2>
@@ -392,12 +406,7 @@ button { font: inherit; }
     </form>
   </section>
 
-  <section class="notice" id="notice" aria-live="polite">
-    <h3 id="notice-title">Vista previa</h3>
-    <p id="notice-message">Abrí FUTX desde el botón de Mini App del teclado de Telegram para ejecutar esta acción.</p>
-    <div id="bot-response-list" class="bot-response-list" aria-live="polite"></div>
-    <button id="close-notice" type="button">Cerrar</button>
-  </section>
+
 
   <footer class="footer">
     🛡️ PERFIL FUTX · ACCIONES MEDIANTE EL BOT<br>
@@ -630,6 +639,7 @@ button { font: inherit; }
         title.textContent = button.dataset.name;
         noticeMessage.textContent = "Enviando la acción al bot de FUTX…";
         notice.classList.add("visible");
+        notice.scrollIntoView({ behavior: "smooth", block: "start" });
         activeActionPoll += 1;
         const pollToken = activeActionPoll;
         botResponseList.replaceChildren();
