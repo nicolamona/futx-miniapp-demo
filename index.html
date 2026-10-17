@@ -281,9 +281,9 @@ body {
   inset: 0;
   width: 100%;
   max-width: none;
-  height: 100vh;
-  height: 100dvh;
+  height: var(--tg-viewport-height, 100dvh);
   min-height: 0;
+  box-sizing: border-box;
   margin: 0;
   display: flex;
   flex-direction: column;
@@ -449,8 +449,33 @@ body {
   const fmt = value => Number(value).toLocaleString("es-AR");
 
   if (tg) {
-    tg.ready();
-    tg.expand();
+    try {
+      tg.ready();
+      tg.expand();
+
+      // Solicitar pantalla completa en versiones compatibles de Telegram.
+      if (typeof tg.requestFullscreen === "function") {
+        tg.requestFullscreen();
+      }
+
+      // Mantener el diseño adaptado cuando cambia el alto del visor.
+      if (typeof tg.onEvent === "function") {
+        tg.onEvent("viewportChanged", () => {
+          tg.expand();
+          document.documentElement.style.setProperty(
+            "--tg-viewport-height",
+            (tg.viewportHeight || window.innerHeight) + "px"
+          );
+        });
+      }
+
+      document.documentElement.style.setProperty(
+        "--tg-viewport-height",
+        (tg.viewportHeight || window.innerHeight) + "px"
+      );
+    } catch (e) {
+      console.warn("No se pudo activar pantalla completa:", e);
+    }
   }
 
   try {
