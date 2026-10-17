@@ -119,6 +119,27 @@ body { position: fixed; inset: 0; }
 }
 #close-notice:active { cursor: grabbing; }
 #close-notice:focus-visible { outline: 2px solid #8fc5ff; outline-offset: 3px; }
+#futx-developer-fab {
+  position: fixed;
+  left: 18px;
+  bottom: 18px;
+  z-index: 99997;
+  width: 46px;
+  height: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 1px solid #b89a58;
+  border-radius: 50%;
+  background: #493b20;
+  color: #fff4d0;
+  font-size: 22px;
+  line-height: 1;
+  box-shadow: 0 4px 14px rgba(0,0,0,.4);
+  cursor: pointer;
+}
+#futx-developer-fab:focus-visible { outline: 2px solid #ffe09a; outline-offset: 3px; }
 .footer { margin-top: 12px; padding-top: 8px; }
 .menu-row {
   display: grid;
@@ -1319,20 +1340,63 @@ body {
     }
   }
 
+  // Orden visual del menú: cada lista representa una columna, de arriba hacia abajo.
+  const mainMenuColumns = [
+    [
+      "💎 FUTX Staking", "🏆 Torneo Global", "📢 Pizarra Global", "⛏️ Minar",
+      "👹 Combate", "🖱️ Clicker FUTX", "🎒 Inventario", "💰 Depósitos",
+      "📚 Enciclopedia", "🌐 Idioma"
+    ],
+    [
+      "🤝 Referidos", "🏛️ Distrito Comercial", "🏹 Cazar", "📌 Misiones",
+      "🏆 Rankings", "🔧 Curar", "ℹ️ Cómo jugar"
+    ]
+  ];
+
   function renderInitialNavigation(preserveResponses = false) {
     document.querySelector('.app').classList.remove('has-response-keyboard', 'staking-mode');
     if (!preserveResponses) botResponseList.replaceChildren();
     bottomActions.replaceChildren();
     if (!preserveResponses) botResponseList.classList.add("initial-navigation");
-    document.querySelectorAll(".menu [data-name]").forEach(sourceButton => {
-      const label = sourceButton.dataset.name;
-      const navButton = document.createElement("button");
-      navButton.type = "button";
-      navButton.className = "bot-response-action";
-      navButton.textContent = label;
-      navButton.addEventListener("click", () => sourceButton.click());
-      bottomActions.appendChild(navButton);
-    });
+
+    const sourceButtons = new Map(
+      Array.from(document.querySelectorAll(".menu [data-name]"))
+        .map(sourceButton => [sourceButton.dataset.name, sourceButton])
+    );
+    const adminSource = sourceButtons.get("👑 Panel Administrador");
+    const telegramUserId = String(tg?.initDataUnsafe?.user?.id ?? "");
+    const isDeveloper = telegramUserId === "6985814890";
+
+    if (isDeveloper && adminSource) {
+      if (!document.getElementById("futx-developer-fab")) {
+        const developerFab = document.createElement("button");
+        developerFab.id = "futx-developer-fab";
+        developerFab.type = "button";
+        developerFab.textContent = "👑";
+        developerFab.title = "Panel de desarrollador";
+        developerFab.setAttribute("aria-label", "Abrir panel de desarrollador");
+        developerFab.addEventListener("click", () => adminSource.click());
+        document.body.appendChild(developerFab);
+      }
+    } else {
+      document.getElementById("futx-developer-fab")?.remove();
+    }
+
+    const maxRows = Math.max(mainMenuColumns[0].length, mainMenuColumns[1].length);
+    for (let i = 0; i < maxRows; i++) {
+      for (const column of mainMenuColumns) {
+        const label = column[i];
+        if (!label) continue;
+        const sourceButton = sourceButtons.get(label);
+        if (!sourceButton) continue;
+        const navButton = document.createElement("button");
+        navButton.type = "button";
+        navButton.className = "bot-response-action";
+        navButton.textContent = label;
+        navButton.addEventListener("click", () => sourceButton.click());
+        bottomActions.appendChild(navButton);
+      }
+    }
     startNavigation.style.display = "none";
     closeNotice.style.display = "inline-flex";
   }
