@@ -477,10 +477,18 @@ button { font: inherit; }
   let activeActionPoll = 0;
   let activeKeyboardActionId = "";
 
+  function isSafeNavigationCallback(value) {
+    if (typeof value !== "string") return false;
+    return value === "market:shop" ||
+      value === "market:gems" ||
+      value === "market:home" ||
+      value === "shop:home" ||
+      /^shop:cat:(weapon|armor|boots|hat|special|herb):\\d{1,3}$/.test(value) ||
+      value === "gshop:home" ||
+      /^gshop:cat:(weapon|armor|special)$/.test(value);
+  }
+
   function renderBotMessages(messages, sourceActionId) {
-    // Mostrar solo texto del bot: no duplicar los teclados de Telegram como
-    // botones web, ya que el puente no admite de forma segura todas las callback_data.
-    // Las acciones se siguen iniciando desde el menú FUTX fijo.
     if (typeof sourceActionId === "string" && /^[0-9a-f]{32}$/.test(sourceActionId)) {
       activeKeyboardActionId = sourceActionId;
     }
@@ -490,6 +498,42 @@ button { font: inherit; }
       card.className = "bot-response-message";
       card.textContent = String(item && item.text ? item.text : "");
       if (card.textContent.trim()) botResponseList.appendChild(card);
+
+      const messageId = Number(item && item.message_id);
+      const rows = Array.isArray(item && item.keyboard) ? item.keyboard : [];
+      if (!sourceActionId || !/^[0-9a-f]{32}$/.test(sourceActionId) ||
+          !Number.isSafeInteger(messageId) || messageId <= 0 ||
+          item.keyboard_type !== "inline" || !rows.length) continue;
+
+      const keyboard = document.createElement("div");
+      keyboard.className = "bot-response-keyboard";
+      for (const row of rows) {
+        if (!Array.isArray(row) || !row.length) continue;
+        const rowEl = document.createElement("div");
+        rowEl.className = "bot-response-keyboard-row";
+        for (const entry of row) {
+          if (!entry || typeof entry !== "object") continue;
+          const label = String(entry.text || "Opción");
+          const callback = typeof entry.callback_data === "string" ? entry.callback_data : "";
+          const button = document.createElement("button");
+          button.type = "button";
+          button.className = "bot-response-action";
+          button.textContent = label;
+          if (!callback || !isSafeNavigationCallback(callback)) {
+            button.disabled = true;
+            button.title = "Esta acción todavía no está habilitada en la Mini App.";
+            button.setAttribute("aria-label", label + " (no disponible desde la Mini App)");
+          } else {
+            button.addEventListener("click", () => {
+              button.disabled = true;
+              sendMenuButton("callback", callback, button, label, sourceActionId, messageId);
+            });
+          }
+          rowEl.appendChild(button);
+        }
+        if (rowEl.childElementCount) keyboard.appendChild(rowEl);
+      }
+      if (keyboard.childElementCount) card.appendChild(keyboard);
     }
   }
 
