@@ -346,6 +346,46 @@ body {
   padding-bottom: max(6px, env(safe-area-inset-bottom));
   background: var(--bg);
 }
+/* FUTX_SPLIT_SCREEN_V1: panel superior fijo y botones en mitad inferior */
+#notice {
+  flex: 0 0 42%;
+  height: 42%;
+  min-height: 0;
+  max-height: 42%;
+  overflow: hidden;
+  margin: 0;
+}
+#notice h3, #notice-message, #close-notice { flex: 0 0 auto; }
+#notice-message { max-height: 12vh; overflow-y: auto; }
+#bot-response-list {
+  display: block;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  margin-top: 6px;
+}
+#bot-response-list.initial-navigation { display: none !important; }
+#bottom-actions {
+  display: grid;
+  flex: 1 1 0;
+  min-height: 0;
+  overflow-y: auto;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-content: start;
+  gap: 8px;
+  padding: 10px 2px;
+}
+#bottom-actions .bot-response-action {
+  min-height: 46px;
+  padding: 8px 6px;
+  font-size: 13px;
+}
+#bottom-actions:empty { display: grid; }
+#close-notice { margin-top: 6px; align-self: flex-start; }
+.intro, #main-menu-label, .menu { display: none !important; }
+.footer { flex: 0 0 auto; margin-top: 4px; padding-top: 4px; }
+/* FIN FUTX_SPLIT_SCREEN_V1 */
+
 /* FIN FUTX_PANTALLA_PERSISTENTE_V1 */
 
 </style>
@@ -401,6 +441,8 @@ body {
       <button id="start-navigation" type="button">▶ Empezar · Abrir menú inicial</button>
       <button id="close-notice" type="button">Volver al inicio</button>
     </section>
+
+  <section id="bottom-actions" aria-label="Botones de navegación"></section>
 
   <section class="intro">
     <h2>Tu mundo. Tu aventura.</h2>
@@ -545,6 +587,7 @@ body {
   const noticeMessage = document.getElementById("notice-message");
   const closeNotice = document.getElementById("close-notice");
   const botResponseList = document.getElementById("bot-response-list");
+  const bottomActions = document.getElementById("bottom-actions");
   let activeActionPoll = 0;
   let activeKeyboardActionId = "";
 
@@ -587,6 +630,8 @@ body {
       activeKeyboardActionId = sourceActionId;
     }
     botResponseList.replaceChildren();
+    bottomActions.replaceChildren();
+    botResponseList.classList.remove("initial-navigation");
     for (const item of (Array.isArray(messages) ? messages : [])) {
       const card = document.createElement("div");
       card.className = "bot-response-message";
@@ -637,7 +682,7 @@ body {
         }
         if (rowEl.childElementCount) keyboard.appendChild(rowEl);
       }
-      if (keyboard.childElementCount) card.appendChild(keyboard);
+      if (keyboard.childElementCount) bottomActions.appendChild(keyboard);
     }
   }
 
@@ -799,6 +844,7 @@ body {
 
   function renderInitialNavigation() {
     botResponseList.replaceChildren();
+    bottomActions.replaceChildren();
     botResponseList.classList.add("initial-navigation");
     document.querySelectorAll(".menu [data-name]").forEach(sourceButton => {
       const label = sourceButton.dataset.name;
@@ -807,7 +853,7 @@ body {
       navButton.className = "bot-response-action";
       navButton.textContent = label;
       navButton.addEventListener("click", () => sourceButton.click());
-      botResponseList.appendChild(navButton);
+      bottomActions.appendChild(navButton);
     });
     startNavigation.style.display = "none";
   }
