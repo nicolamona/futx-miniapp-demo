@@ -496,6 +496,7 @@ button { font: inherit; }
         const rowEl = document.createElement("div");
         rowEl.className = "bot-response-keyboard-row";
         for (const buttonData of row) {
+          const sourceMessageId = Number(item && item.message_id) || 0;
           const label = String(buttonData && buttonData.text ? buttonData.text : "Opción");
           const callbackData = buttonData && typeof buttonData.callback_data === "string"
             ? buttonData.callback_data : "";
@@ -520,7 +521,7 @@ button { font: inherit; }
             botResponseList.querySelectorAll("button.bot-response-action").forEach(el => {
               el.disabled = true;
             });
-            sendMenuButton(type, value, control, label, activeKeyboardActionId);
+            sendMenuButton(type, value, control, label, activeKeyboardActionId, sourceMessageId);
           });
           rowEl.appendChild(control);
         }
@@ -530,7 +531,7 @@ button { font: inherit; }
     }
   }
 
-  async function sendMenuButton(buttonType, value, button, label, sourceActionId) {
+  async function sendMenuButton(buttonType, value, button, label, sourceActionId, sourceMessageId) {
     if (!tg || !tg.initData) {
       noticeMessage.textContent = "Abrí FUTX desde Telegram para ejecutar este botón.";
       return;
@@ -546,7 +547,7 @@ button { font: inherit; }
           "Authorization": "tma " + tg.initData,
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({ action: "menu_button", button_type: buttonType, value, source_action_id: sourceActionId })
+        body: JSON.stringify({ action: "menu_button", button_type: buttonType, value, source_action_id: sourceActionId, source_message_id: sourceMessageId })
       });
       const result = await response.json().catch(() => ({}));
       if (!response.ok || !result.accepted || !result.action_id) {
