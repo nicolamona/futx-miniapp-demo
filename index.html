@@ -687,7 +687,7 @@ body {
     const label = getTelegramProfileLabel();
     if (!label || typeof messageText !== "string") return messageText;
     // Solo corregir el marcador genérico del encabezado; el resto del mensaje del bot queda intacto.
-    return messageText.replace(/^(PERFIL DE )@?Jugador(?=\\s|$)/i, (_match, prefix) => prefix + label);
+    return messageText.replace(/^(PERFIL DE )@?Jugador(?=\s|$)/i, (_match, prefix) => prefix + label);
   }
 
   function renderBotMessages(messages, sourceActionId, preserveActions = false) {
@@ -695,7 +695,13 @@ body {
       activeKeyboardActionId = sourceActionId;
     }
     botResponseList.replaceChildren();
-    if (!preserveActions) bottomActions.replaceChildren();
+    const hasIncomingKeyboard = (Array.isArray(messages) ? messages : []).some(item =>
+      Array.isArray(item && item.keyboard) &&
+      item.keyboard.some(row => Array.isArray(row) && row.length > 0)
+    );
+    // Si el bot no envía un teclado nuevo, conservar los botones visibles.
+    // Si envía un teclado nuevo, sustituir los anteriores por las opciones actuales.
+    if (!preserveActions && hasIncomingKeyboard) bottomActions.replaceChildren();
     botResponseList.classList.remove("initial-navigation");
     for (const item of (Array.isArray(messages) ? messages : [])) {
       const card = document.createElement("div");
