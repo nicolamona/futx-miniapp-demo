@@ -478,6 +478,9 @@ button { font: inherit; }
   let activeKeyboardActionId = "";
 
   function renderBotMessages(messages, sourceActionId) {
+    // Mostrar solo texto del bot: no duplicar los teclados de Telegram como
+    // botones web, ya que el puente no admite de forma segura todas las callback_data.
+    // Las acciones se siguen iniciando desde el menú FUTX fijo.
     if (typeof sourceActionId === "string" && /^[0-9a-f]{32}$/.test(sourceActionId)) {
       activeKeyboardActionId = sourceActionId;
     }
@@ -486,48 +489,7 @@ button { font: inherit; }
       const card = document.createElement("div");
       card.className = "bot-response-message";
       card.textContent = String(item && item.text ? item.text : "");
-      botResponseList.appendChild(card);
-
-      const keyboard = item && Array.isArray(item.keyboard) ? item.keyboard : [];
-      if (!keyboard.length) continue;
-      const grid = document.createElement("div");
-      grid.className = "bot-response-keyboard";
-      for (const row of keyboard) {
-        const rowEl = document.createElement("div");
-        rowEl.className = "bot-response-keyboard-row";
-        for (const buttonData of row) {
-          const sourceMessageId = Number(item && item.message_id) || 0;
-          const label = String(buttonData && buttonData.text ? buttonData.text : "Opción");
-          const callbackData = buttonData && typeof buttonData.callback_data === "string"
-            ? buttonData.callback_data : "";
-          const url = buttonData && typeof buttonData.url === "string" ? buttonData.url : "";
-          if (url && /^https?:\/\//i.test(url)) {
-            const link = document.createElement("a");
-            link.className = "bot-response-action";
-            link.textContent = label;
-            link.href = url;
-            link.target = "_blank";
-            link.rel = "noopener noreferrer";
-            rowEl.appendChild(link);
-            continue;
-          }
-          const control = document.createElement("button");
-          control.type = "button";
-          control.className = "bot-response-action";
-          control.textContent = label;
-          control.addEventListener("click", () => {
-            const type = callbackData ? "callback" : "text";
-            const value = callbackData || label;
-            botResponseList.querySelectorAll("button.bot-response-action").forEach(el => {
-              el.disabled = true;
-            });
-            sendMenuButton(type, value, control, label, activeKeyboardActionId, sourceMessageId);
-          });
-          rowEl.appendChild(control);
-        }
-        if (rowEl.childElementCount) grid.appendChild(rowEl);
-      }
-      botResponseList.appendChild(grid);
+      if (card.textContent.trim()) botResponseList.appendChild(card);
     }
   }
 
