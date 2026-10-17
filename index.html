@@ -92,7 +92,33 @@ body { position: fixed; inset: 0; }
 #bot-response-list.initial-navigation { grid-template-columns: repeat(2, minmax(0, 1fr)); align-content: start; gap: 8px; margin-top: 12px; }
 #bot-response-list.initial-navigation .bot-response-action { min-height: 46px; padding: 9px 8px; border-radius: 11px; font-size: 13px; }
 #start-navigation { display: none !important; }
-#close-notice { margin-top: auto; align-self: flex-start; }
+#close-notice {
+  display: none;
+  position: fixed;
+  left: auto;
+  top: auto;
+  right: 18px;
+  bottom: 18px;
+  z-index: 99999;
+  width: 46px;
+  height: 46px;
+  min-width: 46px;
+  padding: 0;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #5b83b4;
+  border-radius: 50%;
+  background: #243e60;
+  color: #fff;
+  font-size: 22px;
+  line-height: 1;
+  box-shadow: 0 4px 14px rgba(0,0,0,.4);
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+#close-notice:active { cursor: grabbing; }
+#close-notice:focus-visible { outline: 2px solid #8fc5ff; outline-offset: 3px; }
 .footer { margin-top: 12px; padding-top: 8px; }
 .menu-row {
   display: grid;
@@ -565,7 +591,7 @@ body {
       <p id="notice-message">Elegí una opción, como en el teclado del bot de Telegram. Las respuestas y los siguientes botones aparecerán acá mismo, sin cerrar esta pantalla.</p>
       <div id="bot-response-list" class="bot-response-list" aria-live="polite"></div>
       <button id="start-navigation" type="button">▶ Empezar · Abrir menú inicial</button>
-      <button id="close-notice" type="button">Volver al inicio</button>
+      <button id="close-notice" type="button" aria-label="Volver al menú principal" title="Volver al inicio">🏠</button>
     </section>
 
   <section id="bottom-actions" aria-label="Botones de navegación"></section>
@@ -712,6 +738,93 @@ body {
   const title = document.getElementById("notice-title");
   const noticeMessage = document.getElementById("notice-message");
   const closeNotice = document.getElementById("close-notice");
+
+  // Botón de inicio flotante, arrastrable y con posición guardada.
+  let homeDragging = false;
+  let homeMoved = false;
+  let homeStartX = 0;
+  let homeStartY = 0;
+  let homeStartLeft = 0;
+  let homeStartTop = 0;
+
+  function clampHomePosition(left, top) {
+    const b = closeNotice.getBoundingClientRect();
+    return {
+      left: Math.max(0, Math.min(left, window.innerWidth - b.width)),
+      top: Math.max(0, Math.min(top, window.innerHeight - b.height))
+    };
+  }
+
+  try {
+    const savedHome = JSON.parse(localStorage.getItem("futx-home-button-position") || "null");
+    if (savedHome && Number.isFinite(savedHome.left) && Number.isFinite(savedHome.top)) {
+      const pos = clampHomePosition(savedHome.left, savedHome.top);
+      closeNotice.style.left = pos.left + "px";
+      closeNotice.style.top = pos.top + "px";
+      closeNotice.style.right = "auto";
+      closeNotice.style.bottom = "auto";
+    }
+  } catch (_) {}
+
+  closeNotice.addEventListener("pointerdown", event => {
+    if (event.button !== undefined && event.button !== 0) return;
+    homeDragging = true;
+    homeMoved = false;
+    const rect = closeNotice.getBoundingClientRect();
+    homeStartX = event.clientX;
+    homeStartY = event.clientY;
+    homeStartLeft = rect.left;
+    homeStartTop = rect.top;
+    closeNotice.style.left = rect.left + "px";
+    closeNotice.style.top = rect.top + "px";
+    closeNotice.style.right = "auto";
+    closeNotice.style.bottom = "auto";
+    try { closeNotice.setPointerCapture(event.pointerId); } catch (_) {}
+  });
+
+  closeNotice.addEventListener("pointermove", event => {
+    if (!homeDragging) return;
+    const dx = event.clientX - homeStartX;
+    const dy = event.clientY - homeStartY;
+    if (Math.abs(dx) > 5 || Math.abs(dy) > 5) homeMoved = true;
+    if (!homeMoved) return;
+    const pos = clampHomePosition(homeStartLeft + dx, homeStartTop + dy);
+    closeNotice.style.left = pos.left + "px";
+    closeNotice.style.top = pos.top + "px";
+  });
+
+  function finishHomeDrag() {
+    if (!homeDragging) return;
+    homeDragging = false;
+    if (homeMoved) {
+      const rect = closeNotice.getBoundingClientRect();
+      try {
+        localStorage.setItem("futx-home-button-position", JSON.stringify({
+          left: rect.left, top: rect.top
+        }));
+      } catch (_) {}
+    }
+  }
+  closeNotice.addEventListener("pointerup", finishHomeDrag);
+  closeNotice.addEventListener("pointercancel", finishHomeDrag);
+
+  // Si se arrastró, no ejecutar el clic de volver al inicio.
+  closeNotice.addEventListener("click", event => {
+    if (homeMoved) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      homeMoved = false;
+    }
+  }, true);
+
+  window.addEventListener("resize", () => {
+    if (closeNotice.style.display === "none") return;
+    const rect = closeNotice.getBoundingClientRect();
+    const pos = clampHomePosition(rect.left, rect.top);
+    closeNotice.style.left = pos.left + "px";
+    closeNotice.style.top = pos.top + "px";
+  });
+
   const botResponseList = document.getElementById("bot-response-list");
   const bottomActions = document.getElementById("bottom-actions");
   let activeActionPoll = 0;
@@ -1184,6 +1297,7 @@ body {
       bottomActions.appendChild(navButton);
     });
     startNavigation.style.display = "none";
+    closeNotice.style.display = "inline-flex";
   }
 
   // Mostrar el perfil completo que devuelve el bot en el panel superior, con navegación fija abajo.
