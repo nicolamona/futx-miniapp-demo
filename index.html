@@ -486,6 +486,34 @@ body {
 
 /* FIN FUTX_PANTALLA_PERSISTENTE_V1 */
 
+
+/* FUTX_BOARD_COMPOSER_V1 */
+.app .board-composer {
+  grid-column: 1 / -1;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--panel);
+}
+.app .board-composer label { font-weight: 700; color: var(--text); }
+.app .board-composer textarea {
+  width: 100%;
+  min-height: 100px;
+  resize: vertical;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px;
+  background: var(--bg);
+  color: var(--text);
+  font: inherit;
+}
+.app .board-character-count { color: var(--muted); font-size: 12px; text-align: right; }
+.app .board-composer-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.app .board-composer-actions button { min-height: 46px; }
 </style>
 </head>
 <body>
@@ -840,6 +868,12 @@ body {
       }
       if (keyboard.childElementCount) bottomActions.appendChild(keyboard);
     }
+    // Pizarra Global: el bot confirma la apertura y la Mini App ofrece un campo de texto propio.
+    if ((Array.isArray(messages) ? messages : []).some(item =>
+      /Escribí tu mensaje para la Pizarra Global/i.test(String(item && item.text || ""))
+    )) {
+      showBoardComposer();
+    }
     // Cuando el bot devuelve el teclado principal, restaurar los botones fijos
     // sin borrar el mensaje recién recibido.
     if (hasIncomingKeyboard && isMainMenuKeyboard) {
@@ -878,6 +912,91 @@ body {
       botResponseList.querySelectorAll("button.bot-response-action").forEach(el => {
         el.disabled = false;
       });
+    }
+  }
+
+  function showBoardComposer() {
+    bottomActions.replaceChildren();
+    const wrap = document.createElement("div");
+    wrap.className = "board-composer";
+    const label = document.createElement("label");
+    label.textContent = "Tu mensaje para la Pizarra Global";
+    label.htmlFor = "board-message-input";
+    const input = document.createElement("textarea");
+    input.id = "board-message-input";
+    input.maxLength = 400;
+    input.rows = 4;
+    input.placeholder = "Escribí tu mensaje o emojis (máximo 400 caracteres)…";
+    input.setAttribute("aria-label", "Mensaje para la Pizarra Global");
+    const count = document.createElement("div");
+    count.className = "board-character-count";
+    count.textContent = "0 / 400";
+    input.addEventListener("input", () => {
+      count.textContent = Array.from(input.value).length + " / 400";
+    });
+    const actions = document.createElement("div");
+    actions.className = "board-composer-actions";
+    const publish = document.createElement("button");
+    publish.type = "button";
+    publish.className = "bot-response-action";
+    publish.textContent = "📢 Publicar (10 FUTX + 1 💎)";
+    const cancel = document.createElement("button");
+    cancel.type = "button";
+    cancel.className = "bot-response-action";
+    cancel.textContent = "✖️ Cancelar";
+    publish.addEventListener("click", () => {
+      const text = input.value.trim();
+      if (!text) {
+        noticeMessage.textContent = "Escribí un mensaje antes de publicar.";
+        input.focus();
+        return;
+      }
+      if (Array.from(text).length > 400) {
+        noticeMessage.textContent = "El mensaje supera los 400 caracteres.";
+        return;
+      }
+      publish.disabled = true;
+      cancel.disabled = true;
+      sendBoardAction("board_publish", { text }, publish, "Publicar en Pizarra Global");
+    });
+    cancel.addEventListener("click", () => {
+      cancel.disabled = true;
+      publish.disabled = true;
+      sendBoardAction("board_cancel", {}, cancel, "Cancelar publicación");
+    });
+    actions.append(publish, cancel);
+    wrap.append(label, input, count, actions);
+    bottomActions.appendChild(wrap);
+    noticeMessage.textContent = "Escribí tu mensaje. Solo se cobrará si el bot confirma la publicación.";
+    input.focus();
+  }
+
+  async function sendBoardAction(action, extra, button, label) {
+    if (!tg || !tg.initData) {
+      noticeMessage.textContent = "Abrí FUTX desde Telegram para publicar.";
+      return;
+    }
+    activeActionPoll += 1;
+    const pollToken = activeActionPoll;
+    title.textContent = label;
+    noticeMessage.textContent = "Enviando al bot de FUTX…";
+    try {
+      const response = await fetch("https://frozen-mit-robertson-stronger.trycloudflare.com/action", {
+        method: "POST",
+        headers: {
+          "Authorization": "tma " + tg.initData,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ action, ...extra })
+      });
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok || !result.accepted || !result.action_id) {
+        throw new Error(result.error || "El servidor no aceptó la acción.");
+      }
+      await waitForBotResponse(result.action_id, button, pollToken);
+    } catch (error) {
+      noticeMessage.textContent = "⚠️ " + (error.message || "Error de conexión con FUTX");
+      bottomActions.querySelectorAll("button").forEach(el => { el.disabled = false; });
     }
   }
 
