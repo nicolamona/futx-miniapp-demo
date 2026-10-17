@@ -501,7 +501,7 @@ button { font: inherit; }
           const callbackData = buttonData && typeof buttonData.callback_data === "string"
             ? buttonData.callback_data : "";
           const url = buttonData && typeof buttonData.url === "string" ? buttonData.url : "";
-          if (url && /^https?:\\/\\//i.test(url)) {
+          if (url && /^https?:\/\//i.test(url)) {
             const link = document.createElement("a");
             link.className = "bot-response-action";
             link.textContent = label;
