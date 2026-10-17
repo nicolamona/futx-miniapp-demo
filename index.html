@@ -483,9 +483,12 @@ button { font: inherit; }
       value === "market:gems" ||
       value === "market:home" ||
       value === "shop:home" ||
-      /^shop:cat:(weapon|armor|boots|hat|special|herb):\d{1,3}$/.test(value) ||
+      /^shop:cat:(weapon|armor|boots|hat|special|herb):\\d{1,3}$/.test(value) ||
       value === "gshop:home" ||
-      /^gshop:cat:(weapon|armor|special)$/.test(value);
+      /^gshop:cat:(weapon|armor|special)$/.test(value) ||
+      /^ency:(?:list|\\d{1,3})$/.test(value) ||
+      value === "board:menu" ||
+      /^board:page:\\d{1,4}$/.test(value);
   }
 
   function renderBotMessages(messages, sourceActionId) {
