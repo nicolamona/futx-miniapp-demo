@@ -439,6 +439,18 @@ body { position: fixed; inset: 0; }
 
   function isSafeNavigationCallback(value) {
     if (typeof value !== "string") return false;
+
+    // Callbacks de FUTX Staking permitidos también por la API y el worker.
+    const stakingExact = [
+      "stk:home", "stk:dep:25pct", "stk:dep:50pct", "stk:dep:max",
+      "stk:claim", "stk:principal", "stk:exchange",
+      "stk:exchange:history", "stk:exchange:to_gems", "stk:exchange:to_futx"
+    ];
+    if (stakingExact.includes(value)) return true;
+    if (/^stk:exchange:(buy|sell):(half|max)$/.test(value)) return true;
+    const stakingAmount = value.match(/^stk:exchange:(buy|sell):([0-9]{1,9})$/);
+    if (stakingAmount && Number(stakingAmount[2]) > 0) return true;
+
     return value === "market:shop" ||
       value === "market:gems" ||
       value === "market:home" ||
