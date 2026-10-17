@@ -900,7 +900,7 @@ body {
           }
           noticeMessage.textContent = "Acción recibida. Esperando la respuesta real del bot…";
           // Mantener el menú principal visible mientras se muestran las respuestas de acciones como Minar.
-          waitForBotResponse(result.action_id, button, pollToken, true);
+          waitForBotResponse(result.action_id, button, pollToken, action !== "heal");
         }).catch(error => {
           button.disabled = false;
           noticeMessage.textContent = "⚠️ " + (error.message || "Error de conexión con FUTX");
