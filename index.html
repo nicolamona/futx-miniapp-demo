@@ -703,6 +703,9 @@ body {
     const stakingAmount = value.match(/^stk:exchange:(buy|sell):([0-9]{1,9})$/);
     if (stakingAmount && Number(stakingAmount[2]) > 0) return true;
 
+    // Respuestas del Torneo Global: API y worker validan el callback contra el teclado original.
+    if (/^tgq:[0-9]{1,12}:[0-9]{1,20}:[0-9]{1,2}:[0-9]{1,2}$/.test(value)) return true;
+
     // Decisiones de expedición: el bot valida cada opción contra la expedición activa.
     if (/^exp:(track|careful|risk|safe|search|continue|cancel)$/.test(value)) return true;
 
