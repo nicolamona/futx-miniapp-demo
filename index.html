@@ -721,8 +721,11 @@ body {
       value === "market:gems" ||
       value === "market:home" ||
       value === "shop:home" ||
+      value === "shop:noop" ||
+      /^shop:(?:item|buy):\\d{1,3}$/.test(value) ||
       /^shop:cat:(weapon|armor|boots|hat|special|herb):\\d{1,3}$/.test(value) ||
       value === "gshop:home" ||
+      /^gshop:(?:item|buy):\\d{1,3}$/.test(value) ||
       /^gshop:cat:(weapon|armor|special)$/.test(value) ||
       /^ency:(?:list|\\d{1,3})$/.test(value) ||
       value === "board:menu" ||
