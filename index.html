@@ -481,22 +481,6 @@ button { font: inherit; }
       card.className = "bot-response-message";
       card.textContent = String(item && item.text ? item.text : "");
       botResponseList.appendChild(card);
-      const keyboard = item && Array.isArray(item.keyboard) ? item.keyboard : [];
-      if (keyboard.length) {
-        const grid = document.createElement("div");
-        grid.className = "bot-response-keyboard";
-        for (const row of keyboard) {
-          const rowEl = document.createElement("div");
-          rowEl.className = "bot-response-keyboard-row";
-          for (const button of row) {
-            const label = document.createElement("span");
-            label.textContent = String(button && button.text ? button.text : "Opción");
-            rowEl.appendChild(label);
-          }
-          grid.appendChild(rowEl);
-        }
-        botResponseList.appendChild(grid);
-      }
     }
   }
 
