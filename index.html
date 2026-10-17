@@ -451,6 +451,14 @@ body { position: fixed; inset: 0; }
     const stakingAmount = value.match(/^stk:exchange:(buy|sell):([0-9]{1,9})$/);
     if (stakingAmount && Number(stakingAmount[2]) > 0) return true;
 
+    // Combate y Combate Global: deben estar autorizados también en API y worker.
+    if ([
+      "fight:cancel", "fight:attack", "fight:defend", "fight:skill", "fight:flee",
+      "globalcombat:local", "globalcombat:menu", "globalcombat:join",
+      "globalcombat:cancel", "globalcombat:status"
+    ].includes(value)) return true;
+    if (/^fight:choose:[a-zA-Z0-9_-]{1,24}$/.test(value)) return true;
+
     return value === "market:shop" ||
       value === "market:gems" ||
       value === "market:home" ||
@@ -478,7 +486,7 @@ body { position: fixed; inset: 0; }
       const rows = Array.isArray(item && item.keyboard) ? item.keyboard : [];
       if (!sourceActionId || !/^[0-9a-f]{32}$/.test(sourceActionId) ||
           !Number.isSafeInteger(messageId) || messageId <= 0 ||
-          item.keyboard_type !== "inline" || !rows.length) continue;
+          !["inline", "reply"].includes(item.keyboard_type) || !rows.length) continue;
 
       const keyboard = document.createElement("div");
       keyboard.className = "bot-response-keyboard";
@@ -490,13 +498,21 @@ body { position: fixed; inset: 0; }
           if (!entry || typeof entry !== "object") continue;
           const label = String(entry.text || "Opción");
           const callback = typeof entry.callback_data === "string" ? entry.callback_data : "";
+          const isReplyButton = item.keyboard_type === "reply";
+          const buttonValue = isReplyButton ? String(entry.text || "") : callback;
           // Ocultar temporalmente el ingreso manual hasta implementar el formulario dentro de la Mini App.
           if (callback === "stk:dep:manual") continue;
+          if (isReplyButton && (!buttonValue || entry.request_contact || entry.request_location || entry.web_app)) continue;
           const button = document.createElement("button");
           button.type = "button";
           button.className = "bot-response-action";
           button.textContent = label;
-          if (!callback || !isSafeNavigationCallback(callback)) {
+          if (isReplyButton) {
+            button.addEventListener("click", () => {
+              button.disabled = true;
+              sendMenuButton("text", buttonValue, button, label, sourceActionId, messageId);
+            });
+          } else if (!callback || !isSafeNavigationCallback(callback)) {
             button.disabled = true;
             button.title = "Esta acción todavía no está habilitada en la Mini App.";
             button.setAttribute("aria-label", label + " (no disponible desde la Mini App)");
