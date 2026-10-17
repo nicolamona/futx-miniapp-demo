@@ -91,6 +91,7 @@ body { position: fixed; inset: 0; }
 #bot-response-list:empty { display: none; }
 #bot-response-list.initial-navigation { grid-template-columns: repeat(2, minmax(0, 1fr)); align-content: start; gap: 8px; margin-top: 12px; }
 #bot-response-list.initial-navigation .bot-response-action { min-height: 46px; padding: 9px 8px; border-radius: 11px; font-size: 13px; }
+#bot-response-list.initial-navigation .bot-response-action.full-width { grid-column: 1 / -1; }
 #start-navigation { display: none !important; }
 #close-notice {
   display: none;
@@ -1348,7 +1349,7 @@ body {
       "📚 Enciclopedia", "🌐 Idioma"
     ],
     [
-      "🤝 Referidos", "🏛️ Distrito Comercial", "🏹 Cazar", "📌 Misiones",
+      "🏛️ Distrito Comercial", "🏹 Cazar", "📌 Misiones", "🤝 Referidos",
       "🏆 Rankings", "🔧 Curar", "ℹ️ Cómo jugar"
     ]
   ];
@@ -1392,6 +1393,7 @@ body {
         const navButton = document.createElement("button");
         navButton.type = "button";
         navButton.className = "bot-response-action";
+        if (label === "🌐 Idioma") navButton.classList.add("full-width");
         navButton.textContent = label;
         navButton.addEventListener("click", () => sourceButton.click());
         bottomActions.appendChild(navButton);
