@@ -350,6 +350,10 @@ body {
 /* FUTX_STAKING_KEYBOARD_SPACE_V1: dar más espacio a los submenús con botones */
 .app.has-response-keyboard #notice { flex: 4 1 0; }
 .app.has-response-keyboard #bottom-actions { flex: 6 1 0; }
+/* En Staking, distribuir el teclado por toda el área disponible para evitar espacio vacío. */
+.app.staking-mode #bottom-actions { align-content: stretch; grid-auto-rows: minmax(0, 1fr); }
+.app.staking-mode #bottom-actions > .bot-response-keyboard { height: 100%; align-content: stretch; grid-auto-rows: minmax(48px, 1fr); }
+.app.staking-mode #bottom-actions .bot-response-action { min-height: 48px; height: 100%; }
 #notice {
   flex: 6 1 0;
   height: auto;
@@ -898,7 +902,7 @@ body {
         if (action === "staking") {
           // En Staking solo se muestran los botones de navegación que devuelve el bot.
           bottomActions.replaceChildren();
-          document.querySelector('.app').classList.add('has-response-keyboard');
+          document.querySelector('.app').classList.add('has-response-keyboard', 'staking-mode');
         }
         title.textContent = button.dataset.name;
         startNavigation.style.display = "none";
@@ -980,7 +984,7 @@ body {
   }
 
   function renderInitialNavigation() {
-    document.querySelector('.app').classList.remove('has-response-keyboard');
+    document.querySelector('.app').classList.remove('has-response-keyboard', 'staking-mode');
     botResponseList.replaceChildren();
     bottomActions.replaceChildren();
     botResponseList.classList.add("initial-navigation");
