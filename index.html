@@ -384,6 +384,23 @@ body {
 #close-notice { margin-top: 6px; align-self: flex-start; }
 .intro, #main-menu-label, .menu { display: none !important; }
 .footer { flex: 0 0 auto; margin-top: 4px; padding-top: 4px; }
+#bottom-actions > .profile-nav-button {
+  grid-column: 1 / -1;
+  min-height: 50px;
+  font-size: 15px;
+  border-color: #6a91c4;
+  background: linear-gradient(135deg, #27486e, #1b304c);
+}
+#bot-response-list .profile-overview {
+  display: block !important;
+  width: auto;
+  max-width: 100%;
+  margin: 6px 0 0;
+  padding: 12px;
+  box-sizing: border-box;
+}
+#bot-response-list .profile-overview .profile-stat { padding: 9px; }
+#bot-response-list .profile-overview .stat-value { font-size: 15px; }
 /* FIN FUTX_SPLIT_SCREEN_V1 */
 
 /* FIN FUTX_PANTALLA_PERSISTENTE_V1 */
@@ -842,10 +859,35 @@ body {
 
   const startNavigation = document.getElementById("start-navigation");
 
+  function showProfileInInterface() {
+    activeActionPoll += 1;
+    title.textContent = "👤 Mi perfil";
+    noticeMessage.textContent = "Tu perfil de FUTX, igual que en el bot original. Datos de solo lectura.";
+    botResponseList.replaceChildren();
+    botResponseList.classList.remove("initial-navigation");
+    const profile = document.querySelector(".profile-overview");
+    if (profile) {
+      const clone = profile.cloneNode(true);
+      clone.style.display = "block";
+      botResponseList.appendChild(clone);
+    } else {
+      const fallback = document.createElement("p");
+      fallback.textContent = "No se encontró el resumen de perfil.";
+      botResponseList.appendChild(fallback);
+    }
+    notice.classList.add("visible");
+  }
+
   function renderInitialNavigation() {
     botResponseList.replaceChildren();
     bottomActions.replaceChildren();
     botResponseList.classList.add("initial-navigation");
+    const profileButton = document.createElement("button");
+    profileButton.type = "button";
+    profileButton.className = "bot-response-action profile-nav-button";
+    profileButton.textContent = "👤 Perfil";
+    profileButton.addEventListener("click", showProfileInInterface);
+    bottomActions.appendChild(profileButton);
     document.querySelectorAll(".menu [data-name]").forEach(sourceButton => {
       const label = sourceButton.dataset.name;
       const navButton = document.createElement("button");
