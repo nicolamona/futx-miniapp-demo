@@ -670,6 +670,26 @@ body {
       /^board:page:\\d{1,4}$/.test(value);
   }
 
+  function getTelegramProfileLabel() {
+    const user = tg && tg.initDataUnsafe && tg.initDataUnsafe.user;
+    if (!user) return "";
+    if (typeof user.username === "string" && user.username.trim()) {
+      return "@" + user.username.trim().replace(/^@+/, "");
+    }
+    const fullName = [user.first_name, user.last_name]
+      .filter(value => typeof value === "string" && value.trim())
+      .map(value => value.trim())
+      .join(" ");
+    return fullName || (user.id ? "ID " + String(user.id) : "");
+  }
+
+  function normalizeProfileHeading(messageText) {
+    const label = getTelegramProfileLabel();
+    if (!label || typeof messageText !== "string") return messageText;
+    // Solo corregir el marcador genérico del encabezado; el resto del mensaje del bot queda intacto.
+    return messageText.replace(/^(PERFIL DE )@?Jugador(?=\\s|$)/i, "$1" + label);
+  }
+
   function renderBotMessages(messages, sourceActionId, preserveActions = false) {
     if (typeof sourceActionId === "string" && /^[0-9a-f]{32}$/.test(sourceActionId)) {
       activeKeyboardActionId = sourceActionId;
@@ -680,7 +700,7 @@ body {
     for (const item of (Array.isArray(messages) ? messages : [])) {
       const card = document.createElement("div");
       card.className = "bot-response-message";
-      card.textContent = String(item && item.text ? item.text : "");
+      card.textContent = normalizeProfileHeading(String(item && item.text ? item.text : ""));
       if (card.textContent.trim()) botResponseList.appendChild(card);
 
       const messageId = Number(item && item.message_id);
