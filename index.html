@@ -351,8 +351,9 @@ body {
 .app.has-response-keyboard #notice { flex: 4 1 0; }
 .app.has-response-keyboard #bottom-actions { flex: 6 1 0; }
 /* En Staking, ampliar el panel de pantalla y conservar el tamaño normal de los botones. */
-.app.staking-mode #notice { flex: 7 1 0; }
-.app.staking-mode #bottom-actions { flex: 3 1 0; align-content: start; grid-auto-rows: auto; }
+/* En Staking, ampliar el panel de información sin agrandar los botones. */
+.app.staking-mode #notice { flex: 8 1 0; }
+.app.staking-mode #bottom-actions { flex: 2 1 0; align-content: start; grid-auto-rows: auto; }
 .app.staking-mode #bottom-actions > .bot-response-keyboard { height: auto; align-content: start; grid-auto-rows: auto; }
 .app.staking-mode #bottom-actions .bot-response-action { height: auto; }
 #notice {
@@ -749,6 +750,8 @@ body {
         for (const entry of row) {
           if (!entry || typeof entry !== "object") continue;
           const label = String(entry.text || "Opción");
+          // Los datos de Staking se actualizan en vivo; ocultar solo el botón redundante.
+          if (document.querySelector(".app").classList.contains("staking-mode") && /actualizar/i.test(label)) continue;
           const callback = typeof entry.callback_data === "string" ? entry.callback_data : "";
           const isReplyButton = item.keyboard_type === "reply";
           const buttonValue = isReplyButton ? String(entry.text || "") : callback;
