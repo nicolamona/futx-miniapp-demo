@@ -386,7 +386,8 @@ body {
   margin-top: 0;
 }
 #bottom-actions .bot-response-keyboard-row {
-  display: contents;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 #bottom-actions .bot-response-action {
   width: 100%;
@@ -684,8 +685,6 @@ body {
       keyboard.className = "bot-response-keyboard";
       for (const row of rows) {
         if (!Array.isArray(row) || !row.length) continue;
-        const rowEl = document.createElement("div");
-        rowEl.className = "bot-response-keyboard-row";
         for (const entry of row) {
           if (!entry || typeof entry !== "object") continue;
           const label = String(entry.text || "Opción");
@@ -714,9 +713,8 @@ body {
               sendMenuButton("callback", callback, button, label, sourceActionId, messageId);
             });
           }
-          rowEl.appendChild(button);
+          keyboard.appendChild(button);
         }
-        if (rowEl.childElementCount) keyboard.appendChild(rowEl);
       }
       if (keyboard.childElementCount) bottomActions.appendChild(keyboard);
     }
