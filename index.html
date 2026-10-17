@@ -785,8 +785,9 @@ body {
     // Cuando el bot devuelve el teclado principal, restaurar los botones fijos
     // sin borrar el mensaje recién recibido.
     if (hasIncomingKeyboard && isMainMenuKeyboard) {
-      renderInitialNavigation();
-      showProfileInInterface();
+      // Conservar la respuesta recién recibida (por ejemplo, el panel de Misiones)
+      // y restaurar la navegación fija sin interrumpir la consulta actual.
+      renderInitialNavigation(true);
     }
   }
 
@@ -991,9 +992,9 @@ body {
     }
   }
 
-  function renderInitialNavigation() {
+  function renderInitialNavigation(preserveResponses = false) {
     document.querySelector('.app').classList.remove('has-response-keyboard', 'staking-mode');
-    botResponseList.replaceChildren();
+    if (!preserveResponses) botResponseList.replaceChildren();
     bottomActions.replaceChildren();
     botResponseList.classList.add("initial-navigation");
     document.querySelectorAll(".menu [data-name]").forEach(sourceButton => {
