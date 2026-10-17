@@ -671,8 +671,15 @@ body {
   }
 
   function getTelegramProfileLabel() {
-    const user = tg && tg.initDataUnsafe && tg.initDataUnsafe.user;
-    if (!user) return "";
+    let user = tg && tg.initDataUnsafe && tg.initDataUnsafe.user;
+    // Algunas versiones/visores no exponen initDataUnsafe de forma completa.
+    if (!user && tg && typeof tg.initData === "string") {
+      try {
+        const rawUser = new URLSearchParams(tg.initData).get("user");
+        if (rawUser) user = JSON.parse(rawUser);
+      } catch (_) {}
+    }
+    if (!user) return "Jugador";
     if (typeof user.username === "string" && user.username.trim()) {
       return "@" + user.username.trim().replace(/^@+/, "");
     }
@@ -680,14 +687,14 @@ body {
       .filter(value => typeof value === "string" && value.trim())
       .map(value => value.trim())
       .join(" ");
-    return fullName || (user.id ? "ID " + String(user.id) : "");
+    return fullName || (user.id ? "ID " + String(user.id) : "Jugador");
   }
 
   function normalizeProfileHeading(messageText) {
+    if (typeof messageText !== "string") return messageText;
     const label = getTelegramProfileLabel();
-    if (!label || typeof messageText !== "string") return messageText;
-    // Solo corregir el marcador genérico del encabezado; el resto del mensaje del bot queda intacto.
-    return messageText.replace(/^(PERFIL DE )@?Jugador(?=\s|$)/i, (_match, prefix) => prefix + label);
+    // El encabezado puede venir precedido por saltos, emojis o separadores del bot.
+    return messageText.replace(/(PERFIL DE\s+)@?Jugador\b/i, (_match, prefix) => prefix + label);
   }
 
   function renderBotMessages(messages, sourceActionId, preserveActions = false) {
@@ -892,7 +899,8 @@ body {
             throw new Error(result.error || "No se pudo enviar la acción");
           }
           noticeMessage.textContent = "Acción recibida. Esperando la respuesta real del bot…";
-          waitForBotResponse(result.action_id, button, pollToken);
+          // Mantener el menú principal visible mientras se muestran las respuestas de acciones como Minar.
+          waitForBotResponse(result.action_id, button, pollToken, true);
         }).catch(error => {
           button.disabled = false;
           noticeMessage.textContent = "⚠️ " + (error.message || "Error de conexión con FUTX");
