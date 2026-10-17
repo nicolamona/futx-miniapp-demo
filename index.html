@@ -532,7 +532,7 @@ button { font: inherit; }
         notice.classList.add("visible");
         return;
       }
-      if (!tg || typeof tg.sendData !== "function" || !tg.initData) {
+      if (!tg || !tg.initData) {
         title.textContent = button.dataset.name;
         noticeMessage.textContent =
           "Para ejecutar esta acción, cerrá esta ventana y abrí FUTX desde el botón 🌐 FUTX Web del teclado de Telegram.";
@@ -545,7 +545,24 @@ button { font: inherit; }
         title.textContent = button.dataset.name;
         noticeMessage.textContent = "Enviando la acción al bot de FUTX…";
         notice.classList.add("visible");
-        tg.sendData(JSON.stringify({ action }));
+        fetch("https://frozen-mit-robertson-stronger.trycloudflare.com/action", {
+          method: "POST",
+          headers: {
+            "Authorization": "tma " + tg.initData,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ action })
+        }).then(async response => {
+          const result = await response.json().catch(() => ({}));
+          if (!response.ok || !result.accepted) {
+            throw new Error(result.error || "No se pudo enviar la acción");
+          }
+          showToast("✅ Acción recibida; procesando en FUTX");
+        }).catch(error => {
+          button.disabled = false;
+          noticeMessage.textContent = "⚠️ " + (error.message || "Error de conexión con FUTX");
+          notice.classList.add("visible");
+        });
       } catch (error) {
         button.disabled = false;
         title.textContent = "No se pudo enviar";
