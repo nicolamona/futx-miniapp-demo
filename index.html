@@ -1919,9 +1919,8 @@ body {
   // FUTX_CHEST_ANIMATION_ON_CONFIRMED_SUCCESS_V1: animar solo tras un premio real confirmado por el bot.
   async function waitForBotResponse(actionId, button, pollToken, preserveActions = false, chestAnimationOnSuccess = false) {
     const started = Date.now();
-    // Capturar la acción al comenzar el sondeo: el render puede restaurar el menú principal
-    // y limpiar activeMenuAction antes de que llegue el mensaje de confirmación.
-    const missionProgressAction = ["mine", "hunt", "combat", "clicker"].includes(activeMenuAction);
+    // La confirmación explícita es la fuente de verdad; no depender de activeMenuAction,
+    // que puede quedar vacío si la respuesta vuelve desde un teclado del bot.
     let missionAnimationPlayed = false;
     while (Date.now() - started < 30000 && pollToken === activeActionPoll) {
       await new Promise(resolve => setTimeout(resolve, 900));
@@ -1941,8 +1940,7 @@ body {
           renderBotMessages(result.messages, actionId, preserveActions);
           // El mensaje puede llegar antes de que la acción alcance el estado terminal.
           // Detectarlo al recibirlo evita perder la animación en respuestas de combate.
-          if (!missionAnimationPlayed && missionProgressAction &&
-              isExplicitMissionCompletion(result.messages)) {
+          if (!missionAnimationPlayed && isExplicitMissionCompletion(result.messages)) {
             playMissionCompleteAnimation();
             missionAnimationPlayed = true;
           }
