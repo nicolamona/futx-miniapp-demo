@@ -633,25 +633,29 @@ body {
 
 
 /* FUTX_AVATAR_CUSTOMIZER_V1 */
-/* Layout perfil: texto a la izquierda y avatar a la derecha */
+/* Layout perfil: texto a la izquierda y avatar grande e interactivo a la derecha */
 #notice.profile-initial-layout { position:relative; }
 #notice.profile-initial-layout #notice-title,
-#notice.profile-initial-layout #notice-message { max-width:calc(100% - 118px); }
+#notice.profile-initial-layout #notice-message { max-width:calc(100% - 136px); }
 #notice.profile-initial-layout #profile-avatar-display {
-  position:absolute; top:12px; right:10px; width:104px; min-height:104px;
-  box-sizing:border-box; margin:0; padding:7px; display:flex; flex-direction:column;
-  justify-content:center; align-items:center; gap:3px; text-align:center;
+  position:absolute; top:10px; right:8px; width:122px; height:122px;
+  box-sizing:border-box; margin:0; padding:4px; display:flex; justify-content:center;
+  align-items:center; border:1px solid #345176; border-radius:16px;
+  background:linear-gradient(120deg,#172b48,#101b2e); cursor:pointer;
+  -webkit-tap-highlight-color:transparent; transition:transform .15s ease,border-color .15s ease;
 }
+#notice.profile-initial-layout #profile-avatar-display:active { transform:scale(.96); }
+#notice.profile-initial-layout #profile-avatar-display:focus-visible { outline:2px solid #8bdcff; outline-offset:2px; }
 #notice.profile-initial-layout #profile-avatar-display .avatar-mini {
-  width:68px; height:68px; flex:0 0 68px; background:transparent;
+  width:108px; height:108px; flex:0 0 108px; background:transparent;
 }
-#notice.profile-initial-layout #profile-avatar-display svg { width:66px; height:66px; }
-#notice.profile-initial-layout #profile-avatar-display .avatar-caption { font-size:10px; }
-#notice.profile-initial-layout #profile-avatar-display .avatar-subcaption { font-size:9px; }
+#notice.profile-initial-layout #profile-avatar-display svg { width:106px; height:106px; }
 @media (max-width:360px) {
   #notice.profile-initial-layout #notice-title,
-  #notice.profile-initial-layout #notice-message { max-width:calc(100% - 98px); }
-  #notice.profile-initial-layout #profile-avatar-display { width:88px; right:6px; }
+  #notice.profile-initial-layout #notice-message { max-width:calc(100% - 112px); }
+  #notice.profile-initial-layout #profile-avatar-display { width:102px; height:102px; right:5px; }
+  #notice.profile-initial-layout #profile-avatar-display .avatar-mini { width:90px; height:90px; flex-basis:90px; }
+  #notice.profile-initial-layout #profile-avatar-display svg { width:88px; height:88px; }
 }
 
 #profile-avatar-display{flex:0 0 auto;display:flex;align-items:center;gap:12px;margin:4px 0 8px;padding:8px 12px;border:1px solid #345176;border-radius:14px;background:linear-gradient(120deg,#172b48,#101b2e)}
@@ -1641,7 +1645,18 @@ body {
     const host = document.getElementById("profile-avatar-display");
     if (!host) return;
     const cfg = loadAvatar();
-    host.innerHTML = '<div class="avatar-mini">' + avatarSvg(cfg) + '</div><div><div class="avatar-caption">TU AVATAR FUTX</div><div class="avatar-subcaption">' + cfg.type + ' · ' + cfg.armor + '</div></div>';
+    host.innerHTML = '<div class="avatar-mini">' + avatarSvg(cfg) + '</div>';
+    host.setAttribute("role", "button");
+    host.setAttribute("tabindex", "0");
+    host.setAttribute("aria-label", "Editar tu avatar FUTX");
+    host.setAttribute("title", "Toca para editar tu avatar");
+    host.onclick = showAvatarEditor;
+    host.onkeydown = event => {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        showAvatarEditor();
+      }
+    };
     host.style.display = "flex";
   }
   function showAvatarEditor() {
