@@ -1959,7 +1959,23 @@ body {
           keyboard.appendChild(button);
         }
       }
-      if (keyboard.childElementCount) bottomActions.appendChild(keyboard);
+      if (keyboard.childElementCount) {
+        bottomActions.appendChild(keyboard);
+        // FUTX_HEAL_DIRECT_EXECUTION_V1: ejecutar Curar sin pedir confirmación manual.
+        // Solo se activa cuando el bot devuelve juntos los botones Confirmar y Cancelar
+        // como respuesta directa a la acción Curar.
+        if (isHealConfirmationKeyboard) {
+          const confirmButton = Array.from(keyboard.querySelectorAll("button"))
+            .find(candidate => /confirmar/i.test(candidate.textContent || ""));
+          if (confirmButton && !confirmButton.disabled) {
+            queueMicrotask(() => {
+              if (confirmButton.isConnected && !confirmButton.disabled) {
+                confirmButton.click();
+              }
+            });
+          }
+        }
+      }
     }
     // FUTX_COFRE_EXTRA_ESTADO_V2: mostrar debajo de la cuenta regresiva si el cofre extra está disponible o ya fue reclamado.
     const bonusChestUnlocked = (Array.isArray(messages) ? messages : []).some(item =>
