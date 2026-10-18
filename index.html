@@ -1341,8 +1341,29 @@ body {
     appElement.classList.toggle("tournament-quiz-mode", tournamentAnswerCount >= 4);
     appElement.classList.toggle("local-combat-mode", isLocalCombatKeyboard);
     appElement.classList.toggle("combat-choice-mode", isCombatChoiceKeyboard);
-    const isMainMenuKeyboard = incomingLabels.some(label => label.includes("minar")) &&
-      incomingLabels.some(label => label.includes("staking"));
+    const incomingMenuLabels = (Array.isArray(messages) ? messages : []).flatMap(item =>
+      (Array.isArray(item && item.keyboard) ? item.keyboard : []).flatMap(row =>
+        (Array.isArray(row) ? row : []).map(entry => String(entry && entry.text || ""))
+      )
+    );
+    // Detectar el menú principal por sus iconos estables, aunque cambien las palabras por idioma.
+    const hasMainMenuIcons = ["⛏", "💎", "🎁"].every(icon =>
+      incomingMenuLabels.some(label => label.includes(icon))
+    );
+    const isMainMenuKeyboard = hasMainMenuIcons ||
+      (incomingLabels.some(label => /minar|\\bmine\\b|\\bmining\\b/i.test(label)) &&
+       incomingLabels.some(label => /staking/i.test(label)));
+    const translatedMenuLabels = new Map();
+    const normalizeMenuIcon = value => String(value || "").replace(/\\uFE0F/g, "").trim();
+    for (const sourceButton of document.querySelectorAll(".menu [data-name]")) {
+      const icon = sourceButton.querySelector(".item-icon")?.textContent || "";
+      if (!icon) continue;
+      const normalizedIcon = normalizeMenuIcon(icon);
+      const translated = incomingMenuLabels.find(label =>
+        normalizeMenuIcon(label).startsWith(normalizedIcon)
+      );
+      if (translated) translatedMenuLabels.set(sourceButton.dataset.name, translated);
+    }
     const isHealConfirmationKeyboard = activeMenuAction === "heal" &&
       incomingLabels.some(label => /confirmar/i.test(label)) &&
       incomingLabels.some(label => /cancelar/i.test(label));
@@ -1546,7 +1567,7 @@ body {
       botResponseList.querySelectorAll(".staking-intro, .staking-summary").forEach(card => card.remove());
       // Conservar la respuesta recién recibida (por ejemplo, el panel de Misiones)
       // y restaurar la navegación fija sin interrumpir la consulta actual.
-      renderInitialNavigation(true);
+      renderInitialNavigation(true, translatedMenuLabels);
     }
   }
 
@@ -2240,7 +2261,7 @@ body {
     ]
   ];
 
-  function renderInitialNavigation(preserveResponses = false) {
+  function renderInitialNavigation(preserveResponses = false, translatedLabels = null) {
     setProfileAvatarLayout(true);
     document.querySelector('.app').classList.remove('has-response-keyboard', 'staking-mode');
     if (!preserveResponses) botResponseList.replaceChildren();
@@ -2277,7 +2298,7 @@ body {
       const chestButton = document.createElement("button");
       chestButton.type = "button";
       chestButton.className = "bot-response-action full-width mystery-chest-featured";
-      chestButton.textContent = chestLabel;
+      chestButton.textContent = translatedLabels?.get(chestLabel) || chestLabel;
       chestButton.addEventListener("click", () => chestSource.click());
       bottomActions.appendChild(chestButton);
     }
@@ -2293,7 +2314,7 @@ body {
         navButton.type = "button";
         navButton.className = "bot-response-action";
         if (label === "🌐 Idioma") navButton.classList.add("full-width");
-        navButton.textContent = label === "🌐 Idioma" ? "Idioma/Language" : label;
+        navButton.textContent = translatedLabels?.get(label) || (label === "🌐 Idioma" ? "Idioma/Language" : label);
         navButton.addEventListener("click", () => sourceButton.click());
         bottomActions.appendChild(navButton);
       }
@@ -2303,7 +2324,7 @@ body {
       const languageButton = document.createElement("button");
       languageButton.type = "button";
       languageButton.className = "bot-response-action full-width";
-      languageButton.textContent = "Idioma/Language";
+      languageButton.textContent = translatedLabels?.get("🌐 Idioma") || "Idioma/Language";
       languageButton.addEventListener("click", () => languageSourceButton.click());
       bottomActions.appendChild(languageButton);
     }
