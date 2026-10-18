@@ -671,6 +671,13 @@ body {
   -webkit-user-select:none; transition:transform .15s ease,border-color .15s ease;
 }
 #notice.profile-initial-layout #profile-avatar-display:active { transform:scale(.96); }
+#notice.profile-initial-layout #profile-avatar-display::after {
+  content:"↕  ↔";
+  position:absolute; right:5px; bottom:4px; padding:2px 5px;
+  border:1px solid #8bdcff88; border-radius:7px;
+  background:#071426dd; color:#bcecff; font-size:13px; line-height:1.2;
+  pointer-events:none; box-shadow:0 1px 5px #0008;
+}
 #notice.profile-initial-layout #profile-avatar-display:focus-visible { outline:2px solid #8bdcff; outline-offset:2px; }
 #notice.profile-initial-layout #profile-avatar-display .avatar-mini {
   width:108px; height:108px; flex:0 0 108px; background:transparent;
@@ -1749,9 +1756,26 @@ body {
     const uid = String(tg?.initDataUnsafe?.user?.id || "");
     return uid ? "futx-avatar-position-v1:" + uid : "";
   }
+  function avatarSizeStorageKey() {
+    const uid = String(tg?.initDataUnsafe?.user?.id || "");
+    return uid ? "futx-avatar-size-v1:" + uid : "";
+  }
+  function applySavedAvatarSize(host) {
+    if (!host) return;
+    const key = avatarSizeStorageKey();
+    let size = 122;
+    try { const saved = Number(localStorage.getItem(key)); if (Number.isFinite(saved) && saved >= 90 && saved <= 190) size = saved; } catch (_) {}
+    host.style.width = size + "px";
+    host.style.height = size + "px";
+    const mini = host.querySelector(".avatar-mini");
+    if (mini) { mini.style.width = Math.max(70,size-14) + "px"; mini.style.height = Math.max(70,size-14) + "px"; mini.style.flexBasis = Math.max(70,size-14) + "px"; }
+    const svg = host.querySelector("svg");
+    if (svg) { svg.style.width = Math.max(68,size-16) + "px"; svg.style.height = Math.max(68,size-16) + "px"; }
+  }
   function applySavedAvatarPosition(host) {
     const key = avatarPositionStorageKey();
     if (!host || !key) return;
+    applySavedAvatarSize(host);
     try {
       const pos = JSON.parse(localStorage.getItem(key) || "null");
       if (!pos || !Number.isFinite(pos.x) || !Number.isFinite(pos.y)) return;
@@ -1784,6 +1808,7 @@ body {
     if (!host) return;
     const cfg = loadAvatar();
     host.innerHTML = '<div class="avatar-mini">' + avatarSvg(cfg) + '</div>';
+    applySavedAvatarSize(host);
     host.setAttribute("role", "button");
     host.setAttribute("tabindex", "0");
     host.setAttribute("aria-label", "Editar tu avatar FUTX");
@@ -1916,9 +1941,32 @@ body {
       wrap.appendChild(select);
       controls.appendChild(wrap);
     });
+    const sizeWrap = document.createElement("label");
+    sizeWrap.textContent = "Tamaño del avatar";
+    const sizeControl = document.createElement("input");
+    sizeControl.type = "range";
+    sizeControl.min = "90";
+    sizeControl.max = "190";
+    sizeControl.step = "5";
+    sizeControl.style.width = "100%";
+    sizeControl.style.accentColor = "#8bdcff";
+    const sizeKey = avatarSizeStorageKey();
+    let currentSize = 122;
+    try { const savedSize = Number(localStorage.getItem(sizeKey)); if (Number.isFinite(savedSize) && savedSize >= 90 && savedSize <= 190) currentSize = savedSize; } catch (_) {}
+    sizeControl.value = String(currentSize);
+    const sizeValue = document.createElement("span");
+    sizeValue.textContent = currentSize + " px";
+    sizeControl.addEventListener("input", () => {
+      currentSize = Number(sizeControl.value);
+      sizeValue.textContent = currentSize + " px";
+      try { if (sizeKey) localStorage.setItem(sizeKey, String(currentSize)); } catch (_) {}
+      const host = document.getElementById("profile-avatar-display");
+      applySavedAvatarSize(host);
+    });
+    sizeWrap.append(sizeControl,sizeValue);
     const note = document.createElement("div");
     note.className = "avatar-editor-note";
-    note.textContent = "¡Combiná 8 detalles! Los cambios son visuales: no modifican estadísticas ni consumen FUTX o gemas.";
+    note.textContent = "Arrastrá el avatar para reubicarlo. Usá este control para agrandarlo o achicarlo. ¡Combiná 8 detalles! Los cambios son visuales y no consumen FUTX ni gemas.";
     const save = document.createElement("button");
     save.type = "button";
     save.className = "bot-response-action";
@@ -1938,7 +1986,7 @@ body {
       preview.style.setProperty("--avatar-glow", cfg.color + "66");
     }
     updatePreview();
-    card.append(heading,preview,controls,note,save);
+    card.append(heading,preview,controls,sizeWrap,note,save);
     botResponseList.appendChild(card);
     noticeMessage.textContent = "Elegí entre decenas de combinaciones y guardá tu diseño. Es una personalización visual, sin coste ni cambios en el juego.";
     title.textContent = "🎨 Personalizar avatar";
