@@ -248,6 +248,13 @@ body { position: fixed; inset: 0; }
   background: #20324c;
 }
 .bot-response-list { display: grid; gap: 10px; margin-top: 12px; }
+/* FUTX_PROFILE_READONLY_DISCLAIMER_SMALL_V1: aviso de solo lectura menos invasivo */
+.bot-response-message.profile-readonly-disclaimer {
+  font-size: 10px;
+  line-height: 1.35;
+}
+/* FIN FUTX_PROFILE_READONLY_DISCLAIMER_SMALL_V1 */
+
 .bot-response-message {
   white-space: pre-wrap; overflow-wrap: anywhere;
   padding: 12px; border: 1px solid #344b68; border-radius: 12px;
@@ -1076,6 +1083,9 @@ body {
       const card = document.createElement("div");
       card.className = "bot-response-message";
       card.textContent = normalizeProfileHeading(String(item && item.text ? item.text : ""));
+      if (/PERFIL FUTX\s*[·|—-]\s*ACCIONES MEDIANTE EL BOT|EL PERFIL ES DE SOLO LECTURA/i.test(card.textContent)) {
+        card.classList.add("profile-readonly-disclaimer");
+      }
       if (card.textContent.trim()) botResponseList.appendChild(card);
 
       const messageId = Number(item && item.message_id);
