@@ -735,6 +735,94 @@ body {
 .app .board-character-count { color: var(--muted); font-size: 12.6px; text-align: right; }
 .app .board-composer-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .app .board-composer-actions button { min-height: 46px; }
+
+/* FUTX_MYSTERY_CHEST_ANIMATION_V1: cofre volador, apertura y lluvia de monedas */
+#futx-chest-animation {
+  position: fixed; inset: 0; z-index: 1000000; pointer-events: none;
+  overflow: hidden; display: grid; place-items: center;
+  background: radial-gradient(ellipse at center, rgba(14,20,35,.48), rgba(4,8,18,.18) 62%, transparent 100%);
+  animation: futxChestBackdrop 2.7s ease-out both;
+}
+#futx-chest-animation .futx-chest-flight {
+  position: absolute; left: 50%; top: 50%; width: 112px; height: 105px;
+  transform: translate(-50%,-50%);
+  animation: futxChestFly 0.78s cubic-bezier(.18,.72,.22,1) both;
+  filter: drop-shadow(0 0 16px rgba(255,190,48,.65));
+}
+#futx-chest-animation .futx-chest-body {
+  position: absolute; left: 9px; bottom: 3px; width: 94px; height: 62px;
+  border: 4px solid #f5c35d; border-radius: 8px 8px 13px 13px;
+  background: repeating-linear-gradient(90deg,#7b3516 0 13px,#a9531d 13px 25px);
+  box-shadow: inset 0 5px 0 #d88a2d, inset 0 -7px 0 #54270f;
+}
+#futx-chest-animation .futx-chest-band {
+  position: absolute; left: 47px; bottom: 3px; width: 18px; height: 62px;
+  border: 3px solid #ffe49a; background: linear-gradient(90deg,#bd791d,#fff0a4,#c07a17);
+}
+#futx-chest-animation .futx-chest-lock {
+  position: absolute; z-index: 2; left: 46px; bottom: 25px; width: 20px; height: 24px;
+  border: 3px solid #fff0a4; border-radius: 5px; background: #e9a82f;
+  box-shadow: 0 0 12px #ffda66;
+}
+#futx-chest-animation .futx-chest-lid {
+  position: absolute; z-index: 3; left: 9px; top: 8px; width: 94px; height: 34px;
+  border: 4px solid #ffe09a; border-radius: 13px 13px 5px 5px;
+  background: repeating-linear-gradient(90deg,#a84b19 0 13px,#cf7626 13px 25px);
+  transform-origin: 50% 100%; box-shadow: inset 0 -5px 0 #6e2e11;
+  animation: futxChestLidOpen .55s ease-in 1.02s both;
+}
+#futx-chest-animation .futx-chest-glow {
+  position: absolute; left: -30px; top: -35px; width: 172px; height: 150px;
+  border-radius: 50%; background: radial-gradient(circle,rgba(255,227,111,.95),rgba(255,171,32,.32) 36%,transparent 72%);
+  opacity: 0; animation: futxChestGlow .95s ease-out .92s both;
+}
+#futx-chest-animation .futx-chest-coin {
+  position: absolute; left: 50%; top: 50%; z-index: 4; color: #ffd64f;
+  font-size: var(--coin-size, 20px); line-height: 1;
+  text-shadow: 0 0 5px #ffad22, 0 0 12px rgba(255,221,87,.8);
+  animation: futxChestCoinBurst var(--coin-duration,1.35s) cubic-bezier(.12,.62,.22,1) var(--coin-delay,.0s) both;
+}
+#futx-chest-animation .futx-chest-spark {
+  position: absolute; left: 50%; top: 50%; z-index: 2; color: #fff6b0;
+  font-size: 18px; animation: futxChestSpark 1.3s ease-out var(--coin-delay,.0s) both;
+}
+@keyframes futxChestFly {
+  0% { transform: translate(calc(-50% + var(--chest-x)),calc(-50% + var(--chest-y))) scale(.24) rotate(-22deg); opacity: .2; }
+  65% { opacity: 1; transform: translate(-50%,-50%) scale(1.12) rotate(5deg); }
+  100% { transform: translate(-50%,-50%) scale(1) rotate(0); opacity: 1; }
+}
+@keyframes futxChestLidOpen {
+  0% { transform: rotate(0) translateY(0); }
+  100% { transform: rotate(-38deg) translateY(-12px); }
+}
+@keyframes futxChestGlow {
+  0% { opacity: 0; transform: scale(.3); }
+  28% { opacity: 1; transform: scale(1.18); }
+  100% { opacity: .72; transform: scale(1.55); }
+}
+@keyframes futxChestCoinBurst {
+  0% { opacity: 0; transform: translate(-50%,-50%) scale(.2) rotate(0); }
+  12% { opacity: 1; }
+  100% { opacity: 0; transform: translate(var(--coin-x),var(--coin-y)) scale(.7) rotate(var(--coin-rot,360deg)); }
+}
+@keyframes futxChestSpark {
+  0% { opacity: 0; transform: translate(-50%,-50%) scale(.2); }
+  25% { opacity: 1; }
+  100% { opacity: 0; transform: translate(var(--coin-x),var(--coin-y)) scale(1.5) rotate(80deg); }
+}
+@keyframes futxChestBackdrop {
+  0%,100% { opacity: 0; }
+  8%,78% { opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  #futx-chest-animation .futx-chest-flight,
+  #futx-chest-animation .futx-chest-lid,
+  #futx-chest-animation .futx-chest-glow,
+  #futx-chest-animation .futx-chest-coin,
+  #futx-chest-animation .futx-chest-spark { animation-duration: .01ms !important; animation-delay: 0ms !important; }
+}
+/* FIN FUTX_MYSTERY_CHEST_ANIMATION_V1 */
+
 </style>
 </head>
 <body>
@@ -1372,6 +1460,7 @@ body {
         activeActionPoll += 1;
         const pollToken = activeActionPoll;
         bonusButton.disabled = true;
+        playMysteryChestAnimation();
         title.textContent = "🎁 Abrir cofre extra";
         noticeMessage.textContent = "Verificando el cofre extra…";
         try {
@@ -1533,6 +1622,58 @@ body {
     }
   }
 
+
+  // FUTX_MYSTERY_CHEST_ANIMATION_V1: efecto puramente visual; el servidor calcula y entrega el premio.
+  function playMysteryChestAnimation() {
+    document.getElementById("futx-chest-animation")?.remove();
+    const overlay = document.createElement("div");
+    overlay.id = "futx-chest-animation";
+    overlay.setAttribute("role", "status");
+    overlay.setAttribute("aria-label", "Cofre abriéndose y lluvia de monedas");
+    const flight = document.createElement("div");
+    flight.className = "futx-chest-flight";
+    const glow = document.createElement("div");
+    glow.className = "futx-chest-glow";
+    const body = document.createElement("div");
+    body.className = "futx-chest-body";
+    const band = document.createElement("div");
+    band.className = "futx-chest-band";
+    const lock = document.createElement("div");
+    lock.className = "futx-chest-lock";
+    const lid = document.createElement("div");
+    lid.className = "futx-chest-lid";
+    flight.append(glow, body, band, lock, lid);
+    const corners = [
+      { x: "43vw", y: "38vh" },
+      { x: "-43vw", y: "38vh" },
+      { x: "43vw", y: "-38vh" },
+      { x: "-43vw", y: "-38vh" }
+    ];
+    const corner = corners[Math.floor(Math.random() * corners.length)];
+    flight.style.setProperty("--chest-x", corner.x);
+    flight.style.setProperty("--chest-y", corner.y);
+    overlay.appendChild(flight);
+    // Muchas monedas independientes crean una explosión amplia sin cargar imágenes externas.
+    for (let i = 0; i < 84; i++) {
+      const coin = document.createElement("span");
+      coin.className = i % 5 === 0 ? "futx-chest-spark" : "futx-chest-coin";
+      coin.textContent = i % 5 === 0 ? "✦" : "🪙";
+      const angle = Math.random() * Math.PI * 2;
+      const distance = 100 + Math.random() * Math.min(window.innerWidth * .8, 360);
+      const dx = Math.cos(angle) * distance;
+      const dy = Math.sin(angle) * distance - (45 + Math.random() * 120);
+      coin.style.setProperty("--coin-x", dx.toFixed(0) + "px");
+      coin.style.setProperty("--coin-y", dy.toFixed(0) + "px");
+      coin.style.setProperty("--coin-rot", (Math.random() * 900 - 450).toFixed(0) + "deg");
+      coin.style.setProperty("--coin-size", (14 + Math.random() * 16).toFixed(0) + "px");
+      coin.style.setProperty("--coin-delay", (.95 + Math.random() * .3).toFixed(2) + "s");
+      coin.style.setProperty("--coin-duration", (1.05 + Math.random() * .65).toFixed(2) + "s");
+      overlay.appendChild(coin);
+    }
+    document.body.appendChild(overlay);
+    window.setTimeout(() => overlay.remove(), 2850);
+  }
+
   async function waitForBotResponse(actionId, button, pollToken, preserveActions = false) {
     const started = Date.now();
     while (Date.now() - started < 30000 && pollToken === activeActionPoll) {
@@ -1625,6 +1766,7 @@ body {
           document.querySelector('.app').classList.add('has-response-keyboard', 'staking-mode');
         }
         activeMenuAction = action;
+        if (action === "mystery_chest") playMysteryChestAnimation();
         title.textContent = button.dataset.name;
         startNavigation.style.display = "none";
         noticeMessage.textContent = "Enviando la acción al bot de FUTX…";
