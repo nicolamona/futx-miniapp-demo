@@ -1408,6 +1408,25 @@ body {
       botResponseList.appendChild(intro);
 
     }
+    // FUTX_EQUIPPED_INVENTORY_MARK_V1: marcar solo si la respuesta del bot identifica explícitamente el equipo.
+    const equippedItemNames = (() => {
+      const found = [];
+      const texts = (Array.isArray(messages) ? messages : []).map(item => String(item && item.text || ""));
+      for (const text of texts) {
+        for (const line of text.split(/\r?\n/)) {
+          if (!/\bequipad[oa]s?\b/i.test(line)) continue;
+          const parts = line.split(/\s*[:：—–-]\s*/);
+          if (parts.length < 2) continue;
+          const candidate = parts.slice(1).join(" ").replace(/^[^\p{L}\p{N}]+/u, "").trim();
+          if (candidate.length >= 2 && candidate.length <= 100) found.push(candidate);
+        }
+      }
+      return [...new Set(found)];
+    })();
+    const normalizeEquippedName = value => String(value || "")
+      .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^\p{L}\p{N}]+/gu, " ").trim().toLowerCase();
+
     const hasIncomingKeyboard = (Array.isArray(messages) ? messages : []).some(item =>
       Array.isArray(item && item.keyboard) &&
       item.keyboard.some(row => Array.isArray(row) && row.length > 0)
@@ -1572,6 +1591,22 @@ body {
           button.type = "button";
           button.className = "bot-response-action";
           button.textContent = label;
+          // Solo señalar botones de venta cuando el texto del bot confirma el nombre equipado.
+          const isSellButton = /\bvender\b/i.test(label);
+          const normalizedLabel = normalizeEquippedName(label);
+          const equippedMatch = isSellButton && equippedItemNames.find(name => {
+            const normalizedName = normalizeEquippedName(name);
+            return normalizedName.length >= 2 && normalizedLabel.includes(normalizedName);
+          });
+          if (equippedMatch) {
+            button.classList.add("inventory-item-equipped");
+            button.textContent = label + "  🛡️ EQUIPADO";
+            button.title = "Este objeto está equipado. No lo vendas por equivocación.";
+            button.setAttribute("aria-label", label + " — EQUIPADO");
+            button.style.borderColor = "#62c99b";
+            button.style.background = "linear-gradient(135deg, #174b3c, #183451)";
+            button.style.color = "#e0ffef";
+          }
           if (isReferralCopy) {
             button.addEventListener("click", async () => {
               const shareText = "🚀 ¡Sumate a FUTX! 🎮⚔️\nJugá, completá misiones y descubrí todo lo que podés conseguir. ¡Te espero dentro! 👇\n" + referralLink;
