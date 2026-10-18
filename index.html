@@ -1371,8 +1371,10 @@ body {
   }
 
   function renderBotMessages(messages, sourceActionId, preserveActions = false) {
-    // Detectar la finalización en el punto común donde se recibe y muestra cualquier respuesta del bot.
-    if (isExplicitMissionCompletion(messages)) {
+    // Solo las acciones de juego que pueden avanzar misiones pueden disparar el efecto.
+    // Abrir el panel "Misiones" muestra estados/listados, pero no confirma una finalización nueva.
+    const missionProgressAction = ["mine", "hunt", "combat", "clicker"].includes(activeMenuAction);
+    if (missionProgressAction && isExplicitMissionCompletion(messages)) {
       const missionText = (Array.isArray(messages) ? messages : [])
         .map(item => String(item && item.text || ""))
         .join("\n").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
@@ -1942,7 +1944,9 @@ body {
           renderBotMessages(result.messages, actionId, preserveActions);
           // El mensaje puede llegar antes de que la acción alcance el estado terminal.
           // Detectarlo al recibirlo evita perder la animación en respuestas de combate.
-          if (!missionAnimationPlayed && isExplicitMissionCompletion(result.messages)) {
+          if (!missionAnimationPlayed &&
+              ["mine", "hunt", "combat", "clicker"].includes(activeMenuAction) &&
+              isExplicitMissionCompletion(result.messages)) {
             playMissionCompleteAnimation();
             missionAnimationPlayed = true;
           }
