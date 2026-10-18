@@ -1338,6 +1338,24 @@ body {
     if (hasIncomingKeyboard) bottomActions.replaceChildren();
     if (hasIncomingKeyboard) appElement.classList.add('has-response-keyboard');
     botResponseList.classList.remove("initial-navigation");
+
+    // FUTX_COFRE_EXTRA_RECLAMADO_V1: recordar el reclamo por usuario en esta Mini App.
+    const chestStatusKey = (() => {
+      const uid = String(tg?.initDataUnsafe?.user?.id || "");
+      return uid ? "futx-mystery-bonus-claimed-v1:" + uid : "";
+    })();
+    const allChestResponseText = (Array.isArray(messages) ? messages : [])
+      .map(item => String(item && item.text || "")).join("\n");
+    try {
+      if (chestStatusKey && /¡Abriste el cofre extra de misión!|El cofre extra de esta hora ya fue reclamado/i.test(allChestResponseText)) {
+        localStorage.setItem(chestStatusKey, "1");
+      }
+      // Un nuevo cofre horario inicia un ciclo nuevo: borrar el estado anterior.
+      if (chestStatusKey && /¡Abriste el Cofre Misterioso FUTX!/i.test(allChestResponseText)) {
+        localStorage.removeItem(chestStatusKey);
+      }
+    } catch (_) {}
+
     for (const item of (Array.isArray(messages) ? messages : [])) {
       const card = document.createElement("div");
       card.className = "bot-response-message";
@@ -1443,6 +1461,21 @@ body {
       }
       if (keyboard.childElementCount) bottomActions.appendChild(keyboard);
     }
+    // Mostrar el estado reclamado inmediatamente debajo de la cuenta regresiva del cofre horario.
+    try {
+      if (chestStatusKey && localStorage.getItem(chestStatusKey) === "1" &&
+          /Tu cofre ya fue abierto/i.test(allChestResponseText)) {
+        const claimedNotice = document.createElement("div");
+        claimedNotice.className = "bot-response-message mystery-chest-claimed";
+        claimedNotice.textContent = "✅ Cofre extra reclamado";
+        claimedNotice.style.borderColor = "#3f856a";
+        claimedNotice.style.background = "#102b27";
+        claimedNotice.style.color = "#c9ffe5";
+        claimedNotice.style.fontWeight = "800";
+        botResponseList.appendChild(claimedNotice);
+      }
+    } catch (_) {}
+
     // FUTX_COFRE_EXTRA_MISION_V1: botón de reclamación solo si el bot confirmó el desbloqueo.
     const bonusChestUnlocked = (Array.isArray(messages) ? messages : []).some(item =>
       /COFRE EXTRA DESBLOQUEADO/i.test(String(item && item.text || ""))
