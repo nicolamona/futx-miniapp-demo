@@ -1854,7 +1854,7 @@ body {
       .normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
     // Rechazar paneles/listas, avisos de estado y fallos; no basta con que el
     // panel de Misiones mencione misiones completadas.
-    if (/\b(?:ya estaba completad[ao]|ya completaste|ya cumpliste|no se pudo completar|error al completar|no hay misiones pendientes|mision ya completada|misiones? completadas?\s*[:(]|progreso de misiones|misiones completadas\s*\d)/.test(responseText)) return false;
+    if (/\b(?:ya estaba completad[ao]|ya completaste|ya cumpliste|no se pudo completar|error al completar|no hay misiones pendientes|mision ya completada|misiones\s+completadas\s*[:(]|progreso de misiones|misiones completadas\s*\d)/.test(responseText)) return false;
 
     // Confirmaciones positivas concretas que usa FUTX, incluyendo el mensaje
     // de misión superada y el formato de contrato cumplido con recompensas.
