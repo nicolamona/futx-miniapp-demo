@@ -677,7 +677,15 @@ body {
 }
 /* FIN FUTX_HUNT_NAV_BUTTONS_DOUBLE_SIZE_V1 */
 /* FIN FUTX_COMBAT_CHOICES_LARGER_V1 */
-/* FIN FUTX_ADAPTIVE_SPACE_V1 */
+/* FUTX_MARKET_INNER_BUTTONS_PLUS_25_V1: solo botones dentro de Tienda y Tienda de gemas */
+.app #bottom-actions .bot-response-action.market-inner-button {
+  min-height: 57.5px !important;
+  padding: 11.25px 10px !important;
+  font-size: clamp(17.0625px, 2.1625vh, 21px) !important;
+  line-height: 1.2;
+}
+/* FIN FUTX_MARKET_INNER_BUTTONS_PLUS_25_V1 */
+
 
 /* FIN FUTX_PANTALLA_PERSISTENTE_V1 */
 
@@ -1893,6 +1901,9 @@ body {
           button.className = "bot-response-action";
           if (callback === "market:shop" || callback === "market:gems") {
             button.classList.add("market-district-button");
+          }
+          if (/^(?:shop|gshop):/.test(callback)) {
+            button.classList.add("market-inner-button");
           }
           button.textContent = label;
           // Solo señalar botones de venta cuando el texto del bot confirma el nombre equipado.
