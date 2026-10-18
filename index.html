@@ -1749,13 +1749,13 @@ body {
       };
       if (relicHeader) {
         const noRelics = /Sin potenciadores mineros activos|Sin Fragmentos Estelares activos/i.test(stakingPlainText);
-        const countMatches = [...stakingPlainText.matchAll(/\\b([0-9]+)\\s+activo\\(s\\)/gi)];
+        const countMatches = [...stakingPlainText.matchAll(/\b([0-9]+)\s+activo\(s\)/gi)];
         const relicCount = countMatches.length
           ? countMatches.reduce((sum, match) => sum + Number(match[1]), 0)
           : null;
-        const bonus = stakingPlainText.match(/Bono total de staking\\s*:\\s*\\+?([0-9.,]+\\s*%)/i)
-          || stakingPlainText.match(/Bono temporal de staking\\s*:\\s*\\+?([0-9.,]+\\s*%)/i);
-        const expiry = stakingPlainText.match(/Pr[oó]ximo vencimiento\\s*:\\s*([^\\n\\r]+)/i);
+        const bonus = stakingPlainText.match(/Bono total de staking\s*:\s*\+?([0-9.,]+\s*%)/i)
+          || stakingPlainText.match(/Bono temporal de staking\s*:\s*\+?([0-9.,]+\s*%)/i);
+        const expiry = stakingPlainText.match(/Pr[oó]ximo vencimiento\s*:\s*([^\n\r]+)/i);
         if (noRelics) {
           appendRelicLine("🏺 Estado:", "Sin potenciadores mineros activos");
         } else {
