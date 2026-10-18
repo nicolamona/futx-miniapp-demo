@@ -807,8 +807,14 @@ body {
   15% { opacity: 1; } 100% { opacity: 0; transform: translate(var(--spark-x),var(--spark-y)) scale(1.2) rotate(160deg); }
 }
 @media (prefers-reduced-motion: reduce) {
-  #futx-mission-complete-animation,
-  #futx-mission-complete-animation * { animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
+  /* Mantener el aviso visible aunque el dispositivo reduzca movimiento. */
+  #futx-mission-complete-animation { animation: none !important; opacity: 1 !important; }
+  #futx-mission-complete-animation .futx-mission-rays,
+  #futx-mission-complete-animation .futx-mission-spark { display: none !important; }
+  #futx-mission-complete-animation .futx-mission-card,
+  #futx-mission-complete-animation .futx-mission-trophy {
+    animation: none !important; opacity: 1 !important; transform: none !important;
+  }
 }
 /* FIN FUTX_MISSION_COMPLETE_ANIMATION_V1 */
 
@@ -1846,13 +1852,15 @@ body {
       .map(item => String(item && item.text || ""))
       .join("\n")
       .normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
-    if (/\b(?:ya estaba completad[ao]|ya completaste|ya cumpliste|no se pudo completar|error al completar|no hay misiones pendientes|mision ya completada)\b/.test(responseText)) return false;
-    // Tolerar puntuación, emojis y variaciones del texto real del bot.
-    const completed = /\b(?:completad[ao]s?|cumplid[ao]s?|finalizad[ao]s?|superad[ao]s?)\b/;
-    const mission = /\bmisiones?\b/;
-    return (mission.test(responseText) && completed.test(responseText)) ||
-      /\b(?:completaste|cumpliste|superaste|finalizaste|has completado|has cumplido|has superado)\b[\s\S]{0,180}\bmision(?:es)?\b/.test(responseText) ||
-      /\b(?:objetivo|desafio|tarea)(?:s)?\b[\s\S]{0,100}\b(?:alcanzado|completad[ao]s?|cumplid[ao]s?|superad[ao]s?)\b/.test(responseText) ||
+    // Rechazar paneles/listas, avisos de estado y fallos; no basta con que el
+    // panel de Misiones mencione misiones completadas.
+    if (/\b(?:ya estaba completad[ao]|ya completaste|ya cumpliste|no se pudo completar|error al completar|no hay misiones pendientes|mision ya completada|misiones? completadas?\s*[:(]|progreso de misiones|misiones completadas\s*\d)/.test(responseText)) return false;
+
+    // Confirmaciones positivas concretas que usa FUTX, incluyendo el mensaje
+    // de misión superada y el formato de contrato cumplido con recompensas.
+    return /\b(?:mision|contrato)\s+(?:ha sido\s+)?(?:completad[ao]|cumplid[ao]|superad[ao]|finalizad[ao])\b/.test(responseText) ||
+      /\b(?:completaste|cumpliste|superaste|finalizaste|has completado|has cumplido|has superado)\b[\s\S]{0,180}\b(?:la|una|tu)?\s*(?:mision|contrato)\b/.test(responseText) ||
+      /\bcontrato cumplido\b[\s\S]{0,500}\b(?:recompensas? (?:ya fueron )?acreditad[ao]s?|recompensas? obtenidas?)\b/.test(responseText) ||
       /\b(?:recompensa|premio) de mision (?:reclamad[ao]|obtenid[ao]|recibid[ao])\b/.test(responseText) ||
       /\b(?:ganaste|recibiste|obtuviste)\b[\s\S]{0,140}\b(?:por completar|por cumplir|por superar)\b[\s\S]{0,70}\bmision\b/.test(responseText);
   }
