@@ -960,6 +960,33 @@ body {
     return messageText.replace(/(PERFIL DE\s+)@?Jugador\b/i, (_match, prefix) => prefix + label);
   }
 
+  let activeMenuAction = "";
+
+  function extractReferralLink(messages) {
+    const text = (Array.isArray(messages) ? messages : [])
+      .map(item => String(item && item.text || ""))
+      .join("\n");
+    const match = text.match(/https?:\/\/[^\s<>]+/i);
+    return match ? match[0].replace(/[)\],.!?;]+$/, "") : "";
+  }
+
+  async function copyShareText(text) {
+    if (navigator.clipboard && typeof navigator.clipboard.writeText === "function") {
+      await navigator.clipboard.writeText(text);
+      return;
+    }
+    const area = document.createElement("textarea");
+    area.value = text;
+    area.setAttribute("readonly", "");
+    area.style.position = "fixed";
+    area.style.opacity = "0";
+    document.body.appendChild(area);
+    area.select();
+    const copied = document.execCommand("copy");
+    area.remove();
+    if (!copied) throw new Error("No se pudo copiar automáticamente. Mantené pulsado el texto para copiarlo.");
+  }
+
   function renderBotMessages(messages, sourceActionId, preserveActions = false) {
     if (typeof sourceActionId === "string" && /^[0-9a-f]{32}$/.test(sourceActionId)) {
       activeKeyboardActionId = sourceActionId;
@@ -1013,6 +1040,11 @@ body {
           const callback = typeof entry.callback_data === "string" ? entry.callback_data : "";
           const isReplyButton = item.keyboard_type === "reply";
           const buttonValue = isReplyButton ? String(entry.text || "") : callback;
+          const referralLink = activeMenuAction === "referrals"
+            ? (extractReferralLink(messages) || (typeof entry.url === "string" && /^https?:\/\//i.test(entry.url) ? entry.url : ""))
+            : "";
+          const isReferralCopy = activeMenuAction === "referrals" &&
+            /copiar|copy|enlace|link/i.test(label) && Boolean(referralLink);
           // Ocultar temporalmente el ingreso manual hasta implementar el formulario dentro de la Mini App.
           if (callback === "stk:dep:manual") continue;
           if (isReplyButton && (!buttonValue || entry.request_contact || entry.request_location || entry.web_app)) continue;
@@ -1020,7 +1052,17 @@ body {
           button.type = "button";
           button.className = "bot-response-action";
           button.textContent = label;
-          if (isReplyButton) {
+          if (isReferralCopy) {
+            button.addEventListener("click", async () => {
+              const shareText = "🚀 ¡Sumate a FUTX! 🎮⚔️\nJugá, completá misiones y descubrí todo lo que podés conseguir. ¡Te espero dentro! 👇\n" + referralLink;
+              try {
+                await copyShareText(shareText);
+                noticeMessage.textContent = "✅ ¡Mensaje y link copiados! Pegalos en tu grupo de amigos y compartí FUTX.";
+              } catch (error) {
+                noticeMessage.textContent = "⚠️ " + (error.message || "No se pudo copiar el mensaje.");
+              }
+            });
+          } else if (isReplyButton) {
             button.addEventListener("click", () => {
               button.disabled = true;
               sendMenuButton("text", buttonValue, button, label, sourceActionId, messageId);
@@ -1262,6 +1304,7 @@ body {
           bottomActions.replaceChildren();
           document.querySelector('.app').classList.add('has-response-keyboard', 'staking-mode');
         }
+        activeMenuAction = action;
         title.textContent = button.dataset.name;
         startNavigation.style.display = "none";
         noticeMessage.textContent = "Enviando la acción al bot de FUTX…";
