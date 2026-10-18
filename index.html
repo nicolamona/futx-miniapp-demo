@@ -546,6 +546,23 @@ body {
   font-size: 15px;
   line-height: 1.25;
 }
+/* FUTX_COMBAT_CHOICES_LARGER_V1: botones grandes solo al elegir combate local/global */
+.app.combat-choice-mode #notice { flex: 4 1 0; }
+.app.combat-choice-mode #bottom-actions {
+  flex: 6 1 0;
+  max-height: 42vh;
+  max-height: 42dvh;
+}
+.app.combat-choice-mode #bottom-actions > .bot-response-keyboard {
+  gap: 12px;
+}
+.app.combat-choice-mode #bottom-actions .bot-response-action {
+  min-height: 76px;
+  padding: 14px 10px;
+  font-size: 16px;
+  line-height: 1.25;
+}
+/* FIN FUTX_COMBAT_CHOICES_LARGER_V1 */
 /* FIN FUTX_ADAPTIVE_SPACE_V1 */
 
 /* FIN FUTX_PANTALLA_PERSISTENTE_V1 */
@@ -1025,7 +1042,11 @@ body {
     const isLocalCombatKeyboard = ["fight:attack", "fight:defend", "fight:skill", "fight:flee"]
       .every(callback => incomingCallbacks.includes(callback));
     const appElement = document.querySelector(".app");
+    const isCombatChoiceKeyboard =
+      incomingLabels.some(label => /combate\s*local|local\s*combat/i.test(label)) &&
+      incomingLabels.some(label => /combate\s*global|global\s*combat/i.test(label));
     appElement.classList.toggle("local-combat-mode", isLocalCombatKeyboard);
+    appElement.classList.toggle("combat-choice-mode", isCombatChoiceKeyboard);
     const isMainMenuKeyboard = incomingLabels.some(label => label.includes("minar")) &&
       incomingLabels.some(label => label.includes("staking"));
     // Un teclado del bot sustituye por completo los botones generales.
