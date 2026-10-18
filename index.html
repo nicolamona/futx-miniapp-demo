@@ -48,7 +48,20 @@ button { font: inherit; }
   max-width: calc(100% - 150px);
   text-align: center;
 }
-.brand h1 { margin: 0; font-size: 26px; letter-spacing: 2px; }
+.brand h1 {
+  margin: 0;
+  font-family: "Arial Black", "Trebuchet MS", sans-serif;
+  font-size: 30px;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: 4px;
+  background: linear-gradient(105deg, #e3f5ff 0%, #8bd1ff 38%, #58a9ff 72%, #d5c8ff 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-stroke: 0.35px #a9d9ff;
+  filter: drop-shadow(0 0 7px #63baff66);
+}
 .brand p {
   margin: 3px 0 0;
   color: var(--muted);
@@ -384,7 +397,7 @@ body {
   padding: 5px 6px;
   font-size: 8px;
 }
-.brand h1 { font-size: 24px; }
+.brand h1 { font-size: 27px; letter-spacing: 3px; }
 .brand p {
   font-size: 9px;
   letter-spacing: 1px;
