@@ -1511,7 +1511,9 @@ body {
   // FUTX_MISSION_CONTRACT_CARD_V1: transformar solo contratos reconocibles de Misiones.
   // Los textos originales y el teclado del bot se conservan; si el formato no coincide, se usa la vista habitual.
   function renderMissionContractCard(card, originalText) {
-    if (activeMenuAction !== "missions" || !/CONTRATO EN CURSO|CONTRATO ACTIVO/i.test(originalText) ||
+    // Detectar el contrato por su contenido, no por la función activa:
+    // la respuesta de Misiones puede llegar al navegar desde otro submenú.
+    if (!/CONTRATO EN CURSO|CONTRATO ACTIVO/i.test(originalText) ||
         !/RECOMPENSA/i.test(originalText) || !/OBJETIVO/i.test(originalText)) return false;
 
     const text = String(originalText || "").replace(/\r/g, "");
