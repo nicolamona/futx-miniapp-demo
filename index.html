@@ -34,10 +34,27 @@ button { font: inherit; }
            max(28px, env(safe-area-inset-bottom));
 }
 .header {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 13px;
   padding: 8px 2px 24px;
+}
+.brand {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: max-content;
+  max-width: calc(100% - 150px);
+  text-align: center;
+}
+.brand h1 { margin: 0; font-size: 26px; letter-spacing: 2px; }
+.brand p {
+  margin: 3px 0 0;
+  color: var(--muted);
+  font-size: 10px;
+  letter-spacing: 2px;
+  white-space: nowrap;
 }
 .logo {
   width: 54px;
@@ -49,14 +66,7 @@ button { font: inherit; }
   background: #172844;
   font-size: 29px;
 }
-.brand { flex: 1; }
-.brand h1 { margin: 0; font-size: 26px; letter-spacing: 2px; }
-.brand p {
-  margin: 3px 0 0;
-  color: var(--muted);
-  font-size: 10px;
-  letter-spacing: 2px;
-}
+
 .preview-label {
   border: 1px solid #34547d;
   color: #b8d9ff;
@@ -362,6 +372,16 @@ body {
 }
 .header {
   padding-bottom: 10px;
+}
+.header .preview-label {
+  margin-left: auto;
+  padding: 5px 6px;
+  font-size: 8px;
+}
+.brand h1 { font-size: 24px; }
+.brand p {
+  font-size: 9px;
+  letter-spacing: 1px;
 }
 .intro {
   margin-bottom: 8px;
