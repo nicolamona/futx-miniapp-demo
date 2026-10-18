@@ -995,6 +995,40 @@ body {
   .mission-contract-card .mc-reward { padding: 10px 8px; }
 }
 
+
+/* FUTX_PROFILE_SCROLL_CUE_V1: pista discreta cuando el perfil flotante continúa debajo del área visible. */
+#bot-response-list.profile-scroll-cue::after {
+  content: "⌄  Deslizá para ver más";
+  position: sticky;
+  bottom: 6px;
+  z-index: 5;
+  display: flex;
+  width: max-content;
+  max-width: calc(100% - 24px);
+  justify-content: center;
+  align-items: center;
+  margin: -34px auto 6px;
+  padding: 7px 12px;
+  border: 1px solid rgba(108, 202, 255, .5);
+  border-radius: 999px;
+  background: rgba(9, 25, 44, .94);
+  box-shadow: 0 3px 14px rgba(0, 0, 0, .3), 0 0 12px rgba(69, 179, 244, .14);
+  color: #bdeaff;
+  font-size: 11px;
+  font-weight: 750;
+  letter-spacing: .02em;
+  line-height: 1.2;
+  pointer-events: none;
+  animation: futxProfileScrollCue 1.4s ease-in-out infinite;
+}
+@keyframes futxProfileScrollCue {
+  0%, 100% { transform: translateY(0); opacity: .88; }
+  50% { transform: translateY(3px); opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  #bot-response-list.profile-scroll-cue::after { animation: none; }
+}
+
 </style>
 </head>
 <body>
@@ -1621,6 +1655,24 @@ body {
     return true;
   }
 
+  // FUTX_PROFILE_SCROLL_CUE_V1: mostrar la pista solo para el perfil abierto desde el icono flotante.
+  function updateProfileScrollCue() {
+    const list = botResponseList;
+    if (!list) return;
+    const profileText = Array.from(list.querySelectorAll(".bot-response-message"))
+      .some(card => /^📜\s*PERFIL DE @/m.test(card.textContent || ""));
+    const sync = () => {
+      const canScroll = list.scrollHeight > list.clientHeight + 12;
+      const notAtBottom = list.scrollTop + list.clientHeight < list.scrollHeight - 12;
+      list.classList.toggle("profile-scroll-cue", profileText && canScroll && notAtBottom);
+    };
+    if (!list.dataset.profileCueBound) {
+      list.addEventListener("scroll", sync, { passive: true });
+      list.dataset.profileCueBound = "1";
+    }
+    requestAnimationFrame(() => requestAnimationFrame(sync));
+  }
+
   function renderBotMessages(messages, sourceActionId, preserveActions = false) {
     if (typeof sourceActionId === "string" && /^[0-9a-f]{32}$/.test(sourceActionId)) {
       activeKeyboardActionId = sourceActionId;
@@ -1970,6 +2022,7 @@ body {
       // y restaurar la navegación fija sin interrumpir la consulta actual.
       renderInitialNavigation(true, translatedMenuLabels);
     }
+    updateProfileScrollCue();
   }
 
   async function sendMenuButton(buttonType, value, button, label, sourceActionId, sourceMessageId) {
