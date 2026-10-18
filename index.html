@@ -1748,14 +1748,18 @@ body {
         relicCard.appendChild(p);
       };
       if (relicHeader) {
-        const noRelics = /Sin Fragmentos Estelares activos/i.test(stakingPlainText);
-        const count = stakingPlainText.match(/Fragmentos Estelares activos\s*:\s*([0-9]+)/i);
-        const bonus = stakingPlainText.match(/Bono temporal de staking\s*:\s*\+?([0-9.,]+\s*%)/i);
-        const expiry = stakingPlainText.match(/Pr[oó]ximo vencimiento\s*:\s*([^\n\r]+)/i);
+        const noRelics = /Sin potenciadores mineros activos|Sin Fragmentos Estelares activos/i.test(stakingPlainText);
+        const countMatches = [...stakingPlainText.matchAll(/\\b([0-9]+)\\s+activo\\(s\\)/gi)];
+        const relicCount = countMatches.length
+          ? countMatches.reduce((sum, match) => sum + Number(match[1]), 0)
+          : null;
+        const bonus = stakingPlainText.match(/Bono total de staking\\s*:\\s*\\+?([0-9.,]+\\s*%)/i)
+          || stakingPlainText.match(/Bono temporal de staking\\s*:\\s*\\+?([0-9.,]+\\s*%)/i);
+        const expiry = stakingPlainText.match(/Pr[oó]ximo vencimiento\\s*:\\s*([^\\n\\r]+)/i);
         if (noRelics) {
-          appendRelicLine("🏺 Estado:", "Sin Fragmentos Estelares activos");
+          appendRelicLine("🏺 Estado:", "Sin potenciadores mineros activos");
         } else {
-          appendRelicLine("🏺 Fragmentos Estelares activos:", count ? count[1] : "Dato no disponible");
+          appendRelicLine("🏺 Potenciadores mineros activos:", relicCount !== null ? String(relicCount) : "Dato no disponible");
           appendRelicLine("📈 Bono temporal de staking:", bonus ? (bonus[1].startsWith("+") ? bonus[1] : "+" + bonus[1]) : "Dato no disponible");
           appendRelicLine("⏳ Próximo vencimiento:", expiry ? expiry[1].replace(/<[^>]*>/g, "").trim() : "Dato no disponible");
         }
