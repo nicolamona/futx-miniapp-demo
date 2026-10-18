@@ -633,6 +633,12 @@ body {
 
 
 /* FUTX_AVATAR_CUSTOMIZER_V1 */
+#profile-avatar-display{flex:0 0 auto;display:flex;align-items:center;gap:12px;margin:4px 0 8px;padding:8px 12px;border:1px solid #345176;border-radius:14px;background:linear-gradient(120deg,#172b48,#101b2e)}
+#profile-avatar-display .avatar-mini{width:64px;height:64px;flex:0 0 64px;display:grid;place-items:center;border-radius:12px;background:#0b1426}
+#profile-avatar-display svg{width:60px;height:60px}
+#profile-avatar-display .avatar-caption{font-size:12px;color:#dff3ff;font-weight:700}
+#profile-avatar-display .avatar-subcaption{font-size:10px;color:#9db0cc;margin-top:3px}
+
 .avatar-editor{display:grid;gap:10px;padding:12px;border:1px solid #345176;border-radius:16px;background:linear-gradient(145deg,#172b48,#101b2e)}
 .avatar-editor-preview{display:grid;place-items:center;min-height:120px;border-radius:12px;background:radial-gradient(ellipse,#294d76,#0b1426);padding:12px}
 .avatar-editor-preview svg{width:104px;height:104px;filter:drop-shadow(0 0 10px var(--avatar-glow,#8bd1ff66))}
@@ -732,6 +738,7 @@ body {
     <section class="notice visible" id="notice" aria-live="polite">
       <h3 id="notice-title">Menú principal de FUTX</h3>
       <p id="notice-message">Elegí una opción, como en el teclado del bot de Telegram. Las respuestas y los siguientes botones aparecerán acá mismo, sin cerrar esta pantalla.</p>
+      <div id="profile-avatar-display" aria-label="Tu avatar FUTX" style="display:none"></div>
       <div id="bot-response-list" class="bot-response-list" aria-live="polite"></div>
       <button id="start-navigation" type="button">▶ Empezar · Abrir menú inicial</button>
       <button id="close-notice" type="button" aria-label="Volver al menú principal" title="Volver al inicio">🏠</button>
@@ -1605,6 +1612,13 @@ body {
       '<g fill="' + color + '" stroke="#dff3ff" stroke-width="2">' + head + '</g>' +
       face + '<path d="M40 59Q50 64 60 59" fill="none" stroke="#dff3ff" stroke-width="2" stroke-linecap="round"/>' + accessory + '</svg>';
   }
+  function renderSavedAvatar() {
+    const host = document.getElementById("profile-avatar-display");
+    if (!host) return;
+    const cfg = loadAvatar();
+    host.innerHTML = '<div class="avatar-mini">' + avatarSvg(cfg) + '</div><div><div class="avatar-caption">TU AVATAR FUTX</div><div class="avatar-subcaption">' + cfg.type + ' · ' + cfg.armor + '</div></div>';
+    host.style.display = "flex";
+  }
   function showAvatarEditor() {
     botResponseList.classList.remove("initial-navigation");
     botResponseList.replaceChildren();
@@ -1653,6 +1667,7 @@ body {
       if (!key) { note.textContent = "Abrí FUTX desde Telegram para guardar el avatar asociado a tu usuario."; return; }
       try {
         localStorage.setItem(key, JSON.stringify(cfg));
+        renderSavedAvatar();
         note.textContent = "✅ Avatar guardado en este dispositivo para tu usuario de Telegram.";
         save.textContent = "✅ Avatar guardado";
       } catch (_) { note.textContent = "No se pudo guardar en este dispositivo. Revisá el almacenamiento del navegador."; }
@@ -1736,6 +1751,8 @@ body {
     closeNotice.style.display = "inline-flex";
   }
 
+  // Mostrar el avatar guardado al abrir la Mini App.
+  renderSavedAvatar();
   // Mostrar el perfil completo que devuelve el bot en el panel superior, con navegación fija abajo.
   renderInitialNavigation();
   showProfileInInterface();
