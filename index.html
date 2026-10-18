@@ -641,8 +641,9 @@ body {
   position:absolute; top:10px; right:8px; width:122px; height:122px;
   box-sizing:border-box; margin:0; padding:4px; display:flex; justify-content:center;
   align-items:center; border:1px solid #345176; border-radius:16px;
-  background:linear-gradient(120deg,#172b48,#101b2e); cursor:pointer;
-  -webkit-tap-highlight-color:transparent; transition:transform .15s ease,border-color .15s ease;
+  background:linear-gradient(120deg,#172b48,#101b2e); cursor:grab;
+  -webkit-tap-highlight-color:transparent; touch-action:none; user-select:none;
+  -webkit-user-select:none; transition:transform .15s ease,border-color .15s ease;
 }
 #notice.profile-initial-layout #profile-avatar-display:active { transform:scale(.96); }
 #notice.profile-initial-layout #profile-avatar-display:focus-visible { outline:2px solid #8bdcff; outline-offset:2px; }
@@ -1675,9 +1676,39 @@ body {
       hair + eyes + '<path d="M41 59Q50 64 59 59" fill="none" stroke="' + pale + '" stroke-width="2" stroke-linecap="round"/>' +
       emblem + accessory + '</svg>';
   }
+  function avatarPositionStorageKey() {
+    const uid = String(tg?.initDataUnsafe?.user?.id || "");
+    return uid ? "futx-avatar-position-v1:" + uid : "";
+  }
+  function applySavedAvatarPosition(host) {
+    const key = avatarPositionStorageKey();
+    if (!host || !key) return;
+    try {
+      const pos = JSON.parse(localStorage.getItem(key) || "null");
+      if (!pos || !Number.isFinite(pos.x) || !Number.isFinite(pos.y)) return;
+      const maxX = Math.max(0, window.innerWidth - host.offsetWidth);
+      const maxY = Math.max(0, window.innerHeight - host.offsetHeight);
+      host.style.position = "fixed";
+      host.style.left = Math.max(0, Math.min(maxX, pos.x)) + "px";
+      host.style.top = Math.max(0, Math.min(maxY, pos.y)) + "px";
+      host.style.right = "auto";
+      host.style.zIndex = "1000";
+    } catch (_) {}
+  }
+  function clearInlineAvatarPosition(host) {
+    if (!host) return;
+    host.style.position = "";
+    host.style.left = "";
+    host.style.top = "";
+    host.style.right = "";
+    host.style.zIndex = "";
+  }
   function setProfileAvatarLayout(enabled) {
     const panel = document.getElementById("notice");
+    const host = document.getElementById("profile-avatar-display");
     if (panel) panel.classList.toggle("profile-initial-layout", !!enabled);
+    if (enabled) applySavedAvatarPosition(host);
+    else clearInlineAvatarPosition(host);
   }
   function renderSavedAvatar() {
     const host = document.getElementById("profile-avatar-display");
@@ -1688,7 +1719,15 @@ body {
     host.setAttribute("tabindex", "0");
     host.setAttribute("aria-label", "Editar tu avatar FUTX");
     host.setAttribute("title", "Toca para editar tu avatar");
-    host.onclick = showAvatarEditor;
+    host.onclick = event => {
+      if (host.dataset.dragged === "1") {
+        host.dataset.dragged = "0";
+        event.preventDefault();
+        event.stopPropagation();
+        return;
+      }
+      showAvatarEditor();
+    };
     host.onkeydown = event => {
       if (event.key === "Enter" || event.key === " ") {
         event.preventDefault();
@@ -1696,6 +1735,75 @@ body {
       }
     };
     host.style.display = "flex";
+    host.style.touchAction = "none";
+    if (!host.dataset.dragHandlers) {
+      host.dataset.dragHandlers = "1";
+      let pressTimer = null;
+      let dragging = false;
+      let startX = 0, startY = 0, offsetX = 0, offsetY = 0;
+      const cancelPress = () => {
+        if (pressTimer !== null) {
+          clearTimeout(pressTimer);
+          pressTimer = null;
+        }
+      };
+      host.addEventListener("pointerdown", event => {
+        if (event.button !== undefined && event.button !== 0) return;
+        startX = event.clientX;
+        startY = event.clientY;
+        dragging = false;
+        cancelPress();
+        pressTimer = setTimeout(() => {
+          const rect = host.getBoundingClientRect();
+          offsetX = startX - rect.left;
+          offsetY = startY - rect.top;
+          host.style.position = "fixed";
+          host.style.left = rect.left + "px";
+          host.style.top = rect.top + "px";
+          host.style.right = "auto";
+          host.style.zIndex = "1000";
+          host.style.transition = "none";
+          dragging = true;
+          host.dataset.dragged = "1";
+          host.style.cursor = "grabbing";
+          try { host.setPointerCapture(event.pointerId); } catch (_) {}
+        }, 380);
+      });
+      host.addEventListener("pointermove", event => {
+        if (!dragging) {
+          if (Math.abs(event.clientX - startX) > 12 || Math.abs(event.clientY - startY) > 12) cancelPress();
+          return;
+        }
+        event.preventDefault();
+        const maxX = Math.max(0, window.innerWidth - host.offsetWidth);
+        const maxY = Math.max(0, window.innerHeight - host.offsetHeight);
+        const x = Math.max(0, Math.min(maxX, event.clientX - offsetX));
+        const y = Math.max(0, Math.min(maxY, event.clientY - offsetY));
+        host.style.left = x + "px";
+        host.style.top = y + "px";
+      });
+      const finishDrag = () => {
+        cancelPress();
+        if (!dragging) return;
+        dragging = false;
+        host.style.cursor = "pointer";
+        host.style.transition = "";
+        const key = avatarPositionStorageKey();
+        if (key) {
+          try {
+            const rect = host.getBoundingClientRect();
+            localStorage.setItem(key, JSON.stringify({x:rect.left,y:rect.top}));
+          } catch (_) {}
+        }
+      };
+      host.addEventListener("pointerup", finishDrag);
+      host.addEventListener("pointercancel", finishDrag);
+      host.addEventListener("lostpointercapture", finishDrag);
+      host.addEventListener("contextmenu", event => {
+        if (dragging || host.dataset.dragged === "1") event.preventDefault();
+      });
+    }
+    applySavedAvatarPosition(host);
   }
   function showAvatarEditor() {
     setProfileAvatarLayout(false);
