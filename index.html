@@ -1103,12 +1103,12 @@ body {
     const allMessages = (Array.isArray(messages) ? messages : []).map(item =>
       String(item && item.text || "")
     );
-    const currency = /\\bwld\\b/i.test(label) ? "wld" :
-      /\\bfutx\\b/i.test(label) ? "futx" : "";
+    const currency = /\bwld\b/i.test(label) ? "wld" :
+      /\bfutx\b/i.test(label) ? "futx" : "";
     if (currency) {
       const matchingText = allMessages.find(text => {
         addressPattern.lastIndex = 0;
-        return new RegExp("\\\\b" + currency + "\\\\b", "i").test(text) &&
+        return new RegExp("\\b" + currency + "\\b", "i").test(text) &&
           addressPattern.test(text);
       });
       addressPattern.lastIndex = 0;
@@ -1118,7 +1118,7 @@ body {
       }
     }
 
-    const allText = allMessages.join("\\n");
+    const allText = allMessages.join("\n");
     const allAddresses = [...new Set(allText.match(addressPattern) || [])];
     return allAddresses.length === 1 ? allAddresses[0] : "";
   }
