@@ -939,6 +939,62 @@ body {
   text-shadow: none;
 }
 
+
+/* FUTX_MISSION_CONTRACT_CARD_V1: presentación visual del contrato sin alterar datos ni callbacks. */
+.app .bot-response-message.mission-contract-card {
+  white-space: normal; padding: 0; overflow: hidden;
+  border: 1px solid rgba(89,190,239,.42);
+  border-radius: 20px;
+  background: linear-gradient(155deg, rgba(10,28,47,.98), rgba(7,17,30,.98));
+  box-shadow: inset 0 1px 0 rgba(190,235,255,.07), 0 12px 30px rgba(0,0,0,.18);
+  color: #eaf7ff;
+}
+.mission-contract-card .mc-wrap { display: grid; gap: 15px; padding: 17px; }
+.mission-contract-card .mc-header { display: flex; align-items: center; gap: 12px; }
+.mission-contract-card .mc-emblem {
+  flex: 0 0 48px; width: 48px; height: 48px; display: grid; place-items: center;
+  border-radius: 15px; font-size: 25px;
+  background: radial-gradient(circle at 30% 20%, #235578, #10253d 72%);
+  border: 1px solid rgba(111,211,255,.45); box-shadow: 0 0 18px rgba(59,174,232,.13);
+}
+.mission-contract-card .mc-eyebrow { color: #83c9eb; font-size: 10px; font-weight: 800; letter-spacing: .13em; line-height: 1.5; }
+.mission-contract-card .mc-title { color: #f4fbff; font-size: 20px; font-weight: 800; line-height: 1.2; margin-top: 2px; }
+.mission-contract-card .mc-description { color: #b9d0e1; font-size: 13px; line-height: 1.55; }
+.mission-contract-card .mc-panel {
+  display: grid; gap: 10px; padding: 13px; border-radius: 15px;
+  border: 1px solid rgba(92,154,192,.22);
+  background: linear-gradient(145deg, rgba(21,48,70,.78), rgba(13,29,46,.8));
+}
+.mission-contract-card .mc-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.mission-contract-card .mc-label { color: #92b9d1; font-size: 10px; font-weight: 800; letter-spacing: .1em; }
+.mission-contract-card .mc-pill { color: #b9eaff; background: rgba(68,170,219,.13); border: 1px solid rgba(92,196,241,.25); border-radius: 999px; padding: 4px 8px; font-size: 11px; font-weight: 800; }
+.mission-contract-card .mc-objective { color: #f0f8ff; font-size: 15px; font-weight: 750; line-height: 1.4; }
+.mission-contract-card .mc-progress-track { width: 100%; height: 9px; overflow: hidden; border-radius: 99px; background: #243b50; box-shadow: inset 0 1px 3px rgba(0,0,0,.4); }
+.mission-contract-card .mc-progress-fill { height: 100%; border-radius: inherit; background: linear-gradient(90deg, #36a9e8, #8ae6ff); box-shadow: 0 0 12px rgba(81,201,255,.35); }
+.mission-contract-card .mc-progress-note { color: #94b0c5; font-size: 11px; }
+.mission-contract-card .mc-rewards-title { color: #f7d78b; font-size: 11px; font-weight: 850; letter-spacing: .1em; }
+.mission-contract-card .mc-rewards { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 9px; }
+.mission-contract-card .mc-reward {
+  min-width: 0; padding: 12px 10px; border-radius: 13px;
+  border: 1px solid rgba(211,171,86,.24);
+  background: linear-gradient(145deg, rgba(65,51,27,.48), rgba(34,31,28,.42));
+}
+.mission-contract-card .mc-reward:nth-child(2) { border-color: rgba(170,133,231,.26); background: linear-gradient(145deg, rgba(54,39,79,.52), rgba(29,25,46,.45)); }
+.mission-contract-card .mc-reward-icon { font-size: 18px; }
+.mission-contract-card .mc-reward-value { color: #ffe4a1; font-size: 15px; font-weight: 850; line-height: 1.4; overflow-wrap: anywhere; }
+.mission-contract-card .mc-reward:nth-child(2) .mc-reward-value { color: #d9c2ff; }
+.mission-contract-card .mc-reward-caption { color: #b4a989; font-size: 10px; margin-top: 2px; }
+.mission-contract-card .mc-next { display: flex; align-items: flex-start; gap: 9px; color: #c4e8f8; font-size: 12px; line-height: 1.5; }
+.mission-contract-card .mc-next-icon { flex: 0 0 auto; font-size: 18px; }
+.mission-contract-card .mc-original { border-top: 1px solid rgba(100,157,190,.2); padding-top: 10px; }
+.mission-contract-card .mc-original summary { color: #86b8d4; cursor: pointer; font-size: 11px; font-weight: 700; }
+.mission-contract-card .mc-original pre { white-space: pre-wrap; overflow-wrap: anywhere; color: #a9c0d0; font: inherit; font-size: 11px; line-height: 1.5; margin: 9px 0 0; }
+@media (max-width: 360px) {
+  .mission-contract-card .mc-wrap { padding: 13px; gap: 12px; }
+  .mission-contract-card .mc-title { font-size: 18px; }
+  .mission-contract-card .mc-reward { padding: 10px 8px; }
+}
+
 </style>
 </head>
 <body>
@@ -1410,6 +1466,161 @@ body {
     return allAddresses.length === 1 ? allAddresses[0] : "";
   }
 
+  // FUTX_MISSION_CONTRACT_CARD_V1: transformar solo contratos reconocibles de Misiones.
+  // Los textos originales y el teclado del bot se conservan; si el formato no coincide, se usa la vista habitual.
+  function renderMissionContractCard(card, originalText) {
+    if (activeMenuAction !== "missions" || !/CONTRATO EN CURSO|CONTRATO ACTIVO/i.test(originalText) ||
+        !/RECOMPENSA/i.test(originalText) || !/OBJETIVO/i.test(originalText)) return false;
+
+    const text = String(originalText || "").replace(/\r/g, "");
+    const lines = text.split("\n").map(line => line.trim()).filter(Boolean);
+    const findLine = pattern => lines.find(line => pattern.test(line)) || "";
+    const titleLine = lines.find(line => /『[^』]+』/.test(line)) || "";
+    const titleMatch = titleLine.match(/『\s*([^』]+?)\s*』/);
+    const missionTitle = titleMatch ? titleMatch[1] : "Contrato de aventura";
+    const objectiveLine = findLine(/^(?:▪\s*)?(?:Derrotar|Vencer|Eliminar|Cazar|Recolectar|Minar|Completar|Encontrar|Explorar|Entregar|Sobrevivir|Usar|Fabricar|Ganar|Participar|Alcanzar|Obtener|Reunir|Hablar|Ayudar|Activar|Recoger)\b/i)
+      .replace(/^[▪•\s]+/, "");
+    const objectiveHeading = lines.findIndex(line => /🎯\s*OBJETIVO/i.test(line));
+    const rewardHeading = lines.findIndex(line => /🏆\s*RECOMPENSA/i.test(line));
+    const description = titleLine ? (lines.slice(lines.indexOf(titleLine) + 1, objectiveHeading >= 0 ? objectiveHeading : lines.length)
+      .filter(line => !/^[╔╗╚╝═─━『』]+$/.test(line) && !/^🏷️?/.test(line) && !/^⚔️\s*GREMIO/i.test(line) && !/^📜/.test(line) && !/^━━━━━━━━/.test(line) && !/^📊/.test(line) && !/^░/.test(line) && !/^\d+\s*\/\s*\d+/.test(line))
+      .join(" ").trim()) : "";
+    const percentMatch = text.match(/(?:PROGRESO\s*)?(\d{1,3})\s*%/i);
+    const fractionMatch = text.match(/(\d+)\s*\/\s*(\d+)\s*completado/i);
+    const percent = Math.max(0, Math.min(100, percentMatch ? Number(percentMatch[1]) : (fractionMatch && Number(fractionMatch[2]) > 0 ? Math.round(Number(fractionMatch[1]) / Number(fractionMatch[2]) * 100) : 0)));
+    const current = fractionMatch ? Number(fractionMatch[1]) : null;
+    const total = fractionMatch ? Number(fractionMatch[2]) : null;
+    const rewardLines = rewardHeading >= 0 ? lines.slice(rewardHeading + 1).filter(line =>
+      !/^━━━━━━━━/.test(line) && !/^🛡️?/.test(line) && !/^╔|^╚/.test(line)
+    ) : [];
+    const rewards = [];
+    for (const line of rewardLines) {
+      const match = line.match(/(?:🪙|💰|💎|✨|⭐|🎁|🏆)?\s*([\d][\d.,]*\s*(?:FUTX|EXP|XP|gemas?|gema|monedas?|fragmentos?|puntos?|tokens?))/i);
+      if (match) {
+        const value = match[1].replace(/\s+/g, " ").trim();
+        const unit = value.match(/[A-Za-zÁÉÍÓÚáéíóú]+$/)?.[0]?.toUpperCase() || "";
+        rewards.push({ value, icon: /EXP|XP/.test(unit) ? "✨" : /GEMA/.test(unit) ? "💎" : /FUTX|TOKEN|MONEDA/.test(unit) ? "🪙" : "🎁", caption: /EXP|XP/.test(unit) ? "Experiencia" : /GEMA/.test(unit) ? "Gemas" : /FUTX/.test(unit) ? "Moneda del juego" : "Recompensa" });
+      }
+    }
+    if (!objectiveLine || !rewards.length) return false;
+
+    const wrap = document.createElement("div");
+    wrap.className = "mc-wrap";
+    const header = document.createElement("div");
+    header.className = "mc-header";
+    const emblem = document.createElement("div");
+    emblem.className = "mc-emblem";
+    emblem.textContent = /COMBATE/i.test(text) ? "⚔️" : /CAZA/i.test(text) ? "🏹" : /MINA/i.test(text) ? "⛏️" : /RECOLECT/i.test(text) ? "🌿" : "📜";
+    const headerCopy = document.createElement("div");
+    headerCopy.style.minWidth = "0";
+    const eyebrow = document.createElement("div");
+    eyebrow.className = "mc-eyebrow";
+    eyebrow.textContent = "GREMIO FUTX · " + (findLine(/🏷️?\s*/)?.replace(/^🏷️?\s*/, "").toUpperCase() || "CONTRATO ACTIVO");
+    const heading = document.createElement("div");
+    heading.className = "mc-title";
+    heading.textContent = missionTitle;
+    headerCopy.append(eyebrow, heading);
+    const state = document.createElement("span");
+    state.className = "mc-pill";
+    state.textContent = percent >= 100 ? "COMPLETADO" : "EN CURSO";
+    header.append(emblem, headerCopy);
+    wrap.appendChild(header);
+    if (description) {
+      const desc = document.createElement("div");
+      desc.className = "mc-description";
+      desc.textContent = description;
+      wrap.appendChild(desc);
+    }
+
+    const panel = document.createElement("section");
+    panel.className = "mc-panel";
+    const objectiveRow = document.createElement("div");
+    objectiveRow.className = "mc-row";
+    const objectiveLabel = document.createElement("div");
+    objectiveLabel.className = "mc-label";
+    objectiveLabel.textContent = "OBJETIVO";
+    const count = document.createElement("span");
+    count.className = "mc-pill";
+    count.textContent = current !== null && total !== null ? current + " de " + total : percent + "%";
+    objectiveRow.append(objectiveLabel, count);
+    const objective = document.createElement("div");
+    objective.className = "mc-objective";
+    objective.textContent = objectiveLine;
+    const progressRow = document.createElement("div");
+    progressRow.className = "mc-row";
+    const progressLabel = document.createElement("div");
+    progressLabel.className = "mc-label";
+    progressLabel.textContent = "PROGRESO";
+    const progressValue = document.createElement("strong");
+    progressValue.style.cssText = "color:#83ddff;font-size:14px";
+    progressValue.textContent = percent + "%";
+    progressRow.append(progressLabel, progressValue);
+    const track = document.createElement("div");
+    track.className = "mc-progress-track";
+    const fill = document.createElement("div");
+    fill.className = "mc-progress-fill";
+    fill.style.width = percent + "%";
+    track.appendChild(fill);
+    const note = document.createElement("div");
+    note.className = "mc-progress-note";
+    note.textContent = percent >= 100 ? "Objetivo completado. Revisá el bot para confirmar el estado de la recompensa." :
+      current !== null && total !== null ? "Completado: " + current + " de " + total + (total === 1 ? " objetivo." : " objetivos.") :
+      "Progreso actual del contrato.";
+    panel.append(objectiveRow, objective, progressRow, track, note);
+    wrap.appendChild(panel);
+
+    const rewardTitle = document.createElement("div");
+    rewardTitle.className = "mc-rewards-title";
+    rewardTitle.textContent = "🏆 RECOMPENSAS DEL CONTRATO";
+    wrap.appendChild(rewardTitle);
+    const rewardGrid = document.createElement("div");
+    rewardGrid.className = "mc-rewards";
+    rewards.forEach(reward => {
+      const rewardCard = document.createElement("div");
+      rewardCard.className = "mc-reward";
+      const rewardIcon = document.createElement("div");
+      rewardIcon.className = "mc-reward-icon";
+      rewardIcon.textContent = reward.icon;
+      const rewardValue = document.createElement("div");
+      rewardValue.className = "mc-reward-value";
+      rewardValue.textContent = reward.value;
+      const rewardCaption = document.createElement("div");
+      rewardCaption.className = "mc-reward-caption";
+      rewardCaption.textContent = reward.caption;
+      rewardCard.append(rewardIcon, rewardValue, rewardCaption);
+      rewardGrid.appendChild(rewardCard);
+    });
+    wrap.appendChild(rewardGrid);
+
+    const next = document.createElement("div");
+    next.className = "mc-next";
+    const nextIcon = document.createElement("span");
+    nextIcon.className = "mc-next-icon";
+    nextIcon.textContent = percent >= 100 ? "🏁" : "🛡️";
+    const nextText = document.createElement("div");
+    nextText.textContent = percent >= 100
+      ? "El objetivo figura completo. Consultá el bot para verificar si corresponde reclamar la recompensa."
+      : /Derrotar|Vencer|Eliminar/i.test(objectiveLine)
+        ? "Tu próximo paso: entrá en Combate y derrotá al enemigo indicado. Después volvé a consultar Misiones para actualizar el progreso."
+        : "Cumplí el objetivo indicado y volvé a consultar Misiones para comprobar el progreso actualizado.";
+    next.append(nextIcon, nextText);
+    wrap.appendChild(next);
+
+    const original = document.createElement("details");
+    original.className = "mc-original";
+    const summary = document.createElement("summary");
+    summary.textContent = "Ver respuesta original del bot";
+    const pre = document.createElement("pre");
+    pre.textContent = text;
+    original.append(summary, pre);
+    wrap.appendChild(original);
+
+    card.classList.add("mission-contract-card");
+    card.replaceChildren(wrap);
+    card.setAttribute("aria-label", "Ficha visual del contrato " + missionTitle);
+    return true;
+  }
+
   function renderBotMessages(messages, sourceActionId, preserveActions = false) {
     if (typeof sourceActionId === "string" && /^[0-9a-f]{32}$/.test(sourceActionId)) {
       activeKeyboardActionId = sourceActionId;
@@ -1546,7 +1757,9 @@ body {
     for (const item of (Array.isArray(messages) ? messages : [])) {
       const card = document.createElement("div");
       card.className = "bot-response-message";
-      card.textContent = normalizeProfileHeading(String(item && item.text ? item.text : ""));
+      const normalizedMessageText = normalizeProfileHeading(String(item && item.text ? item.text : ""));
+      const renderedMissionCard = renderMissionContractCard(card, normalizedMessageText);
+      if (!renderedMissionCard) card.textContent = normalizedMessageText;
       // Agrandar exclusivamente la línea de FUTX y gemas del perfil abierto desde el botón flotante.
       if (/^📜 PERFIL DE @/m.test(card.textContent)) {
         const profileLines = card.textContent.split("\n");
