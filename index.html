@@ -1371,20 +1371,6 @@ body {
   }
 
   function renderBotMessages(messages, sourceActionId, preserveActions = false) {
-    // Solo las acciones de juego que pueden avanzar misiones pueden disparar el efecto.
-    // Abrir el panel "Misiones" muestra estados/listados, pero no confirma una finalización nueva.
-    const missionProgressAction = ["mine", "hunt", "combat", "clicker"].includes(activeMenuAction);
-    if (missionProgressAction && isExplicitMissionCompletion(messages)) {
-      const missionText = (Array.isArray(messages) ? messages : [])
-        .map(item => String(item && item.text || ""))
-        .join("\n").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
-      const now = Date.now();
-      if (missionText !== lastMissionAnimationText || now - lastMissionAnimationAt > 12000) {
-        playMissionCompleteAnimation();
-        lastMissionAnimationText = missionText;
-        lastMissionAnimationAt = now;
-      }
-    }
     if (typeof sourceActionId === "string" && /^[0-9a-f]{32}$/.test(sourceActionId)) {
       activeKeyboardActionId = sourceActionId;
     }
@@ -1925,6 +1911,9 @@ body {
   // FUTX_CHEST_ANIMATION_ON_CONFIRMED_SUCCESS_V1: animar solo tras un premio real confirmado por el bot.
   async function waitForBotResponse(actionId, button, pollToken, preserveActions = false, chestAnimationOnSuccess = false) {
     const started = Date.now();
+    // Capturar la acción al comenzar el sondeo: el render puede restaurar el menú principal
+    // y limpiar activeMenuAction antes de que llegue el mensaje de confirmación.
+    const missionProgressAction = ["mine", "hunt", "combat", "clicker"].includes(activeMenuAction);
     let missionAnimationPlayed = false;
     while (Date.now() - started < 30000 && pollToken === activeActionPoll) {
       await new Promise(resolve => setTimeout(resolve, 900));
@@ -1944,8 +1933,7 @@ body {
           renderBotMessages(result.messages, actionId, preserveActions);
           // El mensaje puede llegar antes de que la acción alcance el estado terminal.
           // Detectarlo al recibirlo evita perder la animación en respuestas de combate.
-          if (!missionAnimationPlayed &&
-              ["mine", "hunt", "combat", "clicker"].includes(activeMenuAction) &&
+          if (!missionAnimationPlayed && missionProgressAction &&
               isExplicitMissionCompletion(result.messages)) {
             playMissionCompleteAnimation();
             missionAnimationPlayed = true;
