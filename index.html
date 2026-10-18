@@ -1987,11 +1987,23 @@ body {
       document.getElementById("futx-developer-fab")?.remove();
     }
 
+    // Cofre destacado arriba de todo y ocupando las dos columnas.
+    const chestLabel = "🎁 Cofre Misterioso";
+    const chestSource = sourceButtons.get(chestLabel);
+    if (chestSource) {
+      const chestButton = document.createElement("button");
+      chestButton.type = "button";
+      chestButton.className = "bot-response-action full-width mystery-chest-featured";
+      chestButton.textContent = chestLabel;
+      chestButton.addEventListener("click", () => chestSource.click());
+      bottomActions.appendChild(chestButton);
+    }
+
     const maxRows = Math.max(mainMenuColumns[0].length, mainMenuColumns[1].length);
     for (let i = 0; i < maxRows; i++) {
       for (const column of mainMenuColumns) {
         const label = column[i];
-        if (!label) continue;
+        if (!label || label === chestLabel) continue;
         const sourceButton = sourceButtons.get(label);
         if (!sourceButton) continue;
         const navButton = document.createElement("button");
