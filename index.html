@@ -1501,7 +1501,8 @@ body {
     );
     try {
       const extraChestClaimed = Boolean(
-        chestStatusKey && localStorage.getItem(chestStatusKey) === "1"
+        (chestStatusKey && localStorage.getItem(chestStatusKey) === "1") ||
+        /Tu cofre ya fue abierto|El cofre extra de esta hora ya fue reclamado|¡Abriste el cofre extra de misión!/i.test(allChestResponseText)
       );
       if (activeMenuAction === "mystery_chest" && (extraChestClaimed || bonusChestUnlocked)) {
         const chestNotice = document.createElement("div");
