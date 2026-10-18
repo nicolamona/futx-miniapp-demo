@@ -1202,19 +1202,21 @@ body {
           }
         }
       }
-      if (summaryLines.length) {
-        const summary = document.createElement("section");
-        summary.className = "bot-response-message staking-summary";
-        const heading = document.createElement("div");
-        heading.className = "staking-summary-title";
-        heading.textContent = "📊 Tus balances y recompensas";
-        summary.appendChild(heading);
-        const details = document.createElement("div");
-        details.className = "staking-summary-details";
-        details.textContent = summaryLines.join("\n");
-        summary.appendChild(details);
-        botResponseList.appendChild(summary);
-      }
+      // Mostrar siempre el encabezado de balances dentro de Staking, incluso si
+      // el texto devuelto por el bot no coincide con los filtros de resumen.
+      const summary = document.createElement("section");
+      summary.className = "bot-response-message staking-summary";
+      const heading = document.createElement("div");
+      heading.className = "staking-summary-title";
+      heading.textContent = "📊 Tus balances y recompensas";
+      summary.appendChild(heading);
+      const details = document.createElement("div");
+      details.className = "staking-summary-details";
+      details.textContent = summaryLines.length
+        ? summaryLines.join("\n")
+        : "Tus balances stakeados y las recompensas disponibles se mostrarán aquí cuando el bot los informe.";
+      summary.appendChild(details);
+      botResponseList.appendChild(summary);
     }
     const hasIncomingKeyboard = (Array.isArray(messages) ? messages : []).some(item =>
       Array.isArray(item && item.keyboard) &&
