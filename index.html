@@ -545,6 +545,14 @@ body {
   overflow-wrap: anywhere;
   white-space: normal;
 }
+/* FUTX_MARKET_DISTRICT_BUTTONS_DOUBLE_SIZE_V1: solo Tienda y Tienda de gemas */
+#bottom-actions .bot-response-action.market-district-button {
+  min-height: 92px !important;
+  padding: 18px 16px !important;
+  font-size: 1.9rem !important;
+  line-height: 1.2;
+}
+/* FIN FUTX_MARKET_DISTRICT_BUTTONS_DOUBLE_SIZE_V1 */
 #bottom-actions:empty { display: grid; }
 #close-notice { margin-top: 6px; align-self: flex-start; }
 .intro, #main-menu-label, .menu { display: none !important; }
@@ -1883,6 +1891,9 @@ body {
           const button = document.createElement("button");
           button.type = "button";
           button.className = "bot-response-action";
+          if (callback === "market:shop" || callback === "market:gems") {
+            button.classList.add("market-district-button");
+          }
           button.textContent = label;
           // Solo señalar botones de venta cuando el texto del bot confirma el nombre equipado.
           const isSellButton = /\bvender\b/i.test(label);
