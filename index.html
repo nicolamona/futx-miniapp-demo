@@ -660,6 +660,14 @@ body {
   font-size: 16.8px;
   line-height: 1.25;
 }
+/* FUTX_HUNT_NAV_BUTTONS_DOUBLE_SIZE_V1: botones de navegación al doble de tamaño solo en Cazar */
+.app.hunt-navigation-mode #bottom-actions .bot-response-action {
+  min-height: 92px !important;
+  padding: 18px 20px !important;
+  font-size: 1.9rem !important;
+  line-height: 1.25;
+}
+/* FIN FUTX_HUNT_NAV_BUTTONS_DOUBLE_SIZE_V1 */
 /* FIN FUTX_COMBAT_CHOICES_LARGER_V1 */
 /* FIN FUTX_ADAPTIVE_SPACE_V1 */
 
@@ -2440,6 +2448,7 @@ body {
           bottomActions.replaceChildren();
           document.querySelector('.app').classList.add('has-response-keyboard', 'staking-mode');
         }
+        document.querySelector('.app').classList.toggle('hunt-navigation-mode', action === "hunt");
         activeMenuAction = action;
         title.textContent = button.dataset.name;
         startNavigation.style.display = "none";
