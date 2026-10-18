@@ -1590,21 +1590,29 @@ body {
   }
 
 
-  // FUTX_AVATAR_CUSTOMIZER_V1: personalización visual local, separada de acciones y estadísticas del juego.
+  // FUTX_AVATAR_CUSTOMIZER_V2: personalización visual local, separada de acciones y estadísticas.
   const avatarOptions = {
-    type: ["Humano", "Cibernético", "Robot", "Alienígena"],
+    type: ["Humano", "Cibernético", "Robot", "Alienígena", "Androide", "Cazarrecompensas"],
     color: [
       {label:"Azul hielo", value:"#a9d9ff"},
       {label:"Violeta", value:"#c5a5ff"},
       {label:"Verde neón", value:"#8df7c5"},
       {label:"Rojo", value:"#ff929c"},
-      {label:"Dorado", value:"#ffd782"}
+      {label:"Dorado", value:"#ffd782"},
+      {label:"Naranja plasma", value:"#ffb36b"},
+      {label:"Turquesa", value:"#63e6e2"},
+      {label:"Rosa eléctrico", value:"#ff8cda"},
+      {label:"Blanco perla", value:"#f0f4ff"},
+      {label:"Acero oscuro", value:"#8090a8"}
     ],
-    eyes: ["Visor luminoso", "Ojos robóticos", "Máscara táctica"],
-    armor: ["Explorador", "Guerrero", "Mago tecnológico", "Élite"],
-    accessory: ["Antena futurista", "Visor holográfico", "Hombrera", "Ninguno"]
+    eyes: ["Visor luminoso", "Ojos robóticos", "Máscara táctica", "Cíclope", "Ojos alienígenas", "Visor angular"],
+    armor: ["Explorador", "Guerrero", "Mago tecnológico", "Élite", "Asesino sigiloso", "Pesada", "Piloto espacial"],
+    accessory: ["Antena futurista", "Visor holográfico", "Hombrera", "Cuernos", "Alas mecánicas", "Auriculares", "Ninguno"],
+    hairstyle: ["Cresta", "Puntas", "Largo", "Corto", "Sin pelo", "Placas metálicas"],
+    emblem: ["Estrella", "Rayo", "Calavera", "Núcleo", "Diamante", "Sin emblema"],
+    background: ["Órbita azul", "Nebulosa violeta", "Reactor verde", "Sol rojo", "Espacio oscuro"]
   };
-  const defaultAvatar = {type:"Cibernético",color:"#a9d9ff",eyes:"Visor luminoso",armor:"Explorador",accessory:"Antena futurista"};
+  const defaultAvatar = {type:"Cibernético",color:"#a9d9ff",eyes:"Visor luminoso",armor:"Explorador",accessory:"Antena futurista",hairstyle:"Cresta",emblem:"Núcleo",background:"Órbita azul"};
   function avatarStorageKey() {
     const uid = String(tg?.initDataUnsafe?.user?.id || "");
     return uid ? "futx-avatar-v1:" + uid : "";
@@ -1618,24 +1626,54 @@ body {
   }
   function avatarSvg(config) {
     const color = avatarOptions.color.some(x => x.value === config.color) ? config.color : defaultAvatar.color;
-    const head = config.type === "Robot" ? '<rect x="25" y="20" width="50" height="48" rx="12"/>' :
-      config.type === "Alienígena" ? '<path d="M50 16 C22 16 20 43 29 61 Q50 78 71 61 C80 43 78 16 50 16Z"/>' :
-      '<path d="M25 34 Q25 14 50 14 Q75 14 75 34 L72 62 Q50 78 28 62Z"/>';
-    const face = config.eyes === "Máscara táctica"
-      ? '<path d="M29 39 L71 39 L65 54 L35 54Z" fill="#10213b"/>'
-      : config.eyes === "Ojos robóticos"
-      ? '<circle cx="39" cy="42" r="5" fill="#eaf8ff"/><circle cx="61" cy="42" r="5" fill="#eaf8ff"/>'
-      : '<rect x="29" y="35" width="42" height="13" rx="6" fill="#10213b"/><path d="M34 41H66" stroke="#eaf8ff" stroke-width="3" stroke-linecap="round"/>';
-    const accessory = config.accessory === "Antena futurista"
-      ? '<path d="M50 17V7" stroke="' + color + '" stroke-width="4" stroke-linecap="round"/><circle cx="50" cy="6" r="4" fill="' + color + '"/>'
-      : config.accessory === "Visor holográfico"
-      ? '<path d="M23 32 Q50 20 77 32" stroke="' + color + '" stroke-width="4" fill="none"/>'
-      : config.accessory === "Hombrera"
-      ? '<path d="M20 76L9 89L30 91L36 78M80 76L91 89L70 91L64 78" fill="' + color + '"/>'
-      : '';
-    return '<svg viewBox="0 0 100 100" role="img" aria-label="Vista previa del avatar"><path d="M18 95Q18 70 38 68H62Q82 70 82 95Z" fill="' + color + '" opacity=".85"/>' +
-      '<g fill="' + color + '" stroke="#dff3ff" stroke-width="2">' + head + '</g>' +
-      face + '<path d="M40 59Q50 64 60 59" fill="none" stroke="#dff3ff" stroke-width="2" stroke-linecap="round"/>' + accessory + '</svg>';
+    const dark = "#10213b";
+    const pale = "#eaf8ff";
+    const bgMap = {"Órbita azul":"#203f66","Nebulosa violeta":"#4a2e70","Reactor verde":"#1d594e","Sol rojo":"#713344","Espacio oscuro":"#111827"};
+    const bg = bgMap[config.background] || bgMap["Órbita azul"];
+    let head = '<path d="M27 34Q25 14 50 14Q75 14 73 34L70 61Q50 78 30 61Z"/>';
+    if (config.type === "Robot") head = '<rect x="25" y="20" width="50" height="48" rx="9"/><path d="M25 31H18V49H25M75 31H82V49H75" fill="none" stroke="' + color + '" stroke-width="5"/>';
+    if (config.type === "Alienígena") head = '<path d="M50 15C27 15 19 35 27 57L17 42Q12 28 24 25Q31 11 50 15Q69 11 76 25Q88 28 83 42L73 57C81 35 73 15 50 15Z"/>';
+    if (config.type === "Androide") head = '<path d="M30 18L70 18L78 36L70 64L50 76L30 64L22 36Z"/><path d="M22 37H13M78 37H87" stroke="' + color + '" stroke-width="4"/>';
+    if (config.type === "Cazarrecompensas") head = '<path d="M25 24L39 15H61L75 24L70 58L50 74L30 58Z"/><path d="M27 28L15 44L29 48M73 28L85 44L71 48" fill="none" stroke="' + color + '" stroke-width="4"/>';
+    let hair = "";
+    if (config.hairstyle === "Cresta") hair = '<path d="M34 23L37 8L47 20L53 6L61 21L68 12L69 29Z" fill="' + color + '" stroke="' + pale + '" stroke-width="1.5"/>';
+    if (config.hairstyle === "Puntas") hair = '<path d="M27 30L25 15L39 24L45 8L53 23L66 12L70 30Z" fill="' + color + '" stroke="' + pale + '" stroke-width="1.5"/>';
+    if (config.hairstyle === "Largo") hair = '<path d="M27 25Q18 42 27 67L36 70L34 37Q50 23 66 37L64 70L73 67Q82 42 73 25Q50 2 27 25Z" fill="' + color + '" stroke="' + pale + '" stroke-width="1.5"/>';
+    if (config.hairstyle === "Corto") hair = '<path d="M27 31Q24 12 50 12Q76 12 73 31L65 28L60 21L50 27L40 21L35 29Z" fill="' + color + '" stroke="' + pale + '" stroke-width="1.5"/>';
+    if (config.hairstyle === "Placas metálicas") hair = '<path d="M29 27L31 15L43 20L50 9L57 20L69 15L71 28Z" fill="' + dark + '" stroke="' + color + '" stroke-width="3"/>';
+    let eyes = '<rect x="29" y="35" width="42" height="13" rx="6" fill="' + dark + '"/><path d="M34 41H66" stroke="' + pale + '" stroke-width="3" stroke-linecap="round"/>';
+    if (config.eyes === "Ojos robóticos") eyes = '<circle cx="39" cy="42" r="6" fill="' + pale + '"/><circle cx="61" cy="42" r="6" fill="' + pale + '"/><circle cx="39" cy="42" r="3" fill="' + color + '"/><circle cx="61" cy="42" r="3" fill="' + color + '"/>';
+    if (config.eyes === "Máscara táctica") eyes = '<path d="M27 36L73 36L66 53L34 53Z" fill="' + dark + '" stroke="' + color + '" stroke-width="2"/><path d="M35 42H65" stroke="' + color + '" stroke-width="2"/>';
+    if (config.eyes === "Cíclope") eyes = '<path d="M30 39Q50 26 70 39L65 49H35Z" fill="' + dark + '" stroke="' + pale + '" stroke-width="1.5"/><circle cx="50" cy="41" r="6" fill="' + color + '"/>';
+    if (config.eyes === "Ojos alienígenas") eyes = '<ellipse cx="39" cy="42" rx="7" ry="9" fill="' + dark + '"/><ellipse cx="61" cy="42" rx="7" ry="9" fill="' + dark + '"/><ellipse cx="41" cy="41" rx="2" ry="5" fill="' + color + '"/><ellipse cx="63" cy="41" rx="2" ry="5" fill="' + color + '"/>';
+    if (config.eyes === "Visor angular") eyes = '<path d="M27 34L49 38L73 31L68 49L51 45L32 51Z" fill="' + dark + '" stroke="' + color + '" stroke-width="2.5"/><path d="M35 42L46 42M56 40L66 37" stroke="' + pale + '" stroke-width="2"/>';
+    let body = '<path d="M18 96Q18 73 37 68L42 64H58L63 68Q82 73 82 96Z" fill="' + color + '" stroke="' + pale + '" stroke-width="2"/>';
+    if (config.armor === "Guerrero") body = '<path d="M15 96L20 75L38 65L50 73L62 65L80 75L85 96Z" fill="' + color + '" stroke="' + pale + '" stroke-width="2"/><path d="M29 76L40 84L50 75L60 84L71 76" fill="none" stroke="' + dark + '" stroke-width="4"/>';
+    if (config.armor === "Mago tecnológico") body = '<path d="M27 67L50 76L73 67L88 96H12Z" fill="' + color + '" stroke="' + pale + '" stroke-width="2"/><path d="M50 76L43 88L50 96L57 88Z" fill="' + dark + '"/>';
+    if (config.armor === "Élite") body = '<path d="M16 96L23 72L39 64L50 71L61 64L77 72L84 96Z" fill="' + color + '" stroke="' + pale + '" stroke-width="2"/><path d="M39 68L50 80L61 68L58 96H42Z" fill="' + dark + '" stroke="' + pale + '" stroke-width="1.5"/>';
+    if (config.armor === "Asesino sigiloso") body = '<path d="M20 96L25 72L42 65L50 72L58 65L75 72L80 96Z" fill="' + dark + '" stroke="' + color + '" stroke-width="3"/><path d="M31 76L50 91L69 76" fill="none" stroke="' + color + '" stroke-width="3"/>';
+    if (config.armor === "Pesada") body = '<path d="M10 96L15 72L35 63L42 70H58L65 63L85 72L90 96Z" fill="' + color + '" stroke="' + pale + '" stroke-width="3"/><rect x="37" y="74" width="26" height="19" rx="4" fill="' + dark + '" stroke="' + pale + '" stroke-width="2"/>';
+    if (config.armor === "Piloto espacial") body = '<path d="M20 96L24 73L38 66H62L76 73L80 96Z" fill="' + color + '" stroke="' + pale + '" stroke-width="2"/><path d="M36 70L32 82L42 89M64 70L68 82L58 89" fill="none" stroke="' + dark + '" stroke-width="4"/>';
+    let accessory = "";
+    if (config.accessory === "Antena futurista") accessory = '<path d="M50 16V5" stroke="' + color + '" stroke-width="4" stroke-linecap="round"/><circle cx="50" cy="5" r="4" fill="' + color + '" stroke="' + pale + '" stroke-width="1.5"/>';
+    if (config.accessory === "Visor holográfico") accessory = '<path d="M23 32Q50 20 77 32L72 46Q50 52 28 46Z" fill="' + color + '" fill-opacity=".38" stroke="' + pale + '" stroke-width="2"/>';
+    if (config.accessory === "Hombrera") accessory = '<path d="M20 72L8 83L16 92L36 82M80 72L92 83L84 92L64 82" fill="' + color + '" stroke="' + pale + '" stroke-width="2"/>';
+    if (config.accessory === "Cuernos") accessory = '<path d="M31 25L17 8L22 32M69 25L83 8L78 32" fill="' + color + '" stroke="' + pale + '" stroke-width="2.5" stroke-linejoin="round"/>';
+    if (config.accessory === "Alas mecánicas") accessory = '<path d="M28 69L5 55L15 77L5 83L30 88M72 69L95 55L85 77L95 83L70 88" fill="' + dark + '" stroke="' + color + '" stroke-width="3"/>';
+    if (config.accessory === "Auriculares") accessory = '<path d="M23 38V30Q23 15 50 15Q77 15 77 30V38" fill="none" stroke="' + color + '" stroke-width="5"/><rect x="18" y="35" width="10" height="18" rx="4" fill="' + color + '"/><rect x="72" y="35" width="10" height="18" rx="4" fill="' + color + '"/>';
+    let emblem = "";
+    if (config.emblem === "Estrella") emblem = '<path d="M50 76L54 84L63 85L56 91L58 98L50 94L42 98L44 91L37 85L46 84Z" fill="' + color + '" stroke="' + pale + '" stroke-width="1"/>';
+    if (config.emblem === "Rayo") emblem = '<path d="M53 76L42 87H50L46 96L59 83H51Z" fill="' + color + '" stroke="' + pale + '" stroke-width="1"/>';
+    if (config.emblem === "Calavera") emblem = '<circle cx="50" cy="84" r="7" fill="' + pale + '"/><circle cx="47" cy="83" r="2" fill="' + dark + '"/><circle cx="53" cy="83" r="2" fill="' + dark + '"/><path d="M46 89V92M50 89V92M54 89V92" stroke="' + dark + '" stroke-width="1.5"/>';
+    if (config.emblem === "Núcleo") emblem = '<circle cx="50" cy="85" r="8" fill="' + dark + '" stroke="' + pale + '" stroke-width="2"/><circle cx="50" cy="85" r="4" fill="' + color + '"/>';
+    if (config.emblem === "Diamante") emblem = '<path d="M50 76L59 85L50 94L41 85Z" fill="' + color + '" stroke="' + pale + '" stroke-width="2"/>';
+    return '<svg viewBox="0 0 100 100" role="img" aria-label="Vista previa del avatar">' +
+      '<circle cx="50" cy="51" r="46" fill="' + bg + '" stroke="' + color + '" stroke-opacity=".65" stroke-width="2"/>' +
+      '<circle cx="50" cy="51" r="39" fill="none" stroke="' + pale + '" stroke-opacity=".18" stroke-dasharray="3 5"/>' +
+      '<path d="M7 51H15M85 51H93M50 5V12M50 90V97" stroke="' + color + '" stroke-width="2"/>' +
+      body + '<g fill="' + color + '" stroke="' + pale + '" stroke-width="2" stroke-linejoin="round">' + head + '</g>' +
+      hair + eyes + '<path d="M41 59Q50 64 59 59" fill="none" stroke="' + pale + '" stroke-width="2" stroke-linecap="round"/>' +
+      emblem + accessory + '</svg>';
   }
   function setProfileAvatarLayout(enabled) {
     const panel = document.getElementById("notice");
@@ -1673,11 +1711,14 @@ body {
     const controls = document.createElement("div");
     controls.style.cssText = "display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px";
     const fields = [
-      ["type","Tipo",avatarOptions.type],
-      ["color","Color",avatarOptions.color.map(x=>x.label)],
+      ["type","Especie / modelo",avatarOptions.type],
+      ["color","Color principal",avatarOptions.color.map(x=>x.label)],
       ["eyes","Ojos / visor",avatarOptions.eyes],
       ["armor","Armadura",avatarOptions.armor],
-      ["accessory","Accesorio",avatarOptions.accessory]
+      ["hairstyle","Peinado / placas",avatarOptions.hairstyle],
+      ["accessory","Accesorio",avatarOptions.accessory],
+      ["emblem","Emblema del pecho",avatarOptions.emblem],
+      ["background","Fondo / energía",avatarOptions.background]
     ];
     const inputs = {};
     fields.forEach(([key,label,options]) => {
@@ -1698,7 +1739,7 @@ body {
     });
     const note = document.createElement("div");
     note.className = "avatar-editor-note";
-    note.textContent = "La personalización es cosmética y no modifica estadísticas ni consume recursos.";
+    note.textContent = "¡Combiná 8 detalles! Los cambios son visuales: no modifican estadísticas ni consumen FUTX o gemas.";
     const save = document.createElement("button");
     save.type = "button";
     save.className = "bot-response-action";
@@ -1720,7 +1761,7 @@ body {
     updatePreview();
     card.append(heading,preview,controls,note,save);
     botResponseList.appendChild(card);
-    noticeMessage.textContent = "Elegí cinco detalles y guardá tu diseño. Tu menú y las funciones del juego siguen disponibles.";
+    noticeMessage.textContent = "Elegí entre decenas de combinaciones y guardá tu diseño. Es una personalización visual, sin coste ni cambios en el juego.";
     title.textContent = "🎨 Personalizar avatar";
   }
 
