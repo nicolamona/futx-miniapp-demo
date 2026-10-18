@@ -301,6 +301,13 @@ body { position: fixed; inset: 0; }
 }
 /* FIN FUTX_PROFILE_BALANCE_HIGHLIGHT_V4 */
 
+/* FUTX_PROFILE_BALANCE_LINE_ONLY_V1 */
+.bot-response-message .profile-balance-line {
+  font-size: 1.25em;
+  font-weight: 800;
+}
+/* FIN FUTX_PROFILE_BALANCE_LINE_ONLY_V1 */
+
 
 .bot-response-message {
   white-space: pre-wrap; overflow-wrap: anywhere;
@@ -1237,6 +1244,23 @@ body {
       const card = document.createElement("div");
       card.className = "bot-response-message";
       card.textContent = normalizeProfileHeading(String(item && item.text ? item.text : ""));
+      // Agrandar exclusivamente la línea de FUTX y gemas del perfil abierto desde el botón flotante.
+      if (/^📜 PERFIL DE @/m.test(card.textContent)) {
+        const profileLines = card.textContent.split("\n");
+        const balanceLineIndex = profileLines.findIndex(line => /💰\s*FUTX\s*:\s*[^·\n]+\s*·\s*💎\s*Gemas\s*:/i.test(line));
+        if (balanceLineIndex >= 0) {
+          const balanceText = profileLines[balanceLineIndex];
+          const before = profileLines.slice(0, balanceLineIndex).join("\n");
+          const after = profileLines.slice(balanceLineIndex + 1).join("\n");
+          card.replaceChildren();
+          if (before) card.appendChild(document.createTextNode(before + "\n"));
+          const balanceSpan = document.createElement("span");
+          balanceSpan.className = "profile-balance-line";
+          balanceSpan.textContent = balanceText;
+          card.appendChild(balanceSpan);
+          if (after) card.appendChild(document.createTextNode("\n" + after));
+        }
+      }
       if (/PERFIL FUTX\s*[·|—-]\s*ACCIONES MEDIANTE EL BOT|EL PERFIL ES DE SOLO LECTURA/i.test(card.textContent)) {
         card.classList.add("profile-readonly-disclaimer");
       }
