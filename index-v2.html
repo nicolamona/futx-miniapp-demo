@@ -436,6 +436,7 @@ body { position: fixed; inset: 0; }
   const botResponseList = document.getElementById("bot-response-list");
   let activeActionPoll = 0;
   let activeKeyboardActionId = "";
+  let activeMenuAction = "";
 
   function isSafeNavigationCallback(value) {
     if (typeof value !== "string") return false;
@@ -513,7 +514,7 @@ body { position: fixed; inset: 0; }
               button.disabled = true;
               sendMenuButton("text", buttonValue, button, label, sourceActionId, messageId);
             });
-          } else if (!callback || !isSafeNavigationCallback(callback)) {
+          } else if (!callback || (!isSafeNavigationCallback(callback) && !(activeMenuAction === "heal" && /confirmar|cancelar/i.test(label)))) {
             button.disabled = true;
             button.title = "Esta acción todavía no está habilitada en la Mini App.";
             button.setAttribute("aria-label", label + " (no disponible desde la Mini App)");
@@ -527,7 +528,26 @@ body { position: fixed; inset: 0; }
         }
         if (rowEl.childElementCount) keyboard.appendChild(rowEl);
       }
-      if (keyboard.childElementCount) card.appendChild(keyboard);
+      if (keyboard.childElementCount) {
+        card.appendChild(keyboard);
+        // FUTX_HEAL_DIRECT_EXECUTION_V1: auto-confirmar Curar, sin intervención manual.
+        const keyboardLabels = Array.from(keyboard.querySelectorAll("button"))
+          .map(candidate => candidate.textContent || "");
+        const isHealConfirmationKeyboard = activeMenuAction === "heal" &&
+          keyboardLabels.some(label => /confirmar/i.test(label)) &&
+          keyboardLabels.some(label => /cancelar/i.test(label));
+        if (isHealConfirmationKeyboard) {
+          const confirmButton = Array.from(keyboard.querySelectorAll("button"))
+            .find(candidate => /confirmar/i.test(candidate.textContent || ""));
+          if (confirmButton && !confirmButton.disabled) {
+            queueMicrotask(() => {
+              if (confirmButton.isConnected && !confirmButton.disabled) {
+                confirmButton.click();
+              }
+            });
+          }
+        }
+      }
     }
   }
 
@@ -646,6 +666,7 @@ body { position: fixed; inset: 0; }
       }
 
       try {
+        activeMenuAction = action;
         button.disabled = true;
         title.textContent = button.dataset.name;
         startNavigation.style.display = "none";
