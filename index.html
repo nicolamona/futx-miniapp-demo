@@ -1529,7 +1529,7 @@ body {
   function renderMissionContractCard(card, originalText) {
     // Detectar el contrato por su contenido, no por la función activa:
     // la respuesta de Misiones puede llegar al navegar desde otro submenú.
-    if (!/CONTRATO EN CURSO|CONTRATO ACTIVO/i.test(originalText) ||
+    if (!/CONTRATO EN CURSO|CONTRATO ACTIVO|NUEVO CONTRATO/i.test(originalText) ||
         !/RECOMPENSA/i.test(originalText) || !/OBJETIVO/i.test(originalText)) return false;
 
     const text = String(originalText || "").replace(/\r/g, "");
