@@ -1695,9 +1695,9 @@ body {
         }
         if (result.status === "done" || result.status === "error" || result.status === "blocked") {
           if (chestAnimationOnSuccess && result.status === "done" && Array.isArray(result.messages)) {
-            const chestText = result.messages.map(item => String(item && item.text || "")).join("\\n");
-            const looksLikeCooldownOrFailure = /faltan?\\s+\\d|esper[aá]|en\\s+\\d+\\s*(?:min|seg|hora)|ya\\s+(?:abriste|reclamaste)|no\\s+(?:pod[eé]s|puedes)|l[ií]mite|cooldown|enfriamiento|no\\s+est[aá]\\s+disponible/i.test(chestText);
-            const confirmsPrize = /(?:\\+\\s*\\d[\\d.,]*\\s*(?:FUTX|gemas?|monedas?)|(?:ganaste|recibiste|obtuviste|premio|recompensa|cofre\\s+(?:abierto|abrist[eó]))[^\\n]*(?:FUTX|gemas?|monedas?|premio|recompensa))/i.test(chestText);
+            const chestText = result.messages.map(item => String(item && item.text || "")).join("\n");
+            const looksLikeCooldownOrFailure = /faltan?\s+\d|esper[aá]|en\s+\d+\s*(?:min|seg|hora)|ya\s+(?:abriste|reclamaste)|no\s+(?:pod[eé]s|puedes)|l[ií]mite|cooldown|enfriamiento|no\s+est[aá]\s+disponible/i.test(chestText);
+            const confirmsPrize = /(?:\+\s*\d[\d.,]*\s*(?:FUTX|gemas?|monedas?)|(?:ganaste|recibiste|obtuviste|premio|recompensa|cofre\s+(?:abierto|abrist[eó]))[^\n]*(?:FUTX|gemas?|monedas?|premio|recompensa))/i.test(chestText);
             if (confirmsPrize && !looksLikeCooldownOrFailure) playMysteryChestAnimation();
           }
           title.textContent = result.status === "done" ? "Respuesta de FUTX" : "Resultado de la acción";
