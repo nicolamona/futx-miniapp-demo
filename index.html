@@ -745,6 +745,73 @@ body {
 .app .board-composer-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .app .board-composer-actions button { min-height: 46px; }
 
+/* FUTX_MISSION_COMPLETE_ANIMATION_V1: aviso global sin bloquear la navegación. */
+#futx-mission-complete-animation {
+  position: fixed; inset: 0; z-index: 1000001; pointer-events: none;
+  display: grid; place-items: center; overflow: hidden; padding: 24px;
+  background: radial-gradient(ellipse at center, rgba(14,35,25,.76), rgba(4,10,17,.42) 54%, transparent 100%);
+  animation: futxMissionBackdrop 2.8s ease-out both;
+}
+#futx-mission-complete-animation .futx-mission-rays {
+  position: absolute; width: min(88vw, 430px); aspect-ratio: 1; border-radius: 50%;
+  background: repeating-conic-gradient(from 0deg, rgba(255,218,112,0) 0deg 9deg, rgba(255,218,112,.20) 10deg 12deg, rgba(255,218,112,0) 13deg 22deg);
+  -webkit-mask-image: radial-gradient(circle, #000 0 18%, transparent 72%);
+  mask-image: radial-gradient(circle, #000 0 18%, transparent 72%);
+  animation: futxMissionRays 2.8s ease-out both;
+}
+#futx-mission-complete-animation .futx-mission-card {
+  position: relative; display: grid; justify-items: center; gap: 10px;
+  width: min(100%, 360px); padding: 27px 22px 24px;
+  border: 1px solid rgba(255,220,130,.85); border-radius: 24px;
+  background: linear-gradient(145deg, rgba(24,54,40,.97), rgba(10,22,25,.97));
+  box-shadow: 0 0 0 1px rgba(117,224,156,.18), 0 0 48px rgba(255,202,83,.34), 0 18px 65px rgba(0,0,0,.5);
+  text-align: center; animation: futxMissionCard 2.8s cubic-bezier(.18,.72,.22,1) both;
+}
+#futx-mission-complete-animation .futx-mission-trophy {
+  display: grid; place-items: center; width: 88px; height: 88px;
+  border: 1px solid rgba(255,226,151,.9); border-radius: 50%;
+  background: radial-gradient(circle, #fff0b3 0, #e7b94e 48%, #4b6a3c 72%);
+  box-shadow: 0 0 30px rgba(255,208,82,.62), inset 0 0 14px rgba(255,255,255,.42);
+  font-size: 48px; animation: futxMissionTrophy .72s cubic-bezier(.2,.8,.2,1.35) .12s both;
+}
+#futx-mission-complete-animation .futx-mission-title {
+  color: #ffe39a; font-size: clamp(22px, 6vw, 29px); font-weight: 900;
+  letter-spacing: .055em; line-height: 1.12; text-shadow: 0 0 18px rgba(255,208,82,.36);
+}
+#futx-mission-complete-animation .futx-mission-subtitle {
+  color: #c9f6d7; font-size: 14px; font-weight: 600; line-height: 1.4;
+}
+#futx-mission-complete-animation .futx-mission-spark {
+  position: absolute; left: 50%; top: 50%; color: #ffe69b;
+  font-size: var(--spark-size, 20px); text-shadow: 0 0 12px #ffdb79;
+  animation: futxMissionSpark var(--spark-duration, 1.5s) ease-out var(--spark-delay, 0s) both;
+}
+@keyframes futxMissionBackdrop { 0% { opacity: 0; } 12%,72% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes futxMissionRays {
+  0% { opacity: 0; transform: rotate(-25deg) scale(.35); }
+  18% { opacity: 1; } 100% { opacity: 0; transform: rotate(35deg) scale(1.35); }
+}
+@keyframes futxMissionCard {
+  0% { opacity: 0; transform: translateY(24px) scale(.78); }
+  17% { opacity: 1; transform: translateY(0) scale(1.04); }
+  25%,72% { opacity: 1; transform: translateY(0) scale(1); }
+  100% { opacity: 0; transform: translateY(-8px) scale(.97); }
+}
+@keyframes futxMissionTrophy {
+  0% { opacity: 0; transform: rotate(-18deg) scale(.25); }
+  75% { opacity: 1; transform: rotate(7deg) scale(1.12); }
+  100% { opacity: 1; transform: rotate(0) scale(1); }
+}
+@keyframes futxMissionSpark {
+  0% { opacity: 0; transform: translate(-50%,-50%) scale(.2) rotate(0); }
+  15% { opacity: 1; } 100% { opacity: 0; transform: translate(var(--spark-x),var(--spark-y)) scale(1.2) rotate(160deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  #futx-mission-complete-animation,
+  #futx-mission-complete-animation * { animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
+}
+/* FIN FUTX_MISSION_COMPLETE_ANIMATION_V1 */
+
 /* FUTX_MYSTERY_CHEST_ANIMATION_V1: cofre volador, apertura y lluvia de monedas */
 #futx-chest-animation {
   position: fixed; inset: 0; z-index: 1000000; pointer-events: none;
@@ -1708,6 +1775,60 @@ body {
   }
 
 
+  // FUTX_MISSION_COMPLETE_ANIMATION_V1: se dispara solo ante un mensaje explícito de finalización.
+  function playMissionCompleteAnimation() {
+    document.getElementById("futx-mission-complete-animation")?.remove();
+    const overlay = document.createElement("div");
+    overlay.id = "futx-mission-complete-animation";
+    overlay.setAttribute("role", "status");
+    overlay.setAttribute("aria-label", "Misión completada");
+    const rays = document.createElement("div");
+    rays.className = "futx-mission-rays";
+    const card = document.createElement("div");
+    card.className = "futx-mission-card";
+    const trophy = document.createElement("div");
+    trophy.className = "futx-mission-trophy";
+    trophy.textContent = "🏆";
+    const heading = document.createElement("div");
+    heading.className = "futx-mission-title";
+    heading.textContent = "¡MISIÓN COMPLETADA!";
+    const subtitle = document.createElement("div");
+    subtitle.className = "futx-mission-subtitle";
+    subtitle.textContent = "¡Excelente trabajo, aventurero!";
+    card.append(trophy, heading, subtitle);
+    overlay.append(rays, card);
+    for (let i = 0; i < 18; i++) {
+      const spark = document.createElement("span");
+      spark.className = "futx-mission-spark";
+      spark.textContent = i % 3 === 0 ? "✦" : "✧";
+      const angle = (Math.PI * 2 * i / 18) + (Math.random() * .22);
+      const distance = 95 + Math.random() * Math.min(window.innerWidth * .34, 190);
+      spark.style.setProperty("--spark-x", (Math.cos(angle) * distance).toFixed(0) + "px");
+      spark.style.setProperty("--spark-y", (Math.sin(angle) * distance).toFixed(0) + "px");
+      spark.style.setProperty("--spark-size", (14 + Math.random() * 15).toFixed(0) + "px");
+      spark.style.setProperty("--spark-delay", (Math.random() * .22).toFixed(2) + "s");
+      spark.style.setProperty("--spark-duration", (1.25 + Math.random() * .65).toFixed(2) + "s");
+      overlay.appendChild(spark);
+    }
+    document.body.appendChild(overlay);
+    window.setTimeout(() => overlay.remove(), 2900);
+  }
+
+  function isExplicitMissionCompletion(messages) {
+    const responseText = (Array.isArray(messages) ? messages : [])
+      .map(item => String(item && item.text || ""))
+      .join("\n")
+      .normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+    const failureOrAlreadyDone = /\b(?:ya estaba completad[ao]|ya completaste|ya cumpliste|no se pudo completar|error al completar|no hay misiones pendientes)\b/.test(responseText);
+    if (failureOrAlreadyDone) return false;
+    return [
+      /(?:^|[!\n.])\s*[^\n]{0,18}\bmisiones?\s+(?:ha sido\s+)?(?:completad[ao]s?|cumplid[ao]s?|finalizad[ao]s?|superad[ao]s?)\b/,
+      /\b(?:completaste|has completado|cumpliste|has cumplido|finalizaste|has finalizado)\s+(?:la\s+)?mision\b/,
+      /\b(?:mision cumplida|objetivo de mision completado|tarea de mision completada)\b/,
+      /\b(?:recompensa|premio) de mision (?:reclamad[ao]|obtenid[ao]|recibid[ao])\b/
+    ].some(pattern => pattern.test(responseText));
+  }
+
   // FUTX_MYSTERY_CHEST_ANIMATION_V1: efecto puramente visual; el servidor calcula y entrega el premio.
   function playMysteryChestAnimation() {
     document.getElementById("futx-chest-animation")?.remove();
@@ -1780,6 +1901,9 @@ body {
           renderBotMessages(result.messages, actionId, preserveActions);
         }
         if (result.status === "done" || result.status === "error" || result.status === "blocked") {
+          if (result.status === "done" && isExplicitMissionCompletion(result.messages)) {
+            playMissionCompleteAnimation();
+          }
           if (chestAnimationOnSuccess && result.status === "done" && Array.isArray(result.messages)) {
             const chestText = result.messages.map(item => String(item && item.text || "")).join("\n");
             const looksLikeCooldownOrFailure = /faltan?\s+\d|esper[aá]|en\s+\d+\s*(?:min|seg|hora)|ya\s+(?:abriste|reclamaste)|no\s+(?:pod[eé]s|puedes)|l[ií]mite|cooldown|enfriamiento|no\s+est[aá]\s+disponible/i.test(chestText);
