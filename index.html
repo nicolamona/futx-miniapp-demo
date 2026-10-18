@@ -1867,6 +1867,15 @@ body {
   function detectReceivedItem(messages) {
     const raw = (Array.isArray(messages) ? messages : []).map(item => String(item && item.text || "")).join("\n");
     const normalized = raw.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+
+    // Formato real del bot: "✨ ¡BOTÍN ENCONTRADO!" + "🎁 Nombre del objeto".
+    // Va antes del filtro de inventario porque el mismo mensaje dice "Revisá tu inventario".
+    const lootMatch = raw.match(/BOT[IÍ]N\s+ENCONTRADO[\s\S]{0,160}?🎁\s*([^\n\r]+)/i);
+    if (lootMatch && lootMatch[1]) {
+      const lootName = lootMatch[1].replace(/[*_]/g, "").replace(/\s+/g, " ").trim();
+      if (lootName && lootName.length <= 90 && !/^(?:rareza|revisa tu inventario)/i.test(lootName)) return lootName;
+    }
+
     if (!normalized || /\b(?:inventario|objetos disponibles|objetos que tienes|no (?:obtuviste|conseguiste|recibiste|encontraste|has encontrado)|sin (?:obtener|recibir|encontrar)|ningun (?:objeto|item)|no hay (?:objetos|recompensas))\b/.test(normalized)) return null;
     const patterns = [
       /\b(?:item|objeto)\s+(?:obtenido|recibido|conseguido|encontrado)\s*[:：-]\s*([^\n.!]+)/i,
