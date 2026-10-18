@@ -2502,7 +2502,7 @@ body {
     }
     // Al abrir Perfil, retirar cualquier tarjeta residual de Staking antes de consultar el bot.
     activeMenuAction = "";
-    document.querySelector(".app").classList.remove("staking-mode", "has-response-keyboard");
+    document.querySelector(".app").classList.remove("staking-mode", "has-response-keyboard", "hunt-navigation-mode");
     botResponseList.querySelectorAll(".staking-intro, .staking-summary").forEach(card => card.remove());
     activeActionPoll += 1;
     const pollToken = activeActionPoll;
@@ -2873,6 +2873,7 @@ body {
   ];
 
   function renderInitialNavigation(preserveResponses = false, translatedLabels = null) {
+    document.querySelector('.app').classList.remove('hunt-navigation-mode');
     setProfileAvatarLayout(true);
     document.querySelector('.app').classList.remove('has-response-keyboard', 'staking-mode');
     if (!preserveResponses) botResponseList.replaceChildren();
