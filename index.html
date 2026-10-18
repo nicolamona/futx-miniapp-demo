@@ -289,23 +289,17 @@ body { position: fixed; inset: 0; }
   font-size: 10.5px;
   line-height: 1.35;
 }
-/* FUTX_PROFILE_BALANCE_HIGHLIGHT_V3: destacar solo las líneas de saldo */
+/* FUTX_PROFILE_BALANCE_HIGHLIGHT_V4: énfasis discreto en la tarjeta informativa */
 .bot-response-message.profile-balance-highlight {
-  border: 2px solid #72baff;
-  background: linear-gradient(135deg, rgba(20, 48, 86, .98), rgba(10, 20, 42, .99));
-  box-shadow: 0 0 0 1px rgba(255, 207, 92, .28), 0 8px 22px rgba(0, 0, 0, .3);
+  border: 1px solid rgba(114, 186, 255, .72);
+  background: linear-gradient(135deg, rgba(20, 48, 86, .72), rgba(10, 20, 42, .92));
+  box-shadow: 0 4px 14px rgba(0, 0, 0, .18);
   color: #eef5ff;
+  font-size: 13.65px;
+  font-weight: 600;
+  line-height: 1.55;
 }
-.bot-response-message .profile-balance-value {
-  display: block;
-  color: #ffd36a;
-  font-size: 36px;
-  font-weight: 900;
-  line-height: 1.35;
-  overflow-wrap: anywhere;
-  margin: 4px 0;
-}
-/* FIN FUTX_PROFILE_BALANCE_HIGHLIGHT_V3 */
+/* FIN FUTX_PROFILE_BALANCE_HIGHLIGHT_V4 */
 
 
 .bot-response-message {
@@ -1246,19 +1240,9 @@ body {
       if (/PERFIL FUTX\s*[·|—-]\s*ACCIONES MEDIANTE EL BOT|EL PERFIL ES DE SOLO LECTURA/i.test(card.textContent)) {
         card.classList.add("profile-readonly-disclaimer");
       }
-      // Mantener el tamaño normal del mensaje y agrandar únicamente las líneas de saldo FUTX/gemas.
-      const balanceLines = card.textContent.split("\n");
-      const balanceLinePattern = /(?:\bFUTX\b|\bgemas?\b|💎|💰).*(?:\d|balance|saldo|cantidad|disponible)|(?:balance|saldo|cantidad|disponible).*(?:\bFUTX\b|\bgemas?\b|💎|💰)|(?:\bFUTX\b\s*[:=]|💎\s*(?:gemas?\s*)?[:=])/i;
-      if (balanceLines.some(line => balanceLinePattern.test(line))) {
+      // Resaltar visualmente el mensaje informativo del balance sin agrandar ni reconstruir su texto.
+      if (/(?:\bFUTX\b|\bgemas?\b|💎|💰).*(?:\d|balance|saldo|cantidad|disponible)|(?:balance|saldo|cantidad|disponible).*(?:\bFUTX\b|\bgemas?\b|💎|💰)|(?:\bFUTX\b\s*[:=]|💎\s*(?:gemas?\s*)?[:=])/i.test(card.textContent)) {
         card.classList.add("profile-balance-highlight");
-        card.replaceChildren();
-        balanceLines.forEach((line, index) => {
-          if (index) card.appendChild(document.createTextNode("\n"));
-          const lineNode = document.createElement("span");
-          lineNode.textContent = line;
-          if (balanceLinePattern.test(line)) lineNode.className = "profile-balance-value";
-          card.appendChild(lineNode);
-        });
       }
       if (card.textContent.trim()) botResponseList.appendChild(card);
 
