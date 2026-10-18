@@ -1351,10 +1351,10 @@ body {
       incomingMenuLabels.some(label => label.includes(icon))
     );
     const isMainMenuKeyboard = hasMainMenuIcons ||
-      (incomingLabels.some(label => /minar|\\bmine\\b|\\bmining\\b/i.test(label)) &&
+      (incomingLabels.some(label => /minar|mine/i.test(label)) &&
        incomingLabels.some(label => /staking/i.test(label)));
     const translatedMenuLabels = new Map();
-    const normalizeMenuIcon = value => String(value || "").replace(/\\uFE0F/g, "").trim();
+    const normalizeMenuIcon = value => String(value || "").replace(/\uFE0F/g, "").trim();
     for (const sourceButton of document.querySelectorAll(".menu [data-name]")) {
       const icon = sourceButton.querySelector(".item-icon")?.textContent || "";
       if (!icon) continue;
