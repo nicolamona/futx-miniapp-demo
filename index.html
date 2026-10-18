@@ -1521,7 +1521,7 @@ body {
 
         // Colocarlo inmediatamente después del mensaje que contiene la cuenta regresiva.
         const countdownCard = Array.from(botResponseList.children).find(card =>
-          /(?:\\b\\d{1,2}:\\d{2}(?::\\d{2})?\\b|cuenta regresiva|pr[oó]ximo cofre|tiempo restante)/i.test(card.textContent || "")
+          /(?:\b\d{1,2}:\d{2}(?::\d{2})?\b|cuenta regresiva|pr[oó]ximo cofre|tiempo restante)/i.test(card.textContent || "")
         );
         if (countdownCard && countdownCard.parentNode) {
           countdownCard.insertAdjacentElement("afterend", chestNotice);
