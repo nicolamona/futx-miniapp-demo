@@ -285,6 +285,17 @@ body { position: fixed; inset: 0; }
 .staking-intro-title { font-weight: 800; letter-spacing: .04em; margin-bottom: 8px; color: #9edaff; }
 .staking-intro p { margin: 7px 0 0; line-height: 1.4; }
 .staking-intro strong { color: #d6f2ff; }
+
+/* FUTX_MINING_RELIC_STATUS_CARD_V1 */
+.staking-relic-status {
+  flex: 0 0 auto;
+  border: 1px solid #7c6a3b;
+  background: linear-gradient(145deg, rgba(76, 59, 24, .38), rgba(18, 28, 43, .95));
+}
+.staking-relic-status .staking-intro-title { color: #ffe0a0; }
+.staking-relic-status p { margin-top: 6px; }
+.staking-relic-status .relic-status-value { color: #fff0c2; font-weight: 800; }
+/* FIN FUTX_MINING_RELIC_STATUS_CARD_V1 */
 /* FUTX_PROFILE_READONLY_DISCLAIMER_SMALL_V1: aviso de solo lectura menos invasivo */
 .bot-response-message.profile-readonly-disclaimer {
   font-size: 10.5px;
@@ -1714,6 +1725,44 @@ body {
         '<p>Depositás tus tokens, el capital queda bloqueado durante el período indicado y acumulás recompensas. Cuando estén disponibles, podés reclamarlas desde los botones de abajo.</p>';
       botResponseList.appendChild(intro);
 
+      // FUTX_MINING_RELIC_STATUS_CARD_V1: mostrar solo datos que llegaron del bot.
+      const stakingSourceText = (Array.isArray(messages) ? messages : [])
+        .map(item => String(item && item.text || ""))
+        .join("\n");
+      const relicHeader = /POTENCIADORES MINEROS/i.test(stakingSourceText);
+      const relicCard = document.createElement("section");
+      relicCard.className = "bot-response-message staking-intro staking-relic-status";
+      const relicTitle = document.createElement("div");
+      relicTitle.className = "staking-intro-title";
+      relicTitle.textContent = "✨ POTENCIADORES MINEROS";
+      relicCard.appendChild(relicTitle);
+
+      const appendRelicLine = (label, value) => {
+        const p = document.createElement("p");
+        const strong = document.createElement("strong");
+        strong.className = "relic-status-value";
+        strong.textContent = value;
+        p.append(document.createTextNode(label + " "), strong);
+        relicCard.appendChild(p);
+      };
+      if (relicHeader) {
+        const noRelics = /Sin Fragmentos Estelares activos/i.test(stakingSourceText);
+        const count = stakingSourceText.match(/Fragmentos Estelares activos\s*:\s*([0-9]+)/i);
+        const bonus = stakingSourceText.match(/Bono temporal de staking\s*:\s*\+?([0-9.,]+\s*%)/i);
+        const expiry = stakingSourceText.match(/Pr[oó]ximo vencimiento\s*:\s*([^\n\r]+)/i);
+        if (noRelics) {
+          appendRelicLine("🏺 Estado:", "Sin Fragmentos Estelares activos");
+        } else {
+          appendRelicLine("🏺 Fragmentos Estelares activos:", count ? count[1] : "Dato no disponible");
+          appendRelicLine("📈 Bono temporal de staking:", bonus ? (bonus[1].startsWith("+") ? bonus[1] : "+" + bonus[1]) : "Dato no disponible");
+          appendRelicLine("⏳ Próximo vencimiento:", expiry ? expiry[1].replace(/<[^>]*>/g, "").trim() : "Dato no disponible");
+        }
+      } else {
+        const p = document.createElement("p");
+        p.textContent = "El bot todavía no envió el estado de los Fragmentos Estelares. La interfaz mostrará los datos reales cuando lleguen desde el bot.";
+        relicCard.appendChild(p);
+      }
+      botResponseList.appendChild(relicCard);
     }
     // FUTX_EQUIPPED_INVENTORY_MARK_V1: marcar solo si la respuesta del bot identifica explícitamente el equipo.
     const equippedItemNames = (() => {
