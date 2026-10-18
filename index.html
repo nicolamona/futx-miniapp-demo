@@ -1355,6 +1355,48 @@ body {
       }
       if (keyboard.childElementCount) bottomActions.appendChild(keyboard);
     }
+    // FUTX_COFRE_EXTRA_MISION_V1: botón de reclamación solo si el bot confirmó el desbloqueo.
+    const bonusChestUnlocked = (Array.isArray(messages) ? messages : []).some(item =>
+      /COFRE EXTRA DESBLOQUEADO/i.test(String(item && item.text || ""))
+    );
+    if (bonusChestUnlocked) {
+      const bonusButton = document.createElement("button");
+      bonusButton.type = "button";
+      bonusButton.className = "bot-response-action full-width mystery-chest-featured";
+      bonusButton.textContent = "🎁 Abrir cofre extra";
+      bonusButton.addEventListener("click", async () => {
+        if (!tg || !tg.initData) {
+          noticeMessage.textContent = "Abrí FUTX desde Telegram para reclamar el cofre extra.";
+          return;
+        }
+        activeActionPoll += 1;
+        const pollToken = activeActionPoll;
+        bonusButton.disabled = true;
+        title.textContent = "🎁 Abrir cofre extra";
+        noticeMessage.textContent = "Verificando el cofre extra…";
+        try {
+          const response = await fetch("https://engineers-interview-teeth-vacation.trycloudflare.com/action", {
+            method: "POST",
+            headers: {
+              "Authorization": "tma " + tg.initData,
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ action: "mystery_chest_bonus" })
+          });
+          const result = await response.json().catch(() => ({}));
+          if (!response.ok || !result.accepted || !result.action_id) {
+            throw new Error(result.error || "El servidor no aceptó la apertura del cofre extra.");
+          }
+          noticeMessage.textContent = "Solicitud recibida. Esperando el resultado…";
+          await waitForBotResponse(result.action_id, bonusButton, pollToken);
+        } catch (error) {
+          noticeMessage.textContent = "⚠️ " + (error.message || "No se pudo abrir el cofre extra.");
+          bonusButton.disabled = false;
+        }
+      });
+      bottomActions.prepend(bonusButton);
+    }
+
     // Pizarra Global: el bot confirma la apertura y la Mini App ofrece un campo de texto propio.
     if ((Array.isArray(messages) ? messages : []).some(item =>
       /Escribí tu mensaje para la Pizarra Global/i.test(String(item && item.text || ""))
