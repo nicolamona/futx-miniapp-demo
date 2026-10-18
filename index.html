@@ -2252,12 +2252,6 @@ body {
         bottomActions.appendChild(navButton);
       }
     }
-    const avatarButton = document.createElement("button");
-    avatarButton.type = "button";
-    avatarButton.className = "bot-response-action avatar-open-button";
-    avatarButton.textContent = "🎨 Personalizar avatar";
-    avatarButton.addEventListener("click", showAvatarEditor);
-    bottomActions.appendChild(avatarButton);
     const languageSourceButton = sourceButtons.get("🌐 Idioma");
     if (languageSourceButton) {
       const languageButton = document.createElement("button");
