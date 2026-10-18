@@ -1729,7 +1729,9 @@ body {
       const stakingSourceText = (Array.isArray(messages) ? messages : [])
         .map(item => String(item && item.text || ""))
         .join("\n");
-      const relicHeader = /POTENCIADORES MINEROS/i.test(stakingSourceText);
+      // El bot envía HTML de Telegram con etiquetas <b>; normalizar antes de leer los valores.
+      const stakingPlainText = stakingSourceText.replace(/<[^>]*>/g, "").replace(/&nbsp;/g, " ");
+      const relicHeader = /POTENCIADORES MINEROS/i.test(stakingPlainText);
       const relicCard = document.createElement("section");
       relicCard.className = "bot-response-message staking-intro staking-relic-status";
       const relicTitle = document.createElement("div");
@@ -1746,10 +1748,10 @@ body {
         relicCard.appendChild(p);
       };
       if (relicHeader) {
-        const noRelics = /Sin Fragmentos Estelares activos/i.test(stakingSourceText);
-        const count = stakingSourceText.match(/Fragmentos Estelares activos\s*:\s*([0-9]+)/i);
-        const bonus = stakingSourceText.match(/Bono temporal de staking\s*:\s*\+?([0-9.,]+\s*%)/i);
-        const expiry = stakingSourceText.match(/Pr[oó]ximo vencimiento\s*:\s*([^\n\r]+)/i);
+        const noRelics = /Sin Fragmentos Estelares activos/i.test(stakingPlainText);
+        const count = stakingPlainText.match(/Fragmentos Estelares activos\s*:\s*([0-9]+)/i);
+        const bonus = stakingPlainText.match(/Bono temporal de staking\s*:\s*\+?([0-9.,]+\s*%)/i);
+        const expiry = stakingPlainText.match(/Pr[oó]ximo vencimiento\s*:\s*([^\n\r]+)/i);
         if (noRelics) {
           appendRelicLine("🏺 Estado:", "Sin Fragmentos Estelares activos");
         } else {
