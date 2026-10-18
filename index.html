@@ -1803,7 +1803,9 @@ body {
         if (dragging || host.dataset.dragged === "1") event.preventDefault();
       });
     }
-    applySavedAvatarPosition(host);
+    if (document.getElementById("notice")?.classList.contains("profile-initial-layout")) {
+      applySavedAvatarPosition(host);
+    }
   }
   function showAvatarEditor() {
     setProfileAvatarLayout(false);
