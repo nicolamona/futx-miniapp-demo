@@ -1872,6 +1872,7 @@ body {
       /\b(?:item|objeto)\s+(?:obtenido|recibido|conseguido|encontrado)\s*[:：-]\s*([^\n.!]+)/i,
       /\b(?:has\s+)?(?:obtenido|conseguido|recibido|encontrado|encontraste|conseguiste|obtuviste|recibiste)\s+(?:(?:un|una|el|la|nuevo|nueva)\s+)?(?:item|objeto)\s*[:：-]?\s*([^\n.!]+)/i,
       /\b(?:has\s+)?(?:obtenido|conseguido|recibido|encontrado|encontraste|conseguiste|obtuviste|recibiste)\s*[:：-]\s*([^\n.!]+)/i,
+      /\b(?:has\s+)?(?:obtenido|conseguido|recibido|encontrado|encontraste|conseguiste|obtuviste|recibiste)\s+(?:(?:un|una|el|la|nuevo|nueva)\s+)?([A-ZÁÉÍÓÚÑ][^\n.!]{1,70})/i,
       /\b(?:recompensa de objeto|objeto encontrado|nuevo item)\s*[:：-]\s*([^\n.!]+)/i
     ];
     for (const pattern of patterns) {
@@ -1879,7 +1880,7 @@ body {
       if (!match || !match[1]) continue;
       let name = match[1].replace(/[*_]/g, "").replace(/\s+/g, " ").trim();
       name = name.replace(/^(?:un|una|el|la)\s+/i, "").replace(/\s+(?:ha sido añadido|se añadió|agregado al inventario).*$/i, "").trim();
-      if (!name || name.length > 90 || /\b(?:futx|gemas?|monedas?|experiencia|xp|energia)\b/i.test(name) || /^(?:un objeto|un item|una recompensa|algo)$/i.test(name)) continue;
+      if (!name || name.length > 90 || /\b(?:futx|gemas?|monedas?|experiencia|xp|energia|mision|contrato|mensaje|notificacion)\b/i.test(name) || /^(?:un objeto|un item|una recompensa|algo)$/i.test(name)) continue;
       return name;
     }
     return null;
