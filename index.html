@@ -1422,13 +1422,38 @@ body {
        incomingLabels.some(label => /staking/i.test(label)));
     const translatedMenuLabels = new Map();
     const normalizeMenuIcon = value => String(value || "").replace(/\uFE0F/g, "").trim();
-    for (const sourceButton of document.querySelectorAll(".menu [data-name]")) {
+    const sourceMenuButtons = Array.from(document.querySelectorAll(".menu [data-name]"));
+    const iconKey = value => normalizeMenuIcon(value).match(/^\p{Extended_Pictographic}+/u)?.[0] || "";
+    const semanticMenuKey = value => {
+      const label = normalizeMenuIcon(value).replace(/^\p{Extended_Pictographic}+/u, "").toLowerCase();
+      if (/rankings?|leaderboard|clasificaci[oó]n|posiciones/.test(label)) return "rankings";
+      if (/torneo|tournament|global tournament/.test(label)) return "tournament";
+      return "";
+    };
+    const sourceIconCounts = new Map();
+    const incomingIconCounts = new Map();
+    for (const button of sourceMenuButtons) {
+      const key = iconKey(button.querySelector(".item-icon")?.textContent || "");
+      if (key) sourceIconCounts.set(key, (sourceIconCounts.get(key) || 0) + 1);
+    }
+    for (const label of incomingMenuLabels) {
+      const key = iconKey(label);
+      if (key) incomingIconCounts.set(key, (incomingIconCounts.get(key) || 0) + 1);
+    }
+    for (const sourceButton of sourceMenuButtons) {
       const icon = sourceButton.querySelector(".item-icon")?.textContent || "";
       if (!icon) continue;
       const normalizedIcon = normalizeMenuIcon(icon);
-      const translated = incomingMenuLabels.find(label =>
-        normalizeMenuIcon(label).startsWith(normalizedIcon)
-      );
+      const key = iconKey(icon);
+      let translated = null;
+      // Solo usar el icono como identificador cuando sea único en ambos menús.
+      if (key && sourceIconCounts.get(key) === 1 && incomingIconCounts.get(key) === 1) {
+        translated = incomingMenuLabels.find(label => normalizeMenuIcon(label).startsWith(normalizedIcon));
+      } else {
+        // Rankings y Torneo Global comparten 🏆: diferenciarlos por el texto, nunca solo por el icono.
+        const semanticKey = semanticMenuKey(sourceButton.dataset.name || "");
+        if (semanticKey) translated = incomingMenuLabels.find(label => semanticMenuKey(label) === semanticKey) || null;
+      }
       if (translated) translatedMenuLabels.set(sourceButton.dataset.name, translated);
     }
     const isHealConfirmationKeyboard = activeMenuAction === "heal" &&
@@ -1819,13 +1844,15 @@ body {
       .map(item => String(item && item.text || ""))
       .join("\n")
       .normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
-    const failureOrAlreadyDone = /\b(?:ya estaba completad[ao]|ya completaste|ya cumpliste|no se pudo completar|error al completar|no hay misiones pendientes)\b/.test(responseText);
+    const failureOrAlreadyDone = /\b(?:ya estaba completad[ao]|ya completaste|ya cumpliste|no se pudo completar|error al completar|no hay misiones pendientes|mision ya completada)\b/.test(responseText);
     if (failureOrAlreadyDone) return false;
     return [
-      /(?:^|[!\n.])\s*[^\n]{0,18}\bmisiones?\s+(?:ha sido\s+)?(?:completad[ao]s?|cumplid[ao]s?|finalizad[ao]s?|superad[ao]s?)\b/,
-      /\b(?:completaste|has completado|cumpliste|has cumplido|finalizaste|has finalizado)\s+(?:la\s+)?mision\b/,
-      /\b(?:mision cumplida|objetivo de mision completado|tarea de mision completada)\b/,
-      /\b(?:recompensa|premio) de mision (?:reclamad[ao]|obtenid[ao]|recibid[ao])\b/
+      /\bmisiones?\b[^\n.!]{0,100}\b(?:completad[ao]s?|cumplid[ao]s?|finalizad[ao]s?|superad[ao]s?|reclamad[ao]s?)\b/,
+      /\b(?:completaste|has completado|cumpliste|has cumplido|finalizaste|has finalizado|superaste|has superado)\b[^\n.!]{0,70}\bmision(?:es)?\b/,
+      /\b(?:mision(?:es)?|objetivo(?:s)?)\b[^\n.!]{0,70}\b(?:completad[ao]s?|cumplid[ao]s?|finalizad[ao]s?|superad[ao]s?)\b/,
+      /\b(?:objetivo alcanzado|desafio completado|desafio cumplido|tarea completada)\b/,
+      /\b(?:recompensa|premio) de mision (?:reclamad[ao]|obtenid[ao]|recibid[ao])\b/,
+      /\b(?:ganaste|recibiste|obtuviste)\b[^\n.!]{0,90}\b(?:por completar|por cumplir|por superar)\b[^\n.!]{0,50}\bmision\b/
     ].some(pattern => pattern.test(responseText));
   }
 
