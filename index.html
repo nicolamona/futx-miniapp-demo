@@ -1495,25 +1495,43 @@ body {
       }
       if (keyboard.childElementCount) bottomActions.appendChild(keyboard);
     }
-    // Mostrar el estado reclamado inmediatamente debajo de la cuenta regresiva del cofre horario.
+    // FUTX_COFRE_EXTRA_ESTADO_V2: mostrar debajo de la cuenta regresiva si el cofre extra está disponible o ya fue reclamado.
+    const bonusChestUnlocked = (Array.isArray(messages) ? messages : []).some(item =>
+      /COFRE EXTRA DESBLOQUEADO/i.test(String(item && item.text || ""))
+    );
     try {
-      if (chestStatusKey && localStorage.getItem(chestStatusKey) === "1" &&
-          /Tu cofre ya fue abierto/i.test(allChestResponseText)) {
-        const claimedNotice = document.createElement("div");
-        claimedNotice.className = "bot-response-message mystery-chest-claimed";
-        claimedNotice.textContent = "✅ Cofre extra reclamado";
-        claimedNotice.style.borderColor = "#3f856a";
-        claimedNotice.style.background = "#102b27";
-        claimedNotice.style.color = "#c9ffe5";
-        claimedNotice.style.fontWeight = "800";
-        botResponseList.appendChild(claimedNotice);
+      const extraChestClaimed = Boolean(
+        chestStatusKey && localStorage.getItem(chestStatusKey) === "1"
+      );
+      if (activeMenuAction === "mystery_chest" && (extraChestClaimed || bonusChestUnlocked)) {
+        const chestNotice = document.createElement("div");
+        chestNotice.className = "bot-response-message mystery-chest-claimed";
+        if (extraChestClaimed) {
+          chestNotice.textContent = "✅ Cofre extra ya reclamado";
+          chestNotice.style.borderColor = "#3f856a";
+          chestNotice.style.background = "#102b27";
+          chestNotice.style.color = "#c9ffe5";
+        } else {
+          chestNotice.textContent = "🎁 ¡Cofre extra disponible para reclamar!";
+          chestNotice.style.borderColor = "#8c783b";
+          chestNotice.style.background = "#302812";
+          chestNotice.style.color = "#fff0b8";
+        }
+        chestNotice.style.fontWeight = "800";
+
+        // Colocarlo inmediatamente después del mensaje que contiene la cuenta regresiva.
+        const countdownCard = Array.from(botResponseList.children).find(card =>
+          /(?:\b\d{1,2}:\d{2}(?::\d{2})?\b|cuenta regresiva|pr[oó]ximo cofre|tiempo restante)/i.test(card.textContent || "")
+        );
+        if (countdownCard && countdownCard.parentNode) {
+          countdownCard.insertAdjacentElement("afterend", chestNotice);
+        } else {
+          botResponseList.appendChild(chestNotice);
+        }
       }
     } catch (_) {}
 
     // FUTX_COFRE_EXTRA_MISION_V1: botón de reclamación solo si el bot confirmó el desbloqueo.
-    const bonusChestUnlocked = (Array.isArray(messages) ? messages : []).some(item =>
-      /COFRE EXTRA DESBLOQUEADO/i.test(String(item && item.text || ""))
-    );
     if (bonusChestUnlocked) {
       const bonusButton = document.createElement("button");
       bonusButton.type = "button";
