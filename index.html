@@ -1339,6 +1339,10 @@ body {
     // Cuando el bot devuelve el teclado principal, restaurar los botones fijos
     // sin borrar el mensaje recién recibido.
     if (hasIncomingKeyboard && isMainMenuKeyboard) {
+      // Al volver al menú principal, desactivar el modo Staking y retirar su encabezado
+      // para que no quede pegado sobre el perfil ni reaparezca en respuestas posteriores.
+      activeMenuAction = "";
+      botResponseList.querySelectorAll(".staking-intro, .staking-summary").forEach(card => card.remove());
       // Conservar la respuesta recién recibida (por ejemplo, el panel de Misiones)
       // y restaurar la navegación fija sin interrumpir la consulta actual.
       renderInitialNavigation(true);
