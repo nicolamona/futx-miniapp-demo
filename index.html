@@ -530,6 +530,22 @@ body {
   min-height: 46px;
   max-height: none;
 }
+/* FUTX_STAKING_BUTTONS_LARGER_V1: más espacio y botones cómodos solo en Staking */
+.app.staking-mode #notice { flex: 5 1 0; }
+.app.staking-mode #bottom-actions {
+  flex: 5 1 0;
+  max-height: 52vh;
+  max-height: 52dvh;
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+.app.staking-mode #bottom-actions > .bot-response-keyboard { gap: 10px; }
+.app.staking-mode #bottom-actions .bot-response-action {
+  min-height: 60px;
+  padding: 12px 10px;
+  font-size: 15px;
+  line-height: 1.25;
+}
 /* FIN FUTX_ADAPTIVE_SPACE_V1 */
 
 /* FIN FUTX_PANTALLA_PERSISTENTE_V1 */
