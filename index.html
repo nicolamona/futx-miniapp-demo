@@ -289,17 +289,22 @@ body { position: fixed; inset: 0; }
   font-size: 10.5px;
   line-height: 1.35;
 }
-/* FUTX_PROFILE_BALANCE_HIGHLIGHT_V1 */
+/* FUTX_PROFILE_BALANCE_HIGHLIGHT_V2: balances protagonistas en azul y dorado */
 .bot-response-message.profile-balance-highlight {
-  border: 1px solid rgba(104, 231, 196, .72);
-  background: linear-gradient(135deg, rgba(13, 76, 69, .78), rgba(12, 31, 46, .96));
-  box-shadow: 0 0 0 1px rgba(104, 231, 196, .12), 0 6px 18px rgba(0, 0, 0, .18);
-  color: #e7fff7;
-  font-size: 15px;
-  font-weight: 800;
-  line-height: 1.7;
+  border: 2px solid #72baff;
+  background: linear-gradient(135deg, rgba(20, 48, 86, .98), rgba(10, 20, 42, .99));
+  box-shadow: 0 0 0 1px rgba(255, 207, 92, .28), 0 8px 22px rgba(0, 0, 0, .3);
+  color: #fff4d2;
+  font-size: 18px;
+  font-weight: 900;
+  line-height: 1.8;
+  padding: 16px;
 }
-/* FIN FUTX_PROFILE_BALANCE_HIGHLIGHT_V1 */
+.bot-response-message.profile-balance-highlight strong,
+.bot-response-message.profile-balance-highlight b {
+  color: #ffd36a;
+}
+/* FIN FUTX_PROFILE_BALANCE_HIGHLIGHT_V2 */
 
 
 .bot-response-message {
@@ -1241,7 +1246,7 @@ body {
         card.classList.add("profile-readonly-disclaimer");
       }
       // Dar protagonismo visual a los balances de FUTX y gemas que devuelve el bot.
-      if (/(?:\bFUTX\b.*(?:balance|saldo|💎|gema)|(?:balance|saldo|💎|gemas?).*\bFUTX\b|\b(?:balance|saldo)\s+(?:de\s+)?(?:FUTX|gemas?)|\bFUTX\s*[:=]|💎\s*(?:gemas?)?\s*[:=])/i.test(card.textContent)) {
+      if (/(?:\bFUTX\b|\bgemas?\b|💎|💰).*(?:\d|balance|saldo|cantidad|disponible)|(?:balance|saldo|cantidad|disponible).*(?:\bFUTX\b|\bgemas?\b|💎|💰)|(?:\bFUTX\b\s*[:=]|💎\s*(?:gemas?\s*)?[:=])/i.test(card.textContent)) {
         card.classList.add("profile-balance-highlight");
       }
       if (card.textContent.trim()) botResponseList.appendChild(card);
