@@ -228,6 +228,14 @@ body { position: fixed; inset: 0; }
 .bot-response-keyboard-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(90px, 1fr)); }
 .bot-response-action { display: flex; align-items: center; justify-content: center; width: 100%; min-height: 42px; padding: 9px 10px; border: 1px solid #42658d; border-radius: 10px; background: #183451; color: #f4f8ff; font: inherit; font-size: 0.9rem; font-weight: 650; text-align: center; text-decoration: none; cursor: pointer; overflow-wrap: anywhere; }
 .bot-response-action:disabled { opacity: 0.55; cursor: wait; }
+/* FUTX_GLOBAL_TOURNAMENT_ANSWERS_LARGE_V1: opciones de respuesta del torneo global */
+.app.tournament-quiz-mode .bot-response-action {
+  min-height: 84px;
+  padding: 18px 20px;
+  border-radius: 14px;
+  font-size: 1.2rem;
+}
+/* FIN FUTX_GLOBAL_TOURNAMENT_ANSWERS_LARGE_V1 */
 .bot-response-action:focus-visible { outline: 2px solid #8bc4ff; outline-offset: 2px; }
 .notice h3 { margin: 0 0 7px; font-size: 15px; }
 .notice p { margin: 0; color: #b8c8df; font-size: 13px; line-height: 1.55; }
@@ -1045,6 +1053,8 @@ body {
     const isCombatChoiceKeyboard =
       incomingLabels.some(label => /combate\s*local|local\s*combat/i.test(label)) &&
       incomingLabels.some(label => /combate\s*global|global\s*combat/i.test(label));
+    const tournamentAnswerCount = incomingCallbacks.filter(callback => /^tgq:[0-9]{1,12}:[0-9]{1,20}:[0-9]{1,2}:[0-9]{1,2}$/.test(callback)).length;
+    appElement.classList.toggle("tournament-quiz-mode", tournamentAnswerCount >= 4);
     appElement.classList.toggle("local-combat-mode", isLocalCombatKeyboard);
     appElement.classList.toggle("combat-choice-mode", isCombatChoiceKeyboard);
     const isMainMenuKeyboard = incomingLabels.some(label => label.includes("minar")) &&
