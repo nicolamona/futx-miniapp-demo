@@ -277,6 +277,11 @@ body { position: fixed; inset: 0; }
   background: #20324c;
 }
 .bot-response-list { display: grid; gap: 10px; margin-top: 12px; }
+.staking-intro, .staking-summary { border: 1px solid rgba(105, 190, 255, .24); background: linear-gradient(145deg, rgba(27, 74, 112, .34), rgba(12, 24, 43, .72)); }
+.staking-intro-title, .staking-summary-title { font-weight: 800; letter-spacing: .04em; margin-bottom: 8px; color: #9edaff; }
+.staking-intro p { margin: 7px 0 0; line-height: 1.4; }
+.staking-summary-details { white-space: pre-wrap; line-height: 1.45; }
+.staking-intro strong { color: #d6f2ff; }
 /* FUTX_PROFILE_READONLY_DISCLAIMER_SMALL_V1: aviso de solo lectura menos invasivo */
 .bot-response-message.profile-readonly-disclaimer {
   font-size: 10px;
@@ -1174,6 +1179,40 @@ body {
       activeKeyboardActionId = sourceActionId;
     }
     botResponseList.replaceChildren();
+    const stakingView = document.querySelector(".app").classList.contains("staking-mode") ||
+      activeMenuAction === "staking";
+    if (stakingView) {
+      const intro = document.createElement("section");
+      intro.className = "bot-response-message staking-intro";
+      intro.innerHTML = '<div class="staking-intro-title">💎 FUTX STAKING</div>' +
+        '<p>Para ingresar al staking se usan ambos tokens: <strong>10 FUTX + 1 gema</strong> (relación 10:1).</p>' +
+        '<p>Depositás tus tokens, el capital queda bloqueado durante el período indicado y acumulás recompensas. Cuando estén disponibles, podés reclamarlas desde los botones de abajo.</p>';
+      botResponseList.appendChild(intro);
+
+      const summaryLines = [];
+      for (const entry of (Array.isArray(messages) ? messages : [])) {
+        const rawText = String(entry && entry.text ? entry.text : "");
+        for (const line of rawText.split(/\r?\n/)) {
+          if (/stakead|en staking|capital activo|capital bloquead|recompens|reclamable|list[ao]s? para reclamar|ganancias disponibles|disponible para reclamar/i.test(line) &&
+              line.trim() && !summaryLines.includes(line.trim())) {
+            summaryLines.push(line.trim());
+          }
+        }
+      }
+      if (summaryLines.length) {
+        const summary = document.createElement("section");
+        summary.className = "bot-response-message staking-summary";
+        const heading = document.createElement("div");
+        heading.className = "staking-summary-title";
+        heading.textContent = "📊 Tus balances y recompensas";
+        summary.appendChild(heading);
+        const details = document.createElement("div");
+        details.className = "staking-summary-details";
+        details.textContent = summaryLines.join("\n");
+        summary.appendChild(details);
+        botResponseList.appendChild(summary);
+      }
+    }
     const hasIncomingKeyboard = (Array.isArray(messages) ? messages : []).some(item =>
       Array.isArray(item && item.keyboard) &&
       item.keyboard.some(row => Array.isArray(row) && row.length > 0)
