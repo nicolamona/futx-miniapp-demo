@@ -289,7 +289,18 @@ body { position: fixed; inset: 0; }
   font-size: 10.5px;
   line-height: 1.35;
 }
-/* FIN FUTX_PROFILE_READONLY_DISCLAIMER_SMALL_V1 */
+/* FUTX_PROFILE_BALANCE_HIGHLIGHT_V1 */
+.bot-response-message.profile-balance-highlight {
+  border: 1px solid rgba(104, 231, 196, .72);
+  background: linear-gradient(135deg, rgba(13, 76, 69, .78), rgba(12, 31, 46, .96));
+  box-shadow: 0 0 0 1px rgba(104, 231, 196, .12), 0 6px 18px rgba(0, 0, 0, .18);
+  color: #e7fff7;
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 1.7;
+}
+/* FIN FUTX_PROFILE_BALANCE_HIGHLIGHT_V1 */
+
 
 .bot-response-message {
   white-space: pre-wrap; overflow-wrap: anywhere;
@@ -1228,6 +1239,10 @@ body {
       card.textContent = normalizeProfileHeading(String(item && item.text ? item.text : ""));
       if (/PERFIL FUTX\s*[·|—-]\s*ACCIONES MEDIANTE EL BOT|EL PERFIL ES DE SOLO LECTURA/i.test(card.textContent)) {
         card.classList.add("profile-readonly-disclaimer");
+      }
+      // Dar protagonismo visual a los balances de FUTX y gemas que devuelve el bot.
+      if (/(?:\bFUTX\b.*(?:balance|saldo|💎|gema)|(?:balance|saldo|💎|gemas?).*\bFUTX\b|\b(?:balance|saldo)\s+(?:de\s+)?(?:FUTX|gemas?)|\bFUTX\s*[:=]|💎\s*(?:gemas?)?\s*[:=])/i.test(card.textContent)) {
+        card.classList.add("profile-balance-highlight");
       }
       if (card.textContent.trim()) botResponseList.appendChild(card);
 
