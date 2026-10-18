@@ -633,6 +633,27 @@ body {
 
 
 /* FUTX_AVATAR_CUSTOMIZER_V1 */
+/* Layout perfil: texto a la izquierda y avatar a la derecha */
+#notice.profile-initial-layout { position:relative; }
+#notice.profile-initial-layout #notice-title,
+#notice.profile-initial-layout #notice-message { max-width:calc(100% - 118px); }
+#notice.profile-initial-layout #profile-avatar-display {
+  position:absolute; top:12px; right:10px; width:104px; min-height:104px;
+  box-sizing:border-box; margin:0; padding:7px; display:flex; flex-direction:column;
+  justify-content:center; align-items:center; gap:3px; text-align:center;
+}
+#notice.profile-initial-layout #profile-avatar-display .avatar-mini {
+  width:68px; height:68px; flex:0 0 68px; background:transparent;
+}
+#notice.profile-initial-layout #profile-avatar-display svg { width:66px; height:66px; }
+#notice.profile-initial-layout #profile-avatar-display .avatar-caption { font-size:10px; }
+#notice.profile-initial-layout #profile-avatar-display .avatar-subcaption { font-size:9px; }
+@media (max-width:360px) {
+  #notice.profile-initial-layout #notice-title,
+  #notice.profile-initial-layout #notice-message { max-width:calc(100% - 98px); }
+  #notice.profile-initial-layout #profile-avatar-display { width:88px; right:6px; }
+}
+
 #profile-avatar-display{flex:0 0 auto;display:flex;align-items:center;gap:12px;margin:4px 0 8px;padding:8px 12px;border:1px solid #345176;border-radius:14px;background:linear-gradient(120deg,#172b48,#101b2e)}
 #profile-avatar-display .avatar-mini{width:64px;height:64px;flex:0 0 64px;display:grid;place-items:center;border-radius:12px;background:#0b1426}
 #profile-avatar-display svg{width:60px;height:60px}
@@ -1612,6 +1633,10 @@ body {
       '<g fill="' + color + '" stroke="#dff3ff" stroke-width="2">' + head + '</g>' +
       face + '<path d="M40 59Q50 64 60 59" fill="none" stroke="#dff3ff" stroke-width="2" stroke-linecap="round"/>' + accessory + '</svg>';
   }
+  function setProfileAvatarLayout(enabled) {
+    const panel = document.getElementById("notice");
+    if (panel) panel.classList.toggle("profile-initial-layout", !!enabled);
+  }
   function renderSavedAvatar() {
     const host = document.getElementById("profile-avatar-display");
     if (!host) return;
@@ -1620,6 +1645,7 @@ body {
     host.style.display = "flex";
   }
   function showAvatarEditor() {
+    setProfileAvatarLayout(false);
     botResponseList.classList.remove("initial-navigation");
     botResponseList.replaceChildren();
     const cfg = loadAvatar();
@@ -1697,6 +1723,7 @@ body {
   ];
 
   function renderInitialNavigation(preserveResponses = false) {
+    setProfileAvatarLayout(true);
     document.querySelector('.app').classList.remove('has-response-keyboard', 'staking-mode');
     if (!preserveResponses) botResponseList.replaceChildren();
     bottomActions.replaceChildren();
@@ -1751,8 +1778,9 @@ body {
     closeNotice.style.display = "inline-flex";
   }
 
-  // Mostrar el avatar guardado al abrir la Mini App.
+  // Mostrar el avatar a la derecha en la pantalla inicial de perfil.
   renderSavedAvatar();
+  setProfileAvatarLayout(true);
   // Mostrar el perfil completo que devuelve el bot en el panel superior, con navegación fija abajo.
   renderInitialNavigation();
   showProfileInInterface();
