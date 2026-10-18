@@ -1095,6 +1095,34 @@ body {
     if (!copied) throw new Error("No se pudo copiar automáticamente. Mantené pulsado el texto para copiarlo.");
   }
 
+  function extractDepositAddress(messages, currentText, label) {
+    const addressPattern = /0x[a-fA-F0-9]{40}/g;
+    const currentAddresses = String(currentText || "").match(addressPattern) || [];
+    if (currentAddresses.length === 1) return currentAddresses[0];
+
+    const allMessages = (Array.isArray(messages) ? messages : []).map(item =>
+      String(item && item.text || "")
+    );
+    const currency = /\\bwld\\b/i.test(label) ? "wld" :
+      /\\bfutx\\b/i.test(label) ? "futx" : "";
+    if (currency) {
+      const matchingText = allMessages.find(text => {
+        addressPattern.lastIndex = 0;
+        return new RegExp("\\\\b" + currency + "\\\\b", "i").test(text) &&
+          addressPattern.test(text);
+      });
+      addressPattern.lastIndex = 0;
+      if (matchingText) {
+        const matches = matchingText.match(addressPattern) || [];
+        if (matches.length === 1) return matches[0];
+      }
+    }
+
+    const allText = allMessages.join("\\n");
+    const allAddresses = [...new Set(allText.match(addressPattern) || [])];
+    return allAddresses.length === 1 ? allAddresses[0] : "";
+  }
+
   function renderBotMessages(messages, sourceActionId, preserveActions = false) {
     if (typeof sourceActionId === "string" && /^[0-9a-f]{32}$/.test(sourceActionId)) {
       activeKeyboardActionId = sourceActionId;
@@ -1162,6 +1190,12 @@ body {
             : "";
           const isReferralCopy = activeMenuAction === "referrals" &&
             /copiar|copy|enlace|link/i.test(label) && Boolean(referralLink);
+          const depositAddress = activeMenuAction === "deposits" &&
+            /copiar|copy/i.test(label) &&
+            /direcci[oó]n|address|futx|wld/i.test(label)
+              ? extractDepositAddress(messages, item.text, label)
+              : "";
+          const isDepositAddressCopy = Boolean(depositAddress);
           // Ocultar temporalmente el ingreso manual hasta implementar el formulario dentro de la Mini App.
           if (callback === "stk:dep:manual") continue;
           if (isReplyButton && (!buttonValue || entry.request_contact || entry.request_location || entry.web_app)) continue;
@@ -1177,6 +1211,15 @@ body {
                 noticeMessage.textContent = "✅ ¡Mensaje y link copiados! Pegalos en tu grupo de amigos y compartí FUTX.";
               } catch (error) {
                 noticeMessage.textContent = "⚠️ " + (error.message || "No se pudo copiar el mensaje.");
+              }
+            });
+          } else if (isDepositAddressCopy) {
+            button.addEventListener("click", async () => {
+              try {
+                await copyShareText(depositAddress);
+                noticeMessage.textContent = "✅ Dirección de depósito copiada al portapapeles.";
+              } catch (error) {
+                noticeMessage.textContent = "⚠️ " + (error.message || "No se pudo copiar la dirección.");
               }
             });
           } else if (isReplyButton) {
