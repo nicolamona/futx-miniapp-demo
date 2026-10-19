@@ -1106,6 +1106,26 @@ body {
 #futx-slot-modes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:10px 0 3px}
 .futx-slot-mode{min-height:40px;border:1px solid #65528b;border-radius:12px;background:#ffffff08;color:#d9caff;font-size:11px;font-weight:800;cursor:pointer}
 .futx-slot-mode[aria-pressed="true"]{border-color:#ffcf75;background:linear-gradient(145deg,#ffcf7525,#bd78ff25);color:#ffe7a6;box-shadow:inset 0 0 0 1px #ffcf7530}
+#futx-slot-section-label,.futx-slot-section-label{margin:12px 0 5px;color:#b9a9df;font-size:10px;font-weight:900;letter-spacing:1.2px}
+#futx-slot-journeys{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+.futx-slot-journey{display:flex;flex-direction:column;align-items:center;gap:4px;min-height:82px;padding:9px 3px;border:1px solid #554477;border-radius:13px;background:#ffffff08;color:#e7ddff;cursor:pointer}
+.futx-slot-journey>span{font-size:22px}.futx-slot-journey b{font-size:10px}.futx-slot-journey small{font-size:9px;color:#b4a9d2;text-align:center}
+.futx-slot-journey[aria-pressed="true"]{border-color:#8be8ff;background:linear-gradient(145deg,#70e7ff20,#a56dff25);box-shadow:inset 0 0 0 1px #8be8ff30}
+#futx-slot-customize{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:9px;padding:9px 10px;border:1px solid #51426e;border-radius:12px;background:#070b1c80;color:#c9bee7;font-size:11px}
+#futx-slot-theme{max-width:58%;border:1px solid #67548b;border-radius:9px;padding:8px;background:#211638;color:#fff;font-size:11px}
+#futx-slot-mission{margin-top:10px;padding:11px;border:1px solid #59497c;border-radius:13px;background:linear-gradient(120deg,#ffffff08,#8e65d814)}
+#futx-slot-mission-title{display:block;font-size:12px;font-weight:850;color:#ffe7a6}
+#futx-slot-mission-progress{display:block;margin-top:4px;color:#b9afd6;font-size:10px}
+#futx-slot-progress-track{height:7px;margin-top:8px;border-radius:99px;background:#080b1b;overflow:hidden}
+#futx-slot-progress-fill{display:block;width:0;height:100%;border-radius:99px;background:linear-gradient(90deg,#69e9ff,#c48aff,#ffce76);transition:width .3s ease}
+#futx-slot-album{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px}
+.futx-slot-collectible{display:grid;place-items:center;min-height:39px;border:1px solid #51426e;border-radius:9px;background:#090d20;color:#fff;font-size:20px;position:relative}
+.futx-slot-collectible.locked{filter:grayscale(1);opacity:.34}
+.futx-slot-collectible.found{border-color:#ffe08b;box-shadow:0 0 12px #ffdc7133}
+#futx-slot-bonus{margin-top:10px;padding:12px;border:1px solid #ffcf75;border-radius:14px;background:linear-gradient(120deg,#ffbd4b16,#b76dff20);text-align:center}
+#futx-slot-bonus[hidden]{display:none}
+#futx-slot-bonus b{font-size:11px;color:#ffe7a6}#futx-slot-bonus p{margin:5px 0 9px;font-size:10px;color:#c9bfe5}
+.futx-slot-bonus-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.futx-slot-bonus-actions button{min-height:39px;border:1px solid #78609d;border-radius:10px;background:#ffffff0c;color:#fff;font-weight:800}
 #futx-slot-result{min-height:43px;display:flex;align-items:center;justify-content:center;text-align:center;padding:9px 4px 4px;font-size:14px;font-weight:800;color:#e9d7ff}
 #futx-slot-result.win{color:#ffe68e;text-shadow:0 0 16px #ffbe4c66}
 #futx-slot-spin{width:100%;min-height:58px;border:1px solid #ffe2a0;border-radius:16px;background:linear-gradient(100deg,#ffdb75,#ff9f43 52%,#ff71b8);color:#32133d;font-size:17px;font-weight:900;letter-spacing:.8px;box-shadow:0 5px 0 #8e3e72,0 0 25px #ff9b5a35;cursor:pointer;touch-action:manipulation}
@@ -3140,12 +3160,37 @@ const FUTX_API_BASE_URL = "https://penny-infrared-copyrighted-spatial.trycloudfl
     <p class="futx-slot-subtitle">Una ráfaga de color. Tres símbolos. Pura diversión arcade.</p>
     <div id="futx-slot-score"><div><div class="futx-slot-score-label">PUNTOS ARCADE</div><div id="futx-slot-score-value">0</div></div><div><div class="futx-slot-score-label" style="text-align:right">RÉCORD PERSONAL</div><div id="futx-slot-best">0 puntos</div></div></div>
     <div id="futx-slot-machine"><div id="futx-slot-reels" aria-live="polite"><div class="futx-slot-reel">💎</div><div class="futx-slot-reel">⚡</div><div class="futx-slot-reel">🌟</div></div></div>
+    <div class="futx-slot-section-label">🎛️ ESTILO DE ANIMACIÓN</div>
     <div id="futx-slot-modes" aria-label="Elegí el estilo de animación">
       <button class="futx-slot-mode" type="button" data-mode="suave" aria-pressed="false">🌙 SUAVE</button>
       <button class="futx-slot-mode" type="button" data-mode="clasico" aria-pressed="true">⚡ CLÁSICO</button>
       <button class="futx-slot-mode" type="button" data-mode="cine" aria-pressed="false">🎬 CINE</button>
     </div>
-    <div id="futx-slot-result" aria-live="polite">Elegí un estilo y tocá girar.</div>
+    <div class="futx-slot-section-label">🧭 ELEGÍ TU EXPERIENCIA</div>
+    <div id="futx-slot-journeys">
+      <button class="futx-slot-journey" type="button" data-journey="reto" aria-pressed="true"><span>🎯</span><b>RETO</b><small>Completá objetivos</small></button>
+      <button class="futx-slot-journey" type="button" data-journey="coleccion" aria-pressed="false"><span>🧩</span><b>COLECCIÓN</b><small>Descubrí símbolos</small></button>
+      <button class="futx-slot-journey" type="button" data-journey="libre" aria-pressed="false"><span>🌌</span><b>LIBRE</b><small>Jugá a tu ritmo</small></button>
+    </div>
+    <div id="futx-slot-customize">
+      <label for="futx-slot-theme">🎨 Universo visual</label>
+      <select id="futx-slot-theme">
+        <option value="neon">Neón violeta</option><option value="cosmos">Cosmos azul</option><option value="bosque">Bosque mágico</option><option value="lava">Lava solar</option>
+      </select>
+    </div>
+    <div id="futx-slot-mission">
+      <div><span id="futx-slot-mission-title">🎯 Misión: encontrá 3 símbolos distintos</span><small id="futx-slot-mission-progress">Progreso: 0/3</small></div>
+      <div id="futx-slot-progress-track"><span id="futx-slot-progress-fill"></span></div>
+    </div>
+    <div id="futx-slot-collection">
+      <div class="futx-slot-section-label">📚 ÁLBUM DE SÍMBOLOS</div>
+      <div id="futx-slot-album"></div>
+    </div>
+    <div id="futx-slot-bonus" hidden>
+      <div><b>🌟 RONDA ESPECIAL DESBLOQUEADA</b><p>Elegí un desafío gratuito. No hay apuestas ni pérdidas.</p></div>
+      <div class="futx-slot-bonus-actions"><button type="button" data-bonus="eco">🔁 Eco</button><button type="button" data-bonus="destello">✨ Destello</button></div>
+    </div>
+    <div id="futx-slot-result" aria-live="polite">Elegí tu experiencia y tocá girar.</div>
     <button id="futx-slot-spin" type="button">✨ GIRAR GRATIS</button>
     <p id="futx-slot-foot">Juego visual de demostración. No hay apuestas ni pérdidas: los puntos son solo una puntuación local y no tienen valor, no se pueden comprar ni convertir en FUTX o gemas.</p>
   </section>
@@ -3162,27 +3207,94 @@ const FUTX_API_BASE_URL = "https://penny-infrared-copyrighted-spatial.trycloudfl
   const scoreNode = document.getElementById("futx-slot-score-value");
   const bestNode = document.getElementById("futx-slot-best");
   const modeButtons = Array.from(document.querySelectorAll(".futx-slot-mode"));
+  const journeyButtons = Array.from(document.querySelectorAll(".futx-slot-journey"));
+  const themeSelect = document.getElementById("futx-slot-theme");
+  const missionTitle = document.getElementById("futx-slot-mission-title");
+  const missionProgress = document.getElementById("futx-slot-mission-progress");
+  const progressFill = document.getElementById("futx-slot-progress-fill");
+  const album = document.getElementById("futx-slot-album");
+  const bonusPanel = document.getElementById("futx-slot-bonus");
   if (!fab || !overlay || !spin || !reelsHost) return;
   const symbols = ["💎","⚡","🌟","🍀","🚀","👑","🪐"];
+  const symbolNames = {"💎":"Cristal","⚡":"Rayo","🌟":"Estrella","🍀":"Trébol","🚀":"Cohete","👑":"Corona","🪐":"Planeta"};
   const uid = String(window.Telegram?.WebApp?.initDataUnsafe?.user?.id || "guest");
   const key = "futx-slot-arcade-v1:" + uid;
-  let score = 0, best = 0, busy = false, selectedMode = "clasico", suppressNextClick = false;
+  let score = 0, best = 0, busy = false, selectedMode = "clasico", selectedJourney = "reto", suppressNextClick = false;
+  let found = [], missionCount = 0, bonusReady = false;
+  const missions = [
+    {title:"🎯 Misión: encontrá 3 símbolos distintos",goal:3,kind:"different"},
+    {title:"🚀 Misión: descubrí 5 símbolos del álbum",goal:5,kind:"collection"},
+    {title:"🌈 Misión: conseguí 4 combos",goal:4,kind:"combo"}
+  ];
+  let missionIndex = 0, comboCount = 0;
   try {
     const saved = JSON.parse(localStorage.getItem(key) || "{}");
     score = Number.isSafeInteger(saved.score) && saved.score >= 0 ? saved.score : 0;
     best = Number.isSafeInteger(saved.best) && saved.best >= 0 ? saved.best : 0;
+    found = Array.isArray(saved.found) ? saved.found.filter(x => symbols.includes(x)) : [];
+    missionCount = Number.isSafeInteger(saved.missionCount) && saved.missionCount >= 0 ? saved.missionCount : 0;
+    missionIndex = Number.isInteger(saved.missionIndex) ? Math.max(0,Math.min(missions.length-1,saved.missionIndex)) : 0;
+    comboCount = Number.isSafeInteger(saved.comboCount) && saved.comboCount >= 0 ? saved.comboCount : 0;
+    selectedJourney = ["reto","coleccion","libre"].includes(saved.journey) ? saved.journey : "reto";
   } catch (_) {}
   const fmt = n => n.toLocaleString("es-AR");
   function paintScore() { scoreNode.textContent = fmt(score); bestNode.textContent = fmt(best) + " puntos"; }
+  function paintMission() {
+    const m = missions[missionIndex];
+    if (missionTitle) missionTitle.textContent = selectedJourney === "libre" ? "🌌 Modo libre: jugá sin objetivos" : selectedJourney === "coleccion" ? "🧩 Colección: descubrí todos los símbolos" : m.title;
+    const current = selectedJourney === "coleccion" ? found.length : selectedJourney === "libre" ? 0 : missionCount;
+    const goal = selectedJourney === "coleccion" ? symbols.length : selectedJourney === "libre" ? 1 : m.goal;
+    if (missionProgress) missionProgress.textContent = selectedJourney === "libre" ? "Sin límite ni presión" : "Progreso: " + Math.min(current,goal) + "/" + goal;
+    if (progressFill) progressFill.style.width = (selectedJourney === "libre" ? 0 : Math.min(100,current/goal*100)) + "%";
+  }
+  function paintAlbum() {
+    if (!album) return;
+    album.replaceChildren();
+    symbols.forEach(symbol => {
+      const cell = document.createElement("div");
+      cell.className = "futx-slot-collectible " + (found.includes(symbol) ? "found" : "locked");
+      cell.textContent = found.includes(symbol) ? symbol : "·";
+      cell.title = found.includes(symbol) ? symbolNames[symbol] + " descubierto" : "Símbolo por descubrir";
+      cell.setAttribute("aria-label",cell.title);
+      album.appendChild(cell);
+    });
+  }
   function openGame() { overlay.classList.add("open"); document.body.style.overflow = "hidden"; close.focus(); }
   function closeGame() { overlay.classList.remove("open"); document.body.style.overflow = ""; fab.focus(); }
-  function save() { try { localStorage.setItem(key, JSON.stringify({score,best})); } catch (_) {} }
+  function save() { try { localStorage.setItem(key, JSON.stringify({score,best,found,missionCount,missionIndex,comboCount,journey:selectedJourney})); } catch (_) {} }
   modeButtons.forEach(button => button.addEventListener("click", () => {
     if (busy) return;
     selectedMode = button.dataset.mode;
     modeButtons.forEach(b => b.setAttribute("aria-pressed", String(b === button)));
     result.textContent = selectedMode === "suave" ? "Estilo suave: giro tranquilo." : selectedMode === "cine" ? "Estilo cine: cada rodillo se luce." : "Estilo clásico: ritmo arcade.";
     result.classList.remove("win");
+  }));
+  journeyButtons.forEach(button => button.addEventListener("click", () => {
+    selectedJourney = button.dataset.journey;
+    journeyButtons.forEach(b => b.setAttribute("aria-pressed",String(b === button)));
+    paintMission(); save();
+    result.textContent = selectedJourney === "reto" ? "Modo reto: completá la misión activa." : selectedJourney === "coleccion" ? "Modo colección: cada símbolo nuevo suma a tu álbum." : "Modo libre: sin objetivos, disfrutá la animación.";
+  }));
+  if (themeSelect) themeSelect.addEventListener("change", () => {
+    const themes = {
+      neon:["#35215fdd","#201542","#11162e","#10253b","#8e65d8"],
+      cosmos:["#0b3b66dd","#102b49","#101a35","#071c35","#4b9ed1"],
+      bosque:["#164d43dd","#12352f","#102823","#183e2d","#4caa83"],
+      lava:["#64251edd","#3e1b26","#211526","#3c211c","#dd794c"]
+    };
+    const t = themes[themeSelect.value] || themes.neon;
+    overlay.style.background = "radial-gradient(ellipse at 50% 25%," + t[0] + ",#070916f5 68%)";
+    const card = document.getElementById("futx-slot-card");
+    if (card) { card.style.background = "linear-gradient(155deg,"+t[1]+","+t[2]+" 55%,"+t[3]+")"; card.style.borderColor=t[4]; }
+  });
+  document.querySelectorAll("[data-bonus]").forEach(button => button.addEventListener("click", () => {
+    if (!bonusReady || busy) return;
+    bonusReady = false; bonusPanel.hidden = true;
+    const bonus = button.dataset.bonus;
+    const extra = bonus === "eco" ? 80 : 120;
+    score += extra; best = Math.max(best,score); paintScore(); save();
+    result.textContent = bonus === "eco" ? "🔁 ¡Eco completado! +80 puntos ficticios." : "✨ ¡Destello completado! +120 puntos ficticios.";
+    result.classList.add("win");
   }));
   // Botón flotante desplazable con dedo o mouse; posición recordada solo en este dispositivo.
   const posKey = "futx-slot-fab-pos-v1:" + uid;
@@ -3238,7 +3350,8 @@ const FUTX_API_BASE_URL = "https://penny-infrared-copyrighted-spatial.trycloudfl
   close.addEventListener("click", closeGame);
   overlay.addEventListener("click", e => { if (e.target === overlay && !busy) closeGame(); });
   document.addEventListener("keydown", e => { if (e.key === "Escape" && overlay.classList.contains("open") && !busy) closeGame(); });
-  paintScore();
+  paintScore(); paintMission(); paintAlbum();
+  journeyButtons.forEach(button => button.setAttribute("aria-pressed",String(button.dataset.journey === selectedJourney)));
   spin.addEventListener("click", () => {
     if (busy) return;
     busy = true; spin.disabled = true; spin.textContent = "🌠 GIRANDO…"; result.classList.remove("win");
@@ -3263,11 +3376,32 @@ const FUTX_API_BASE_URL = "https://penny-infrared-copyrighted-spatial.trycloudfl
     window.setTimeout(() => {
       reels.forEach(r => r.classList.remove("stopping"));
       let gained = 10;
-      let message = "¡Buen giro! +10 puntos de estilo";
-      if (final.every(s => s === final[0])) { gained = 500; message = "✨ ¡TRIPLE PERFECTO! +500 puntos"; }
-      else if (final[0] === final[1] || final[1] === final[2] || final[0] === final[2]) { gained = 100; message = "🌟 ¡COMBO DOBLE! +100 puntos"; }
-      else if (final.includes("💎") || final.includes("👑")) { gained = 35; message = "💎 ¡Símbolo especial! +35 puntos"; }
-      score += gained; best = Math.max(best,score); paintScore(); save();
+      let message = "¡Buen giro! +10 puntos ficticios";
+      const uniqueBefore = found.length;
+      final.forEach(symbol => { if (!found.includes(symbol)) found.push(symbol); });
+      const newFinds = found.length - uniqueBefore;
+      const combo = final.every(s => s === final[0]);
+      const pair = final[0] === final[1] || final[1] === final[2] || final[0] === final[2];
+      if (combo) { gained = 500; message = "✨ ¡TRIPLE PERFECTO! +500 puntos ficticios"; comboCount++; }
+      else if (pair) { gained = 100; message = "🌟 ¡COMBO DOBLE! +100 puntos ficticios"; comboCount++; }
+      else if (final.includes("💎") || final.includes("👑")) { gained = 35; message = "💎 ¡Símbolo especial! +35 puntos ficticios"; }
+      if (selectedJourney === "reto") {
+        const m = missions[missionIndex];
+        missionCount += m.kind === "different" ? newFinds : m.kind === "collection" ? newFinds : (combo ? 1 : 0) + (pair && !combo ? 1 : 0);
+        if (missionCount >= m.goal) {
+          gained += 150;
+          message += " · 🏆 ¡MISIÓN CUMPLIDA! +150 bonus";
+          missionIndex = (missionIndex + 1) % missions.length; missionCount = 0;
+        }
+      } else if (selectedJourney === "coleccion" && found.length === symbols.length && newFinds > 0) {
+        gained += 250; message += " · 🧩 ¡ÁLBUM COMPLETO! +250 bonus";
+      }
+      if (newFinds > 0) message += " · 📚 " + newFinds + " símbolo(s) nuevo(s)";
+      score += gained; best = Math.max(best,score); paintScore(); paintMission(); paintAlbum(); save();
+      if (!bonusReady && score >= 300 && score % 300 < gained) {
+        bonusReady = true; bonusPanel.hidden = false;
+        message += " · 🌟 ¡Elegí una ronda especial!";
+      }
       result.textContent = message; result.classList.add("win");
       busy = false; spin.disabled = false; spin.textContent = "✨ GIRAR GRATIS";
     }, timings[2] + 420);
