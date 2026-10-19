@@ -1074,6 +1074,42 @@ body {
   #bot-response-list.profile-scroll-cue::after { animation: none; }
 }
 
+
+/* FUTX_SLOT_ARCADE_V1 */
+#futx-slot-fab{position:fixed;right:16px;bottom:78px;z-index:100001;width:58px;height:58px;border:1px solid #ffca69;border-radius:19px;background:linear-gradient(145deg,#ffcf65,#f08b26 58%,#b94bff);color:#24102d;font-size:29px;box-shadow:0 0 0 3px #ffcf6522,0 0 24px #ff9b3d88,0 8px 22px #0008;display:grid;place-items:center;cursor:pointer;animation:futxSlotPulse 2.8s ease-in-out infinite;touch-action:manipulation}
+#futx-slot-fab:active{transform:scale(.94)}
+#futx-slot-fab:focus-visible,#futx-slot-spin:focus-visible,#futx-slot-close:focus-visible{outline:3px solid #fff;outline-offset:3px}
+@keyframes futxSlotPulse{0%,100%{box-shadow:0 0 0 3px #ffcf6522,0 0 18px #ff9b3d66,0 8px 22px #0008}50%{box-shadow:0 0 0 6px #ffcf6518,0 0 30px #ff9b3dcc,0 8px 22px #0008}}
+#futx-slot-overlay{position:fixed;inset:0;z-index:1000000;display:none;align-items:center;justify-content:center;padding:max(12px,env(safe-area-inset-top)) 12px max(12px,env(safe-area-inset-bottom));background:radial-gradient(ellipse at 50% 25%,#35215fdd,#070916f5 68%);backdrop-filter:blur(9px)}
+#futx-slot-overlay.open{display:flex;animation:futxSlotFade .18s ease-out}
+@keyframes futxSlotFade{from{opacity:0}to{opacity:1}}
+#futx-slot-card{position:relative;width:min(100%,480px);max-height:100%;overflow:auto;border:1px solid #8e65d8;border-radius:26px;padding:19px 15px 16px;background:linear-gradient(155deg,#201542,#11162e 55%,#10253b);box-shadow:0 0 0 1px #d2a8ff20,0 0 48px #9e52ff38,0 22px 65px #0009;color:#f7f4ff}
+.futx-slot-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.futx-slot-brand{font-size:11px;font-weight:900;letter-spacing:2.5px;color:#d4b6ff}
+#futx-slot-close{width:37px;height:37px;border:1px solid #69558e;border-radius:12px;background:#ffffff0b;color:#fff;font-size:22px;cursor:pointer}
+.futx-slot-title{margin:9px 0 3px;text-align:center;font-size:clamp(27px,7vw,36px);font-weight:900;letter-spacing:1px;background:linear-gradient(100deg,#fff2a8,#ffbd5a,#ff79cf,#bda0ff);background-clip:text;-webkit-background-clip:text;color:transparent;text-shadow:0 0 26px #ffb34c25}
+.futx-slot-subtitle{text-align:center;margin:0 0 15px;color:#b8b3d3;font-size:12px}
+#futx-slot-score{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:11px 13px;margin-bottom:12px;border:1px solid #57457d;border-radius:15px;background:#090d21a8}
+.futx-slot-score-label{font-size:10px;letter-spacing:1.2px;color:#bdb2dc;font-weight:800}
+#futx-slot-score-value{font-size:22px;font-weight:900;color:#ffe49a;font-variant-numeric:tabular-nums}
+#futx-slot-best{font-size:11px;color:#b9f7e5;text-align:right}
+#futx-slot-machine{position:relative;padding:12px 9px;border:2px solid #e4ad5d;border-radius:20px;background:linear-gradient(180deg,#7046a0,#352258 18%,#15142f 50%,#3a245f 82%,#b56a38);box-shadow:inset 0 0 0 3px #fff1c51c,0 0 25px #bd78ff25}
+#futx-slot-machine:before,#futx-slot-machine:after{content:"✦  •  ✦  •  ✦";display:block;text-align:center;font-size:10px;letter-spacing:5px;color:#ffe4a3;padding:0 0 7px}
+#futx-slot-machine:after{padding:7px 0 0}
+#futx-slot-reels{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;padding:8px;border:1px solid #f9d69a;border-radius:13px;background:linear-gradient(#f9e9ff,#bba7db 9%,#fff 20%,#e6ddf7 50%,#fff 80%,#a78bc9);box-shadow:inset 0 0 16px #3c1c67}
+.futx-slot-reel{display:grid;place-items:center;min-height:clamp(76px,21vw,106px);border-radius:10px;background:linear-gradient(180deg,#e3d8f6,#fff 28%,#f6f0ff 70%,#d6c5f0);color:#211239;font-size:clamp(43px,12vw,61px);text-shadow:0 3px 0 #c9b8e6;box-shadow:inset 0 0 0 1px #9d81c8,0 3px 7px #170c2a33;overflow:hidden}
+.futx-slot-reel.spinning{animation:futxReelSpin .12s linear infinite;filter:blur(1px)}
+@keyframes futxReelSpin{0%{transform:translateY(-3px)}50%{transform:translateY(3px)}100%{transform:translateY(-3px)}}
+#futx-slot-result{min-height:43px;display:flex;align-items:center;justify-content:center;text-align:center;padding:9px 4px 4px;font-size:14px;font-weight:800;color:#e9d7ff}
+#futx-slot-result.win{color:#ffe68e;text-shadow:0 0 16px #ffbe4c66}
+#futx-slot-spin{width:100%;min-height:58px;border:1px solid #ffe2a0;border-radius:16px;background:linear-gradient(100deg,#ffdb75,#ff9f43 52%,#ff71b8);color:#32133d;font-size:17px;font-weight:900;letter-spacing:.8px;box-shadow:0 5px 0 #8e3e72,0 0 25px #ff9b5a35;cursor:pointer;touch-action:manipulation}
+#futx-slot-spin:active{transform:translateY(2px);box-shadow:0 3px 0 #8e3e72}
+#futx-slot-spin:disabled{opacity:.7;cursor:wait}
+#futx-slot-foot{margin:12px 4px 0;text-align:center;color:#9f9abf;font-size:10px;line-height:1.5}
+#futx-slot-overlay .futx-slot-pill{display:inline-block;border:1px solid #6b5795;border-radius:999px;padding:5px 8px;color:#d8c7ff;font-size:10px;font-weight:800;letter-spacing:.7px}
+@media(prefers-reduced-motion:reduce){#futx-slot-fab{animation:none}#futx-slot-overlay.open{animation:none}.futx-slot-reel.spinning{animation:none}}
+/* FIN FUTX_SLOT_ARCADE_V1 */
+
 </style>
 </head>
 <body>
@@ -3089,5 +3125,72 @@ const FUTX_API_BASE_URL = "https://penny-infrared-copyrighted-spatial.trycloudfl
   });
 })();
 </script>
+
+<button id="futx-slot-fab" type="button" aria-label="Abrir máquina arcade FUTX" title="Máquina arcade FUTX">🎰</button>
+<div id="futx-slot-overlay" role="dialog" aria-modal="true" aria-labelledby="futx-slot-title">
+  <section id="futx-slot-card">
+    <div class="futx-slot-top"><span class="futx-slot-brand">FUTX • ARCADE</span><span class="futx-slot-pill">MODO DEMO · GRATIS</span><button id="futx-slot-close" type="button" aria-label="Cerrar máquina arcade">×</button></div>
+    <h2 class="futx-slot-title" id="futx-slot-title">NEON SPIN</h2>
+    <p class="futx-slot-subtitle">Una ráfaga de color. Tres símbolos. Pura diversión arcade.</p>
+    <div id="futx-slot-score"><div><div class="futx-slot-score-label">PUNTOS ARCADE</div><div id="futx-slot-score-value">0</div></div><div><div class="futx-slot-score-label" style="text-align:right">RÉCORD PERSONAL</div><div id="futx-slot-best">0 puntos</div></div></div>
+    <div id="futx-slot-machine"><div id="futx-slot-reels" aria-live="polite"><div class="futx-slot-reel">💎</div><div class="futx-slot-reel">⚡</div><div class="futx-slot-reel">🌟</div></div></div>
+    <div id="futx-slot-result" aria-live="polite">¡Dale a girar y descubrí la combinación!</div>
+    <button id="futx-slot-spin" type="button">✨ GIRAR GRATIS</button>
+    <p id="futx-slot-foot">Juego visual de demostración. No hay apuestas ni pérdidas: los puntos son solo una puntuación local y no tienen valor, no se pueden comprar ni convertir en FUTX o gemas.</p>
+  </section>
+</div>
+<script>
+/* FUTX_SLOT_ARCADE_V1 */
+(() => {
+  const fab = document.getElementById("futx-slot-fab");
+  const overlay = document.getElementById("futx-slot-overlay");
+  const close = document.getElementById("futx-slot-close");
+  const spin = document.getElementById("futx-slot-spin");
+  const reelsHost = document.getElementById("futx-slot-reels");
+  const result = document.getElementById("futx-slot-result");
+  const scoreNode = document.getElementById("futx-slot-score-value");
+  const bestNode = document.getElementById("futx-slot-best");
+  if (!fab || !overlay || !spin || !reelsHost) return;
+  const symbols = ["💎","⚡","🌟","🍀","🚀","👑","🪐"];
+  const uid = String(window.Telegram?.WebApp?.initDataUnsafe?.user?.id || "guest");
+  const key = "futx-slot-arcade-v1:" + uid;
+  let score = 0, best = 0, busy = false;
+  try {
+    const saved = JSON.parse(localStorage.getItem(key) || "{}");
+    score = Number.isSafeInteger(saved.score) && saved.score >= 0 ? saved.score : 0;
+    best = Number.isSafeInteger(saved.best) && saved.best >= 0 ? saved.best : 0;
+  } catch (_) {}
+  const fmt = n => n.toLocaleString("es-AR");
+  function paintScore() { scoreNode.textContent = fmt(score); bestNode.textContent = fmt(best) + " puntos"; }
+  function openGame() { overlay.classList.add("open"); document.body.style.overflow = "hidden"; close.focus(); }
+  function closeGame() { overlay.classList.remove("open"); document.body.style.overflow = ""; fab.focus(); }
+  function save() { try { localStorage.setItem(key, JSON.stringify({score,best})); } catch (_) {} }
+  fab.addEventListener("click", openGame);
+  close.addEventListener("click", closeGame);
+  overlay.addEventListener("click", e => { if (e.target === overlay && !busy) closeGame(); });
+  document.addEventListener("keydown", e => { if (e.key === "Escape" && overlay.classList.contains("open") && !busy) closeGame(); });
+  paintScore();
+  spin.addEventListener("click", () => {
+    if (busy) return;
+    busy = true; spin.disabled = true; spin.textContent = "🌠 GIRANDO…"; result.classList.remove("win");
+    const reels = Array.from(reelsHost.children);
+    reels.forEach((r,i) => { r.classList.add("spinning"); r.textContent = symbols[(Math.random()*symbols.length)|0]; });
+    const final = Array.from({length:3}, () => symbols[(Math.random()*symbols.length)|0]);
+    window.setTimeout(() => {
+      reels.forEach((r,i) => { r.classList.remove("spinning"); r.textContent = final[i]; });
+      let gained = 10;
+      let message = "¡Buen giro! +10 puntos de estilo";
+      if (final.every(s => s === final[0])) { gained = 500; message = "✨ ¡TRIPLE PERFECTO! +500 puntos"; }
+      else if (final[0] === final[1] || final[1] === final[2] || final[0] === final[2]) { gained = 100; message = "🌟 ¡COMBO DOBLE! +100 puntos"; }
+      else if (final.includes("💎") || final.includes("👑")) { gained = 35; message = "💎 ¡Símbolo especial! +35 puntos"; }
+      score += gained; best = Math.max(best,score); paintScore(); save();
+      result.textContent = message; result.classList.add("win");
+      busy = false; spin.disabled = false; spin.textContent = "✨ GIRAR GRATIS";
+    }, 1050);
+  });
+})();
+/* FIN FUTX_SLOT_ARCADE_V1 */
+</script>
+
 </body>
 </html>
