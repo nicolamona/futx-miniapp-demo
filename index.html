@@ -261,6 +261,14 @@ body { position: fixed; inset: 0; }
 .bot-response-keyboard-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(90px, 1fr)); }
 .bot-response-action { display: flex; align-items: center; justify-content: center; width: 100%; min-height: 42px; padding: 9px 10px; border: 1px solid #42658d; border-radius: 10px; background: #183451; color: #f4f8ff; font: inherit; font-size: 0.95rem; font-weight: 650; text-align: center; text-decoration: none; cursor: pointer; overflow-wrap: anywhere; }
 .bot-response-action:disabled { opacity: 0.55; cursor: wait; }
+/* FUTX_INVENTORY_CATEGORY_BUTTONS_LARGE_V1: categorías del inventario +50% */
+.bot-response-action.inventory-category-button {
+  min-height: 63px;
+  padding: 13.5px 15px;
+  border-radius: 15px;
+  font-size: 1.425rem;
+}
+/* FIN FUTX_INVENTORY_CATEGORY_BUTTONS_LARGE_V1 */
 /* FUTX_GLOBAL_TOURNAMENT_ANSWERS_LARGE_V1: opciones de respuesta del torneo global */
 .app.tournament-quiz-mode .bot-response-action {
   min-height: 84px;
@@ -1955,6 +1963,9 @@ const FUTX_API_BASE_URL = "https://penny-infrared-copyrighted-spatial.trycloudfl
           const button = document.createElement("button");
           button.type = "button";
           button.className = "bot-response-action";
+          if (/^(?:⚔️\s*)?Equipamiento$|^✨\s*Ítems especiales$|^⏳\s*Objetos expirables$/u.test(label.trim())) {
+            button.classList.add("inventory-category-button");
+          }
           if (callback === "market:shop" || callback === "market:gems") {
             button.classList.add("market-district-button");
           }
