@@ -1966,6 +1966,8 @@ const FUTX_API_BASE_URL = "https://penny-infrared-copyrighted-spatial.trycloudfl
                   : "";
           // FIN FUTX_DEPOSIT_COPY_ADDRESS_FIXED_V1
           const isDepositAddressCopy = Boolean(depositAddress);
+          // FUTX_WLD_BALANCE_BUTTON_V1: conectar la consulta de saldo WLD con el bot aunque llegue como botón inline.
+          const isWldBalanceCheck = /consultar\s+saldo\s+wld/i.test(label.trim());
           // Ocultar temporalmente el ingreso manual hasta implementar el formulario dentro de la Mini App.
           if (callback === "stk:dep:manual") continue;
           if (isReplyButton && (!buttonValue || entry.request_contact || entry.request_location || entry.web_app)) continue;
@@ -2016,6 +2018,11 @@ const FUTX_API_BASE_URL = "https://penny-infrared-copyrighted-spatial.trycloudfl
               } catch (error) {
                 noticeMessage.textContent = "⚠️ " + (error.message || "No se pudo copiar la dirección.");
               }
+            });
+          } else if (isWldBalanceCheck) {
+            button.addEventListener("click", () => {
+              button.disabled = true;
+              sendMenuButton("text", label, button, label, sourceActionId, messageId);
             });
           } else if (isReplyButton) {
             button.addEventListener("click", () => {
