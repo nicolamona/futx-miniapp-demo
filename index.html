@@ -3207,6 +3207,7 @@ const FUTX_API_BASE_URL = "https://penny-infrared-copyrighted-spatial.trycloudfl
 <div id="futx-slot-overlay" role="dialog" aria-modal="true" aria-labelledby="futx-slot-title">
   <section id="futx-slot-card">
     <div class="futx-slot-top"><span class="futx-slot-brand">FUTX • ARCADE</span><span class="futx-slot-pill">MODO DEMO · GRATIS</span><button id="futx-slot-close" type="button" aria-label="Cerrar máquina arcade">×</button></div>
+    <button id="futx-slot-return" type="button" style="display:block;width:100%;margin:0 0 14px;padding:12px 16px;border:1px solid rgba(113,234,255,.65);border-radius:12px;background:linear-gradient(135deg,rgba(20,105,140,.9),rgba(47,45,115,.95));color:#fff;font-weight:800;letter-spacing:.04em;cursor:pointer">↩ VOLVER A LA INTERFAZ FUTX</button>
     <h2 class="futx-slot-title" id="futx-slot-title">FUTX NEON SPIN</h2>
     <p class="futx-slot-subtitle">Una ráfaga de color. Tres símbolos. Pura diversión arcade.</p>
     <div id="futx-slot-score"><div><div class="futx-slot-score-label">PUNTOS ARCADE</div><div id="futx-slot-score-value">0</div></div><div><div class="futx-slot-score-label" style="text-align:right">RÉCORD PERSONAL</div><div id="futx-slot-best">0 puntos</div></div></div>
@@ -3269,6 +3270,7 @@ const FUTX_API_BASE_URL = "https://penny-infrared-copyrighted-spatial.trycloudfl
   const fab = document.getElementById("futx-slot-fab");
   const overlay = document.getElementById("futx-slot-overlay");
   const close = document.getElementById("futx-slot-close");
+  const returnButton = document.getElementById("futx-slot-return");
   const spin = document.getElementById("futx-slot-spin");
   const reelsHost = document.getElementById("futx-slot-reels");
   const result = document.getElementById("futx-slot-result");
@@ -3455,6 +3457,7 @@ const FUTX_API_BASE_URL = "https://penny-infrared-copyrighted-spatial.trycloudfl
   });
   slotDomGuard.observe(document.body, {childList:true});
   close.addEventListener("click", closeGame);
+  if (returnButton) returnButton.addEventListener("click", closeGame);
   overlay.addEventListener("click", e => { if (e.target === overlay && !busy) closeGame(); });
   document.addEventListener("keydown", e => { if (e.key === "Escape" && overlay.classList.contains("open") && !busy) closeGame(); });
   paintScore(); paintMission(); paintAlbum(); paintAchievements();
