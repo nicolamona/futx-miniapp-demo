@@ -3341,7 +3341,7 @@ const FUTX_API_BASE_URL = "https://penny-infrared-copyrighted-spatial.trycloudfl
   function paintMission() {
     const m = missions[missionIndex];
     if (missionTitle) missionTitle.textContent = selectedJourney === "libre" ? "🌌 Modo libre: jugá sin objetivos" : selectedJourney === "coleccion" ? "🧩 Colección: descubrí todos los símbolos" : m.title;
-    const current = selectedJourney === "coleccion" ? found.length : selectedJourney === "libre" ? 0 : missionCount;
+    const current = selectedJourney === "coleccion" ? found.length : selectedJourney === "libre" ? 0 : (m.kind === "different" ? found.length : missionCount);
     const goal = selectedJourney === "coleccion" ? symbols.length : selectedJourney === "libre" ? 1 : m.goal;
     if (missionProgress) missionProgress.textContent = selectedJourney === "libre" ? "Sin límite ni presión" : "Progreso: " + Math.min(current,goal) + "/" + goal;
     if (progressFill) progressFill.style.width = (selectedJourney === "libre" ? 0 : Math.min(100,current/goal*100)) + "%";
@@ -3498,8 +3498,10 @@ const FUTX_API_BASE_URL = "https://penny-infrared-copyrighted-spatial.trycloudfl
       else if (final.includes("💎") || final.includes("👑")) { gained = 35; message = "💎 ¡Símbolo especial! +35 puntos ficticios"; }
       if (selectedJourney === "reto") {
         const m = missions[missionIndex];
-        missionCount += m.kind === "different" ? newFinds : m.kind === "collection" ? newFinds : (combo ? 1 : 0) + (pair && !combo ? 1 : 0);
-        if (missionCount >= m.goal) {
+        missionCount = m.kind === "different" || m.kind === "collection"
+          ? found.length
+          : missionCount + (combo ? 1 : 0) + (pair && !combo ? 1 : 0);
+        if ((m.kind === "different" || m.kind === "collection" ? found.length : missionCount) >= m.goal) {
           gained += 150;
           message += " · 🏆 ¡MISIÓN CUMPLIDA! +150 bonus";
           missionsCompleted++; missionIndex = (missionIndex + 1) % missions.length; missionCount = 0;
