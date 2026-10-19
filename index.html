@@ -1076,7 +1076,7 @@ body {
 
 
 /* FUTX_SLOT_ARCADE_V1 */
-#futx-slot-fab{position:fixed;right:16px;bottom:78px;z-index:100001;width:58px;height:58px;border:1px solid #ffca69;border-radius:19px;background:linear-gradient(145deg,#ffcf65,#f08b26 58%,#b94bff);color:#24102d;font-size:29px;box-shadow:0 0 0 3px #ffcf6522,0 0 24px #ff9b3d88,0 8px 22px #0008;display:grid;place-items:center;cursor:pointer;animation:futxSlotPulse 2.8s ease-in-out infinite;touch-action:manipulation}
+#futx-slot-fab{position:fixed;right:16px;bottom:78px;z-index:100001;width:58px;height:58px;border:1px solid #ffca69;border-radius:19px;background:linear-gradient(145deg,#ffcf65,#f08b26 58%,#b94bff);color:#24102d;font-size:29px;box-shadow:0 0 0 3px #ffcf6522,0 0 24px #ff9b3d88,0 8px 22px #0008;display:grid;place-items:center;cursor:grab;user-select:none;-webkit-user-select:none;touch-action:none;animation:futxSlotPulse 2.8s ease-in-out infinite}
 #futx-slot-fab:active{transform:scale(.94)}
 #futx-slot-fab:focus-visible,#futx-slot-spin:focus-visible,#futx-slot-close:focus-visible{outline:3px solid #fff;outline-offset:3px}
 @keyframes futxSlotPulse{0%,100%{box-shadow:0 0 0 3px #ffcf6522,0 0 18px #ff9b3d66,0 8px 22px #0008}50%{box-shadow:0 0 0 6px #ffcf6518,0 0 30px #ff9b3dcc,0 8px 22px #0008}}
@@ -1098,8 +1098,14 @@ body {
 #futx-slot-machine:after{padding:7px 0 0}
 #futx-slot-reels{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;padding:8px;border:1px solid #f9d69a;border-radius:13px;background:linear-gradient(#f9e9ff,#bba7db 9%,#fff 20%,#e6ddf7 50%,#fff 80%,#a78bc9);box-shadow:inset 0 0 16px #3c1c67}
 .futx-slot-reel{display:grid;place-items:center;min-height:clamp(76px,21vw,106px);border-radius:10px;background:linear-gradient(180deg,#e3d8f6,#fff 28%,#f6f0ff 70%,#d6c5f0);color:#211239;font-size:clamp(43px,12vw,61px);text-shadow:0 3px 0 #c9b8e6;box-shadow:inset 0 0 0 1px #9d81c8,0 3px 7px #170c2a33;overflow:hidden}
-.futx-slot-reel.spinning{animation:futxReelSpin .12s linear infinite;filter:blur(1px)}
-@keyframes futxReelSpin{0%{transform:translateY(-3px)}50%{transform:translateY(3px)}100%{transform:translateY(-3px)}}
+.futx-slot-reel{position:relative;will-change:transform,filter;transition:transform .22s cubic-bezier(.2,.8,.2,1),filter .22s ease}
+.futx-slot-reel.spinning{animation:futxReelSpin .16s linear infinite;filter:blur(2.4px);transform:scaleY(1.08)}
+.futx-slot-reel.stopping{animation:futxReelStop .34s cubic-bezier(.16,1.25,.3,1) both;filter:blur(0)}
+@keyframes futxReelSpin{0%{transform:translateY(-9px) scaleY(1.08)}50%{transform:translateY(9px) scaleY(.92)}100%{transform:translateY(-9px) scaleY(1.08)}}
+@keyframes futxReelStop{0%{transform:translateY(-20px) scaleY(1.12)}65%{transform:translateY(5px) scaleY(.94)}100%{transform:translateY(0) scaleY(1)}}
+#futx-slot-modes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:10px 0 3px}
+.futx-slot-mode{min-height:40px;border:1px solid #65528b;border-radius:12px;background:#ffffff08;color:#d9caff;font-size:11px;font-weight:800;cursor:pointer}
+.futx-slot-mode[aria-pressed="true"]{border-color:#ffcf75;background:linear-gradient(145deg,#ffcf7525,#bd78ff25);color:#ffe7a6;box-shadow:inset 0 0 0 1px #ffcf7530}
 #futx-slot-result{min-height:43px;display:flex;align-items:center;justify-content:center;text-align:center;padding:9px 4px 4px;font-size:14px;font-weight:800;color:#e9d7ff}
 #futx-slot-result.win{color:#ffe68e;text-shadow:0 0 16px #ffbe4c66}
 #futx-slot-spin{width:100%;min-height:58px;border:1px solid #ffe2a0;border-radius:16px;background:linear-gradient(100deg,#ffdb75,#ff9f43 52%,#ff71b8);color:#32133d;font-size:17px;font-weight:900;letter-spacing:.8px;box-shadow:0 5px 0 #8e3e72,0 0 25px #ff9b5a35;cursor:pointer;touch-action:manipulation}
@@ -3134,7 +3140,12 @@ const FUTX_API_BASE_URL = "https://penny-infrared-copyrighted-spatial.trycloudfl
     <p class="futx-slot-subtitle">Una ráfaga de color. Tres símbolos. Pura diversión arcade.</p>
     <div id="futx-slot-score"><div><div class="futx-slot-score-label">PUNTOS ARCADE</div><div id="futx-slot-score-value">0</div></div><div><div class="futx-slot-score-label" style="text-align:right">RÉCORD PERSONAL</div><div id="futx-slot-best">0 puntos</div></div></div>
     <div id="futx-slot-machine"><div id="futx-slot-reels" aria-live="polite"><div class="futx-slot-reel">💎</div><div class="futx-slot-reel">⚡</div><div class="futx-slot-reel">🌟</div></div></div>
-    <div id="futx-slot-result" aria-live="polite">¡Dale a girar y descubrí la combinación!</div>
+    <div id="futx-slot-modes" aria-label="Elegí el estilo de animación">
+      <button class="futx-slot-mode" type="button" data-mode="suave" aria-pressed="false">🌙 SUAVE</button>
+      <button class="futx-slot-mode" type="button" data-mode="clasico" aria-pressed="true">⚡ CLÁSICO</button>
+      <button class="futx-slot-mode" type="button" data-mode="cine" aria-pressed="false">🎬 CINE</button>
+    </div>
+    <div id="futx-slot-result" aria-live="polite">Elegí un estilo y tocá girar.</div>
     <button id="futx-slot-spin" type="button">✨ GIRAR GRATIS</button>
     <p id="futx-slot-foot">Juego visual de demostración. No hay apuestas ni pérdidas: los puntos son solo una puntuación local y no tienen valor, no se pueden comprar ni convertir en FUTX o gemas.</p>
   </section>
@@ -3150,11 +3161,12 @@ const FUTX_API_BASE_URL = "https://penny-infrared-copyrighted-spatial.trycloudfl
   const result = document.getElementById("futx-slot-result");
   const scoreNode = document.getElementById("futx-slot-score-value");
   const bestNode = document.getElementById("futx-slot-best");
+  const modeButtons = Array.from(document.querySelectorAll(".futx-slot-mode"));
   if (!fab || !overlay || !spin || !reelsHost) return;
   const symbols = ["💎","⚡","🌟","🍀","🚀","👑","🪐"];
   const uid = String(window.Telegram?.WebApp?.initDataUnsafe?.user?.id || "guest");
   const key = "futx-slot-arcade-v1:" + uid;
-  let score = 0, best = 0, busy = false;
+  let score = 0, best = 0, busy = false, selectedMode = "clasico", suppressNextClick = false;
   try {
     const saved = JSON.parse(localStorage.getItem(key) || "{}");
     score = Number.isSafeInteger(saved.score) && saved.score >= 0 ? saved.score : 0;
@@ -3165,12 +3177,56 @@ const FUTX_API_BASE_URL = "https://penny-infrared-copyrighted-spatial.trycloudfl
   function openGame() { overlay.classList.add("open"); document.body.style.overflow = "hidden"; close.focus(); }
   function closeGame() { overlay.classList.remove("open"); document.body.style.overflow = ""; fab.focus(); }
   function save() { try { localStorage.setItem(key, JSON.stringify({score,best})); } catch (_) {} }
+  modeButtons.forEach(button => button.addEventListener("click", () => {
+    if (busy) return;
+    selectedMode = button.dataset.mode;
+    modeButtons.forEach(b => b.setAttribute("aria-pressed", String(b === button)));
+    result.textContent = selectedMode === "suave" ? "Estilo suave: giro tranquilo." : selectedMode === "cine" ? "Estilo cine: cada rodillo se luce." : "Estilo clásico: ritmo arcade.";
+    result.classList.remove("win");
+  }));
+  // Botón flotante desplazable con dedo o mouse; posición recordada solo en este dispositivo.
+  const posKey = "futx-slot-fab-pos-v1:" + uid;
+  try {
+    const pos = JSON.parse(localStorage.getItem(posKey) || "null");
+    if (pos && Number.isFinite(pos.x) && Number.isFinite(pos.y)) {
+      fab.style.left = Math.max(0, Math.min(innerWidth - fab.offsetWidth, pos.x)) + "px";
+      fab.style.top = Math.max(0, Math.min(innerHeight - fab.offsetHeight, pos.y)) + "px";
+      fab.style.right = "auto"; fab.style.bottom = "auto";
+    }
+  } catch (_) {}
+  let drag = null;
+  fab.addEventListener("pointerdown", event => {
+    if (event.button !== undefined && event.button !== 0) return;
+    const rect = fab.getBoundingClientRect();
+    drag = {id:event.pointerId,startX:event.clientX,startY:event.clientY,left:rect.left,top:rect.top,moved:false};
+    try { fab.setPointerCapture(event.pointerId); } catch (_) {}
+  });
+  fab.addEventListener("pointermove", event => {
+    if (!drag || drag.id !== event.pointerId) return;
+    const dx = event.clientX - drag.startX, dy = event.clientY - drag.startY;
+    if (Math.abs(dx) + Math.abs(dy) > 7) drag.moved = true;
+    if (!drag.moved) return;
+    const x = Math.max(0, Math.min(innerWidth - fab.offsetWidth, drag.left + dx));
+    const y = Math.max(0, Math.min(innerHeight - fab.offsetHeight, drag.top + dy));
+    fab.style.left = x + "px"; fab.style.top = y + "px"; fab.style.right = "auto"; fab.style.bottom = "auto";
+  });
+  function finishDrag(event) {
+    if (!drag || drag.id !== event.pointerId) return;
+    if (drag.moved) {
+      suppressNextClick = true;
+      try { localStorage.setItem(posKey, JSON.stringify({x:fab.getBoundingClientRect().left,y:fab.getBoundingClientRect().top})); } catch (_) {}
+    }
+    drag = null;
+  }
+  fab.addEventListener("pointerup", finishDrag);
+  fab.addEventListener("pointercancel", finishDrag);
   // FUTX_SLOT_FAB_GUARD_V2: el FAB abre localmente la máquina, nunca una acción del bot.
   document.addEventListener("click", event => {
     const target = event.target instanceof Element ? event.target.closest("#futx-slot-fab") : null;
     if (!target) return;
     event.preventDefault();
     event.stopPropagation();
+    if (suppressNextClick) { suppressNextClick = false; return; }
     openGame();
   }, true);
   // Si otra navegación reconstruye el DOM, conservar el acceso flotante y el panel.
@@ -3187,10 +3243,25 @@ const FUTX_API_BASE_URL = "https://penny-infrared-copyrighted-spatial.trycloudfl
     if (busy) return;
     busy = true; spin.disabled = true; spin.textContent = "🌠 GIRANDO…"; result.classList.remove("win");
     const reels = Array.from(reelsHost.children);
-    reels.forEach((r,i) => { r.classList.add("spinning"); r.textContent = symbols[(Math.random()*symbols.length)|0]; });
     const final = Array.from({length:3}, () => symbols[(Math.random()*symbols.length)|0]);
+    const timings = selectedMode === "suave" ? [650,950,1250] : selectedMode === "cine" ? [1150,1750,2350] : [800,1200,1600];
+    const timers = [];
+    reels.forEach((reel,i) => {
+      reel.classList.remove("stopping");
+      reel.classList.add("spinning");
+      const tick = () => { if (reel.classList.contains("spinning")) reel.textContent = symbols[(Math.random()*symbols.length)|0]; };
+      tick();
+      const interval = window.setInterval(tick, selectedMode === "cine" ? 65 : selectedMode === "suave" ? 125 : 85);
+      timers.push(interval);
+      window.setTimeout(() => {
+        window.clearInterval(interval);
+        reel.classList.remove("spinning");
+        reel.textContent = final[i];
+        reel.classList.add("stopping");
+      }, timings[i]);
+    });
     window.setTimeout(() => {
-      reels.forEach((r,i) => { r.classList.remove("spinning"); r.textContent = final[i]; });
+      reels.forEach(r => r.classList.remove("stopping"));
       let gained = 10;
       let message = "¡Buen giro! +10 puntos de estilo";
       if (final.every(s => s === final[0])) { gained = 500; message = "✨ ¡TRIPLE PERFECTO! +500 puntos"; }
@@ -3199,7 +3270,7 @@ const FUTX_API_BASE_URL = "https://penny-infrared-copyrighted-spatial.trycloudfl
       score += gained; best = Math.max(best,score); paintScore(); save();
       result.textContent = message; result.classList.add("win");
       busy = false; spin.disabled = false; spin.textContent = "✨ GIRAR GRATIS";
-    }, 1050);
+    }, timings[2] + 420);
   });
 })();
 /* FIN FUTX_SLOT_ARCADE_V1 */
