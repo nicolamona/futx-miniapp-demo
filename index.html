@@ -261,14 +261,15 @@ body { position: fixed; inset: 0; }
 .bot-response-keyboard-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(90px, 1fr)); }
 .bot-response-action { display: flex; align-items: center; justify-content: center; width: 100%; min-height: 42px; padding: 9px 10px; border: 1px solid #42658d; border-radius: 10px; background: #183451; color: #f4f8ff; font: inherit; font-size: 0.95rem; font-weight: 650; text-align: center; text-decoration: none; cursor: pointer; overflow-wrap: anywhere; }
 .bot-response-action:disabled { opacity: 0.55; cursor: wait; }
-/* FUTX_INVENTORY_CATEGORY_BUTTONS_LARGE_V2: categorías del inventario +65% */
-.bot-response-action.inventory-category-button {
-  min-height: 69.3px;
-  padding: 14.85px 16.5px;
-  border-radius: 16px;
-  font-size: 1.5675rem;
+/* FUTX_INVENTORY_CATEGORY_BUTTONS_LARGE_V3: +65%, prevalece sobre el tamaño general del teclado inferior */
+.app #bottom-actions .bot-response-action.inventory-category-button {
+  min-height: 69.3px !important;
+  padding: 14.85px 16.5px !important;
+  border-radius: 16px !important;
+  font-size: 1.5675rem !important;
+  line-height: 1.2 !important;
 }
-/* FIN FUTX_INVENTORY_CATEGORY_BUTTONS_LARGE_V2 */
+/* FIN FUTX_INVENTORY_CATEGORY_BUTTONS_LARGE_V3 */
 /* FUTX_GLOBAL_TOURNAMENT_ANSWERS_LARGE_V1: opciones de respuesta del torneo global */
 .app.tournament-quiz-mode .bot-response-action {
   min-height: 84px;
