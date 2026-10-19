@@ -3289,7 +3289,13 @@ const FUTX_API_BASE_URL = "https://penny-infrared-copyrighted-spatial.trycloudfl
   if (!fab || !overlay || !spin || !reelsHost) return;
   const symbols = ["💎","⚡","🌟","🍀","🚀","👑","🪐"];
   const symbolNames = {"💎":"Cristal","⚡":"Rayo","🌟":"Estrella","🍀":"Trébol","🚀":"Cohete","👑":"Corona","🪐":"Planeta"};
-  const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user || null;\n  const uid = String(tgUser?.id || "guest");\n  const accountName = document.getElementById("futx-slot-account-name");\n  if (accountName) {\n    const displayName = [tgUser?.first_name, tgUser?.last_name].filter(Boolean).join(" ");\n    accountName.textContent = tgUser ? (displayName || (tgUser.username ? "@" + tgUser.username : "Usuario de Telegram")) + (tgUser.username ? " · @" + tgUser.username : "") : "Modo invitado · abrí FUTX desde Telegram para identificar tu cuenta";\n  }
+  const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user || null;
+  const uid = String(tgUser?.id || "guest");
+  const accountName = document.getElementById("futx-slot-account-name");
+  if (accountName) {
+    const displayName = [tgUser?.first_name, tgUser?.last_name].filter(Boolean).join(" ");
+    accountName.textContent = tgUser ? (displayName || (tgUser.username ? "@" + tgUser.username : "Usuario de Telegram")) + (tgUser.username ? " · @" + tgUser.username : "") : "Modo invitado · abrí FUTX desde Telegram para identificar tu cuenta";
+  }
   const key = "futx-slot-arcade-v1:" + uid;
   let score = 0, best = 0, busy = false, selectedMode = "clasico", selectedJourney = "reto", suppressNextClick = false;
   let found = [], missionCount = 0, bonusReady = false, spinCount = 0, unlockedAchievements = [];
