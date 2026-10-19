@@ -1822,6 +1822,8 @@ const FUTX_API_BASE_URL = "https://penny-infrared-copyrighted-spatial.trycloudfl
     appElement.classList.toggle("tournament-quiz-mode", tournamentAnswerCount >= 4);
     appElement.classList.toggle("local-combat-mode", isLocalCombatKeyboard);
     appElement.classList.toggle("combat-choice-mode", isCombatChoiceKeyboard);
+    // Activar el tamaño especial de Cazar solo cuando ya llegó su teclado, no al pulsar el menú principal.
+    appElement.classList.toggle("hunt-navigation-mode", activeMenuAction === "hunt" && hasIncomingKeyboard);
     const incomingMenuLabels = (Array.isArray(messages) ? messages : []).flatMap(item =>
       (Array.isArray(item && item.keyboard) ? item.keyboard : []).flatMap(row =>
         (Array.isArray(row) ? row : []).map(entry => String(entry && entry.text || ""))
@@ -2555,7 +2557,7 @@ const FUTX_API_BASE_URL = "https://penny-infrared-copyrighted-spatial.trycloudfl
           bottomActions.replaceChildren();
           document.querySelector('.app').classList.add('has-response-keyboard', 'staking-mode');
         }
-        document.querySelector('.app').classList.toggle('hunt-navigation-mode', action === "hunt");
+        document.querySelector('.app').classList.remove('hunt-navigation-mode');
         activeMenuAction = action;
         title.textContent = button.dataset.name;
         startNavigation.style.display = "none";
