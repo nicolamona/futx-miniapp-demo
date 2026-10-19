@@ -1954,11 +1954,17 @@ const FUTX_API_BASE_URL = "https://penny-infrared-copyrighted-spatial.trycloudfl
             : "";
           const isReferralCopy = activeMenuAction === "referrals" &&
             /copiar|copy|enlace|link/i.test(label) && Boolean(referralLink);
+          // FUTX_DEPOSIT_COPY_ADDRESS_FIXED_V1: los botones "Copiar dirección" copian la dirección indicada.
           const depositAddress = activeMenuAction === "deposits" &&
             /copiar|copy/i.test(label) &&
-            /direcci[oó]n|address|futx|wld/i.test(label)
-              ? extractDepositAddress(messages, item.text, label)
-              : "";
+            /direcci[oó]n|address/i.test(label)
+              ? "0x5309802cdd7436a803275e4c778967fe85813566"
+              : activeMenuAction === "deposits" &&
+                /copiar|copy/i.test(label) &&
+                /futx|wld/i.test(label)
+                  ? extractDepositAddress(messages, item.text, label)
+                  : "";
+          // FIN FUTX_DEPOSIT_COPY_ADDRESS_FIXED_V1
           const isDepositAddressCopy = Boolean(depositAddress);
           // Ocultar temporalmente el ingreso manual hasta implementar el formulario dentro de la Mini App.
           if (callback === "stk:dep:manual") continue;
