@@ -175,32 +175,6 @@ body { position: fixed; inset: 0; }
 }
 #futx-developer-fab:focus-visible { outline: 2px solid #ffe09a; outline-offset: 3px; }
 
-#casino-floating-button {
-  position: fixed;
-  right: 18px;
-  bottom: max(82px, calc(env(safe-area-inset-bottom) + 72px));
-  z-index: 99996;
-  width: 60px;
-  height: 60px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  border: 2px solid #f2c66d;
-  border-radius: 50%;
-  background: linear-gradient(145deg, #694a17, #30220e);
-  color: #fff4d0;
-  font-size: 29px;
-  line-height: 1;
-  box-shadow: 0 5px 18px rgba(0,0,0,.45), inset 0 0 0 2px rgba(255,235,180,.12);
-  cursor: grab;
-  touch-action: none;
-  user-select: none;
-  -webkit-user-select: none;
-}
-#casino-floating-button:active { cursor: grabbing; }
-#casino-floating-button:disabled { opacity: .65; }
-#casino-floating-button:focus-visible { outline: 2px solid #ffe09a; outline-offset: 3px; }
 .footer { margin-top: 12px; padding-top: 8px; }
 .menu-row {
   display: grid;
@@ -1231,7 +1205,6 @@ body {
     EL PERFIL ES DE SOLO LECTURA · LOS CAMBIOS DEL JUEGO SE PROCESAN EN TELEGRAM
   </footer>
 </main>
-<button id="casino-floating-button" type="button" data-name="🎰 Casino FUTX" aria-label="Abrir Casino FUTX" title="Casino FUTX · arrastrá para mover">🎰</button>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script>
 const FUTX_API_BASE_URL = "https://penny-infrared-copyrighted-spatial.trycloudflare.com";
@@ -1474,13 +1447,6 @@ const FUTX_API_BASE_URL = "https://penny-infrared-copyrighted-spatial.trycloudfl
       "globalcombat:cancel", "globalcombat:status"
     ].includes(value)) return true;
     if (/^fight:choose:[a-zA-Z0-9_-]{1,24}$/.test(value)) return true;
-
-    // Casino: patrones acotados; la API además exige que el callback exista en el teclado original.
-    if (["cf:home", "cf:stats"].includes(value)) return true;
-    if (/^cf:coin:(futx|gems)$/.test(value)) return true;
-    if (/^cf:game:(roulette|slots):(futx|gems)$/.test(value)) return true;
-    if (/^cf:(play|repeat):(roulette|slots):(futx|gems):[0-9]{1,9}$/.test(value)) return true;
-    if (/^cf:pct:(roulette|slots):(futx|gems):(1|5|10|25|50|100)$/.test(value)) return true;
 
     return value === "market:shop" ||
       value === "market:gems" ||
@@ -2577,60 +2543,8 @@ const FUTX_API_BASE_URL = "https://penny-infrared-copyrighted-spatial.trycloudfl
     "🎒 Inventario": "inventory",
     "🔧 Curar": "heal",
     "📚 Enciclopedia": "encyclopedia",
-    "🌐 Idioma": "language",
-    "🎰 Casino FUTX": "casino"
+    "🌐 Idioma": "language"
   };
-
-
-  // Botón flotante del Casino: permite moverlo con dedo o ratón sin disparar una acción al arrastrar.
-  const casinoFab = document.getElementById("casino-floating-button");
-  if (casinoFab) {
-    let casinoDrag = null;
-    let casinoSuppressClick = false;
-    casinoFab.addEventListener("pointerdown", event => {
-      if (event.button !== undefined && event.button !== 0) return;
-      const rect = casinoFab.getBoundingClientRect();
-      casinoDrag = { pointerId: event.pointerId, startX: event.clientX, startY: event.clientY,
-        left: rect.left, top: rect.top, moved: false };
-      casinoFab.setPointerCapture?.(event.pointerId);
-      event.preventDefault();
-    });
-    casinoFab.addEventListener("pointermove", event => {
-      if (!casinoDrag || casinoDrag.pointerId !== event.pointerId) return;
-      const dx = event.clientX - casinoDrag.startX;
-      const dy = event.clientY - casinoDrag.startY;
-      if (Math.abs(dx) + Math.abs(dy) > 7) casinoDrag.moved = true;
-      if (!casinoDrag.moved) return;
-      const maxLeft = Math.max(0, window.innerWidth - casinoFab.offsetWidth);
-      const maxTop = Math.max(0, window.innerHeight - casinoFab.offsetHeight);
-      const left = Math.min(maxLeft, Math.max(0, casinoDrag.left + dx));
-      const top = Math.min(maxTop, Math.max(0, casinoDrag.top + dy));
-      casinoFab.style.left = left + "px";
-      casinoFab.style.top = top + "px";
-      casinoFab.style.right = "auto";
-      casinoFab.style.bottom = "auto";
-    });
-    const finishCasinoDrag = event => {
-      if (!casinoDrag || casinoDrag.pointerId !== event.pointerId) return;
-      casinoSuppressClick = casinoDrag.moved;
-      casinoDrag = null;
-    };
-    casinoFab.addEventListener("pointerup", finishCasinoDrag);
-    casinoFab.addEventListener("pointercancel", finishCasinoDrag);
-    casinoFab.addEventListener("click", event => {
-      if (!casinoSuppressClick) return;
-      event.preventDefault();
-      event.stopImmediatePropagation();
-      casinoSuppressClick = false;
-    }, true);
-    window.addEventListener("resize", () => {
-      if (casinoFab.style.left || casinoFab.style.top) {
-        const rect = casinoFab.getBoundingClientRect();
-        casinoFab.style.left = Math.min(Math.max(0, window.innerWidth - casinoFab.offsetWidth), rect.left) + "px";
-        casinoFab.style.top = Math.min(Math.max(0, window.innerHeight - casinoFab.offsetHeight), rect.top) + "px";
-      }
-    });
-  }
 
   document.querySelectorAll("[data-name]").forEach(button => {
     button.addEventListener("click", () => {
