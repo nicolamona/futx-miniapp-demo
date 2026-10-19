@@ -3165,7 +3165,20 @@ const FUTX_API_BASE_URL = "https://penny-infrared-copyrighted-spatial.trycloudfl
   function openGame() { overlay.classList.add("open"); document.body.style.overflow = "hidden"; close.focus(); }
   function closeGame() { overlay.classList.remove("open"); document.body.style.overflow = ""; fab.focus(); }
   function save() { try { localStorage.setItem(key, JSON.stringify({score,best})); } catch (_) {} }
-  fab.addEventListener("click", openGame);
+  // FUTX_SLOT_FAB_GUARD_V2: el FAB abre localmente la máquina, nunca una acción del bot.
+  document.addEventListener("click", event => {
+    const target = event.target instanceof Element ? event.target.closest("#futx-slot-fab") : null;
+    if (!target) return;
+    event.preventDefault();
+    event.stopPropagation();
+    openGame();
+  }, true);
+  // Si otra navegación reconstruye el DOM, conservar el acceso flotante y el panel.
+  const slotDomGuard = new MutationObserver(() => {
+    if (!fab.isConnected && document.body) document.body.appendChild(fab);
+    if (!overlay.isConnected && document.body) document.body.appendChild(overlay);
+  });
+  slotDomGuard.observe(document.body, {childList:true});
   close.addEventListener("click", closeGame);
   overlay.addEventListener("click", e => { if (e.target === overlay && !busy) closeGame(); });
   document.addEventListener("keydown", e => { if (e.key === "Escape" && overlay.classList.contains("open") && !busy) closeGame(); });
