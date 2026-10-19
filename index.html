@@ -3385,7 +3385,9 @@ const FUTX_API_BASE_URL = "https://penny-infrared-copyrighted-spatial.trycloudfl
     overlay.style.background = "radial-gradient(ellipse at 50% 25%," + t[0] + ",#070916f5 68%)";
     const card = document.getElementById("futx-slot-card");
     if (card) { card.style.background = "linear-gradient(155deg,"+t[1]+","+t[2]+" 55%,"+t[3]+")"; card.style.borderColor=t[4]; }
+    save();
   });
+  if (themeSelect) themeSelect.dispatchEvent(new Event("change"));
   document.querySelectorAll("[data-bonus]").forEach(button => button.addEventListener("click", () => {
     if (!bonusReady || busy) return;
     bonusReady = false; bonusPanel.hidden = true;
